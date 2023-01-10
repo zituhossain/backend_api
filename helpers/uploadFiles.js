@@ -1,5 +1,5 @@
 require('dotenv').config();
-const Cloud = require('@google-cloud/storage');
+
 const path = require('path');
 const multer = require('multer');
 const { makeSlug } = require('./utility');
@@ -24,14 +24,11 @@ const multerMiddleware = multer({
 	fileFilter,
 });
 
-const { Storage } = Cloud;
 
-const storage = new Storage({
-	keyFilename: serviceKey,
-	projectId: process.env.GOOGLEPID,
-});
 
-const bucket = storage.bucket(process.env.BUCKETNAME);
+
+
+const bucket ='';
 const uploadImage = (req, res) =>
 	new Promise((resolve, reject) => {
 		let nameWithoutExt = path.parse(req.file.originalname).name;
