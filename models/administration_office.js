@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+const administration_officer = require('./administration_officer');
 const PROTECTED_ATTRIBUTES = ['createdAt', 'updatedAt']
 
 module.exports = (sequelize, DataTypes) => {
@@ -30,5 +31,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Administration_office',
   });
+  Administration_office.associate = models => {
+    Administration_office.hasMany(models.Administration_officer, {
+      foreignKey: 'administration_office_id',
+    });
+  }
   return Administration_office;
 };

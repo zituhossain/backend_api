@@ -22,6 +22,33 @@ exports.create = async (req,res) => {
 exports.fetchall = async(req,res) => {
     try{
         const admin_office_data = await Administration_office.findAll({
+            include:[{
+                model: Administration_officer,
+            }],
+            order: [
+                [sequelize.literal('ordering'), 'ASC']
+            ]
+        });
+        if(admin_office_data){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",admin_office_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.fetch_admin_office_by_place_id = async(req,res) => {
+    try{
+        const place_id = req.params.id;
+        const admin_office_data = await Administration_office.findAll({
+            include:[{
+                model: Administration_officer,
+                where: {place_id: place_id}
+            }],
             order: [
                 [sequelize.literal('ordering'), 'ASC']
             ]
