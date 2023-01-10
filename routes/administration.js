@@ -14,4 +14,7 @@ router.get('/place_comment/:id',auth, AdministrationController.getplacecommentby
 router.get('/place_comment_delete/:id',auth, AdministrationController.place_comment_delete);
 router.post('/place_comment_update/:id',auth, AdministrationController.place_comment_update);
 
+
+router.post('/create_administration_officer',auth, AdministrationController.create_administration_officer);
+
 module.exports = router;

@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {Administration_office,Place_comment,Tag,User} = require("../models");
+const {Administration_office,Place_comment,Tag,User,Administration_officer} = require("../models");
 const sequelize = require('sequelize');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -143,6 +143,24 @@ exports.place_comment_update = async(req,res) => {
             }
         }else{
             return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+
+exports.create_administration_officer = async(req,res) => {
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        if(req.body.name && req.body.ordering && req.body.name !== '' && req.body.place_id && req.body.place_id !== ''){
+            await Administration_officer.create(req.body);
+            return apiResponse.successResponse(res,"data successfully saved!!!")
+        }else{
+            return apiResponse.ErrorResponse(res,"parameter or value is missing.")
         }
 
     }catch(err){
