@@ -16,11 +16,11 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: FTP-Deploy-Action
-        uses: ./
+        uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
           server: ftp.zvgy.com
           username: zvgyftp@zvgy.com
           password: Qt45p@iTkhzK
-          protocol: ftps
+          protocol: ftp
           server-dir: admin.zvgy.com/
           port: 21 # todo replace with your web hosts ftps port
