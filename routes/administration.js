@@ -28,5 +28,6 @@ router.post('/place_comment_update/:id',auth, AdministrationController.place_com
 
 router.post('/create_administration_officer',auth,multer({ storage }).single('profile_photo'), AdministrationController.create_administration_officer);
 router.get('/get_administration_officer/:id',auth, AdministrationController.getadministration_officerbyplaceid);
+router.post('/update_administration_officer/:id',auth,multer({ storage }).single('profile_photo'), AdministrationController.update_administration_officerbyid);
 
 module.exports = router;
