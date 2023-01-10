@@ -16,6 +16,8 @@ module.exports = (sequelize, DataTypes) => {
   Administration_officer.init({
     place_id: DataTypes.INTEGER,
     administration_office_id: DataTypes.INTEGER,
+    district_id: DataTypes.INTEGER,
+    division_id: DataTypes.INTEGER,
     ordering: DataTypes.INTEGER,
     name: DataTypes.STRING,
     email: DataTypes.STRING,
