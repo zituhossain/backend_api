@@ -214,14 +214,29 @@ exports.update_administration_officerbyid = async(req,res) => {
                 }
             }catch(err){
                 req.body.updated_by = userId;
-                // if(req.body.name && req.body.ordering && req.body.name !== '' && req.body.place_id && req.body.place_id !== '' && req.body.email && req.body.email !== '' && req.body.phone && req.body.phone !== ''){
-                if(true){
+                if(req.body.name && req.body.ordering && req.body.name !== '' && req.body.place_id && req.body.place_id !== '' && req.body.email && req.body.email !== '' && req.body.phone && req.body.phone !== ''){
                     await Administration_officer.update(req.body,{where:{id: id}})
                     return apiResponse.successResponse(res,"data successfully updated!!!")
                 }else{
                     return apiResponse.ErrorResponse(res,"parameter or value is missing.")
                 }
             }
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.administration_officer_delete = async(req,res) => {
+    try{
+        const administration_officer_id = req.params.id;
+        const administration_officer_data = await Administration_officer.findOne({where:{id: administration_officer_id}});
+        if(administration_officer_data){
+            await Administration_officer.destroy({where:{id: administration_officer_id}});
+            return apiResponse.successResponse(res,"Data successfully deleted.")
         }else{
             return apiResponse.ErrorResponse(res,"No matching query found")
         }
