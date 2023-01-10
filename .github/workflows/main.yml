@@ -24,5 +24,5 @@ jobs:
           username: zvgyftp@zvgy.com
           password: Qt45p@iTkhzK
           protocol: ftp
-          server-dir: admin.zvgy.com/
+          server-dir: api/v2/
           port: 21 # todo replace with your web hosts ftps port
