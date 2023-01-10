@@ -34,5 +34,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Administration_officer',
   });
+  Administration_officer.associate = models => {
+    Administration_officer.belongsTo(models.Administration_office, {
+      foreignKey: 'administration_office_id',
+    });
+  }
   return Administration_officer;
 };
