@@ -160,11 +160,31 @@ exports.create_administration_officer = async(req,res) => {
 		const userId = decodedToken._id;
         req.body.filename = filePath;
         req.body.created_by = userId;
-        if(req.body.name && req.body.ordering && req.body.name !== '' && req.body.place_id && req.body.place_id !== ''){
-            await Administration_officer.create(req.body);
-            return apiResponse.successResponse(res,"data successfully saved!!!")
+        if(req.body.name && req.body.ordering && req.body.name !== '' && req.body.place_id && req.body.place_id !== '' && req.body.email && req.body.email !== '' && req.body.phone && req.body.phone !== ''){
+            const exist_data = await Administration_officer.findAll({where:{email: req.body.email,phone:req.body.phone}})
+            if(exist_data.length > 0){
+                return apiResponse.ErrorResponse(res,"Duplicate officer data found.")
+            }else{
+                await Administration_officer.create(req.body);
+                return apiResponse.successResponse(res,"data successfully saved!!!")
+            }
         }else{
             return apiResponse.ErrorResponse(res,"parameter or value is missing.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.getadministration_officerbyplaceid = async(req,res) => {
+    try{
+        const place_id = req.params.id;
+        const administration_officer_data = await Administration_officer.findAll({where:{place_id: place_id}});
+        if(administration_officer_data .length > 0){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",administration_officer_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
         }
 
     }catch(err){
