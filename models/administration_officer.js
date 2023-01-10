@@ -2,6 +2,8 @@
 const {
   Model
 } = require('sequelize');
+const PROTECTED_ATTRIBUTES = ['district_id', 'division_id']
+
 module.exports = (sequelize, DataTypes) => {
   class Administration_officer extends Model {
     /**
@@ -11,6 +13,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+    }
+    toJSON () {
+      // hide protected fields
+      let attributes = Object.assign({}, this.get())
+      for (let a of PROTECTED_ATTRIBUTES) {
+        delete attributes[a]
+      }
+      return attributes
     }
   }
   Administration_officer.init({
@@ -39,6 +49,12 @@ module.exports = (sequelize, DataTypes) => {
   Administration_officer.associate = models => {
     Administration_officer.belongsTo(models.Administration_office, {
       foreignKey: 'administration_office_id',
+    });
+    Administration_officer.belongsTo(models.District, {
+      foreignKey: 'district_id',
+    });
+    Administration_officer.belongsTo(models.Division, {
+      foreignKey: 'division_id',
     });
   }
   return Administration_officer;
