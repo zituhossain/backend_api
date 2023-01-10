@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "nodemon server.js",
 		"start": "nodemon server.js",
-		"migrate":"npx sequelize-cli db:migrate",
+		"migrate": "npx sequelize-cli db:migrate",
 		"pretty": "prettier --write \"./**/*.{js,jsx,json}\""
 	},
 	"author": "Tareq Aziz",
