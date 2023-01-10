@@ -3,6 +3,7 @@ const {Administration_office,Place_comment,Tag,User,Administration_officer,Distr
 const sequelize = require('sequelize');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
+const { Op } = require("sequelize");
 
 exports.create = async (req,res) => {
     try{
@@ -44,10 +45,20 @@ exports.fetchall = async(req,res) => {
 exports.fetch_admin_office_by_place_id = async(req,res) => {
     try{
         const place_id = req.params.id;
+        const value_name = req.params.value;
+        let arr = []
+        if(value_name=='place'){
+            arr.push({place_id: place_id})
+        }else if(value_name=='district'){
+            arr.push({district_id: place_id})
+        }else if(value_name=='division'){
+            arr.push({division_id: place_id})
+        }
+        
         const admin_office_data = await Administration_office.findAll({
             include:[{
                 model: Administration_officer,
-                where: {place_id: place_id}
+                where: arr
             }],
             order: [
                 [sequelize.literal('ordering'), 'ASC']

@@ -14,14 +14,14 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
-    toJSON () {
-      // hide protected fields
-      let attributes = Object.assign({}, this.get())
-      for (let a of PROTECTED_ATTRIBUTES) {
-        delete attributes[a]
-      }
-      return attributes
-    }
+    // toJSON () {
+    //   // hide protected fields
+    //   let attributes = Object.assign({}, this.get())
+    //   for (let a of PROTECTED_ATTRIBUTES) {
+    //     delete attributes[a]
+    //   }
+    //   return attributes
+    // }
   }
   Administration_officer.init({
     place_id: DataTypes.INTEGER,

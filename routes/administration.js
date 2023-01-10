@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 
 router.post('/create_administration_office',auth, AdministrationController.create);
 router.get('/fetchall_administration_office',auth, AdministrationController.fetchall);
-router.get('/fetch_administration_office_by_place_id/:id',auth, AdministrationController.fetch_admin_office_by_place_id);
+router.get('/fetch_administration_office_by_place_id/:value/:id',auth, AdministrationController.fetch_admin_office_by_place_id);
 router.get('/delete_administration_office/:id',auth, AdministrationController.delete);
 router.post('/update_administration_office/:id',auth, AdministrationController.update);
 
