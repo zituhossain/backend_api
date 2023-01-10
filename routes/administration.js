@@ -2,6 +2,17 @@ const express = require('express');
 const AdministrationController = require('../controllers/Administration');
 const auth = require('../middlewares/jwt');
 const router = express.Router();
+const multer = require('multer');
+const base_dir_config = require('../config.js');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, base_dir_config.base_dir + 'uploads/admin_officer_photo/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
+    }
+})
 
 
 router.post('/create_administration_office',auth, AdministrationController.create);
@@ -15,6 +26,6 @@ router.get('/place_comment_delete/:id',auth, AdministrationController.place_comm
 router.post('/place_comment_update/:id',auth, AdministrationController.place_comment_update);
 
 
-router.post('/create_administration_officer',auth, AdministrationController.create_administration_officer);
+router.post('/create_administration_officer',auth,multer({ storage }).single('profile_photo'), AdministrationController.create_administration_officer);
 
 module.exports = router;

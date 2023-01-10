@@ -152,10 +152,13 @@ exports.place_comment_update = async(req,res) => {
 
 
 exports.create_administration_officer = async(req,res) => {
+    
     try{
+        const filePath = `uploads/admin_officer_photo/${req.file.filename}`
         const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
 		const userId = decodedToken._id;
+        req.body.filename = filePath;
         if(req.body.name && req.body.ordering && req.body.name !== '' && req.body.place_id && req.body.place_id !== ''){
             await Administration_officer.create(req.body);
             return apiResponse.successResponse(res,"data successfully saved!!!")
