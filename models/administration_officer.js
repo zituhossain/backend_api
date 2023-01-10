@@ -28,7 +28,8 @@ module.exports = (sequelize, DataTypes) => {
     qualification: DataTypes.STRING,
     comments: DataTypes.TEXT,
     created_by: DataTypes.INTEGER,
-    updated_by: DataTypes.INTEGER
+    updated_by: DataTypes.INTEGER,
+    filename: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Administration_officer',

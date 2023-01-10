@@ -62,6 +62,9 @@ module.exports = {
       comments: {
         type: Sequelize.TEXT
       },
+      filename: {
+        type: Sequelize.STRING
+      },
       created_by: {
         type: Sequelize.INTEGER,
         references: {
