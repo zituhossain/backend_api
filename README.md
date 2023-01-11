@@ -33,9 +33,9 @@ Step 05
 Open terminal in this project directory
 run this command below
 
-npm install
-npm run migrate
-npm start
+npm install <br />
+npm run migrate <br />
+npm start <br />
 
 
 
