@@ -16,8 +16,14 @@ const storage = multer.diskStorage({
     }
 })
 
+
 router.post('/slide_image_upload', auth, multer({ storage }).single('myFile'), ImageController.custom_file_upload)
 router.get('/fetch_slider_data', auth, ImageController.fetchallimage);
 router.get('/delete_image_slider/:id', auth, ImageController.deletebyid);
 router.post('/update_image_slider/:id', auth, multer({ storage }).single('myFile'), ImageController.updatesliderbyid);
+
+
+router.post('/segement2_create', auth, multer({ storage }).single('myFile'), ImageController.segment2_create);
+
+
 module.exports = router;

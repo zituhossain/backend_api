@@ -1,5 +1,5 @@
 const multer = require('multer');
-const {Image_slider} = require("../models");
+const {Image_slider,Segment2_video} = require("../models");
 const apiResponse = require('../helpers/apiResponse');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
@@ -79,4 +79,26 @@ const updatesliderbyid = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
-module.exports = {custom_file_upload,fetchallimage,deletebyid,updatesliderbyid};
+
+const segment2_create = async (req, res) => {
+    // This needs to be done elsewhere. For this example we do it here.
+    // await sequelize.sync()
+
+    try{
+        const filePath = `uploads/image_slider/${req.file.filename}`
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        req.body.created_by = userId;
+        req.body.thumbnail = filePath;
+        if(req.body.title && req.body.title !== '' && req.body.link && req.body.link !== '' && req.body.ordering && req.body.ordering !== ''){
+            await Segment2_video.create(req.body)
+            return apiResponse.successResponse(res,"Successfully uploaded.")
+        }else{
+            return apiResponse.ErrorResponse(res,"title/link/ordering field is missing")
+        }
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+module.exports = {custom_file_upload,fetchallimage,deletebyid,updatesliderbyid,segment2_create};

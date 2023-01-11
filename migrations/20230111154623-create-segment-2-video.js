@@ -25,6 +25,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      visibility:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: false
+      },
       created_by: {
         type: Sequelize.INTEGER,
         allowNull: true,

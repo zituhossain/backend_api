@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     link: DataTypes.TEXT,
     ordering: DataTypes.INTEGER,
     created_by: DataTypes.INTEGER,
-    updated_by: DataTypes.INTEGER
+    updated_by: DataTypes.INTEGER,
+    visibility: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Segment2_video',
