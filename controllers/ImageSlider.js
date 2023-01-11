@@ -81,8 +81,6 @@ const updatesliderbyid = async(req,res) => {
 }
 
 const segment2_create = async (req, res) => {
-    // This needs to be done elsewhere. For this example we do it here.
-    // await sequelize.sync()
 
     try{
         const filePath = `uploads/image_slider/${req.file.filename}`
@@ -101,4 +99,24 @@ const segment2_create = async (req, res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
-module.exports = {custom_file_upload,fetchallimage,deletebyid,updatesliderbyid,segment2_create};
+
+const segment2_fetch = async (req, res) => {
+
+    try{
+        const segment_data = await Segment2_video.findAll({
+            order: [
+                [sequelize.literal('ordering'), 'ASC']
+            ],
+        });
+        if(segment_data){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",segment_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+module.exports = {custom_file_upload,fetchallimage,deletebyid,updatesliderbyid,segment2_create,segment2_fetch};
