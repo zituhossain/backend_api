@@ -5,25 +5,6 @@ const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 const sequelize = require('sequelize');
 
-// const custom_storage = multer.diskStorage({
-//     destination: (req, file, callback) => {
-//         console.log(req);
-//         callback(null, '../uploads');
-//     },
-//     filename: (req, file, callback) => {
-//         console.log(req);
-//         callback(null, Date.now() + file.originalname);
-//     }
-// });
-// var upload = multer({storage:custom_storage}).single('myFile');
-
-// const custom_file_upload = (req,res) => {
-// 	upload(req,res,function(err){
-// 		if (err)
-// 			return res.end("error uploading file");
-// 		res.end("file is uploaded");
-// 	});
-// }
 const custom_file_upload = async (req, res) => {
     // This needs to be done elsewhere. For this example we do it here.
     // await sequelize.sync()
