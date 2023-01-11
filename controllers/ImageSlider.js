@@ -107,6 +107,7 @@ const segment2_fetch = async (req, res) => {
             order: [
                 [sequelize.literal('ordering'), 'ASC']
             ],
+            where:{visibility:true}
         });
         if(segment_data){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",segment_data)
@@ -145,4 +146,25 @@ const update_segment2_byid = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
-module.exports = {custom_file_upload,fetchallimage,deletebyid,updatesliderbyid,segment2_create,segment2_fetch,update_segment2_byid};
+
+const delete_segment2_byid = async(req,res) => {
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        const segment_id = req.params.id;
+        const segment_data = await Segment2_video.findOne({where:{id: segment_id}});
+        req.body.updated_by = userId;
+        req.body.visibility = false;
+        if(segment_data){
+            await Segment2_video.update(req.body,{where:{id:segment_id}})
+            
+            return apiResponse.successResponse(res,"Data successfully deleted.")
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+module.exports = {custom_file_upload,fetchallimage,deletebyid,updatesliderbyid,segment2_create,segment2_fetch,update_segment2_byid,delete_segment2_byid};
