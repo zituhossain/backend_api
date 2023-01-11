@@ -6,7 +6,7 @@ const placeRouter = require('./place');
 const fileRouter = require('./file');
 const administrationRouter = require('./administration');
 const overallConditionRouter = require('./overall_condition');
-const overallConditionPlaceRouter = require('./local_influencer');
+const overallConditionPlaceRouter = require('./overall_condition_place');
 const localInfluencerRouter = require('./local_influencer');
 
 

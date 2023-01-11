@@ -30,6 +30,21 @@ exports.getlocalinfluencerbyid = async(req,res) => {
     }
 }
 
+exports.getlocalinfluencerbyplaceid = async(req,res) => {
+    try{
+        const influencer_id = req.params.placeid;
+        const influencer_data = await local_influencer.findAll({include: [Place] ,where:{place_id: influencer_id}});
+        if(influencer_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",influencer_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 
 exports.createlocalinfluencer = async(req,res) => {
     try{
