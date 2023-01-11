@@ -8,6 +8,7 @@ const administrationRouter = require('./administration');
 const overallConditionRouter = require('./overall_condition');
 const overallConditionPlaceRouter = require('./overall_condition_place');
 const localInfluencerRouter = require('./local_influencer');
+const ngoDetailsRouter = require('./ngo_details_info');
 
 
 
@@ -26,6 +27,8 @@ apiRouter.use('/administration/', administrationRouter);
 apiRouter.use('/overall_condition/', overallConditionRouter);
 apiRouter.use('/overall_condition_place/', overallConditionPlaceRouter);
 apiRouter.use('/local_influencer/', localInfluencerRouter);
+apiRouter.use('/ngo_details_info/', ngoDetailsRouter);
+
 
 
 
