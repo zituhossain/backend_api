@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { ngo_details_info, Place } = require('../models');
+const { ngo_details_info, Place , ngo_details_info_point_wise } = require('../models');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 
@@ -30,10 +30,10 @@ exports.getlocalinfluencerbyid = async (req, res) => {
     }
 }
 
-exports.getlocalinfluencerbyplaceid = async (req, res) => {
+exports.getngodetailwiseinfobyplaceid = async (req, res) => {
     try {
         const influencer_id = req.params.placeid;
-        const influencer_data = await ngo_details_info.findAll({ include: [Place], where: { place_id: influencer_id } });
+        const influencer_data = await ngo_details_info.findAll({ include: [Place , ngo_details_info_point_wise], where: { place_id: influencer_id } });
         if (influencer_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
         } else {
