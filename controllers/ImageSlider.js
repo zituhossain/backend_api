@@ -107,6 +107,7 @@ const segment2_fetch = async (req, res) => {
             order: [
                 [sequelize.literal('ordering'), 'ASC']
             ],
+            where:{visibility:true}
         });
         if(segment_data){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",segment_data)
