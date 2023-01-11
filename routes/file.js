@@ -23,6 +23,7 @@ router.post('/update_image_slider/:id', auth, multer({ storage }).single('myFile
 
 
 router.post('/segement2_create', auth, multer({ storage }).single('myFile'), ImageController.segment2_create);
+router.post('/segement2_update/:id', auth, multer({ storage }).single('myFile'), ImageController.update_segment2_byid);
 router.get('/segement2_fetch', auth, ImageController.segment2_fetch);
 
 
