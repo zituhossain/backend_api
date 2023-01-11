@@ -30,6 +30,21 @@ exports.getoverallconditionbyid = async(req,res) => {
     }
 }
 
+exports.getoverallconditionbyplaceid = async(req,res) => {
+    try{
+        const condition_id = req.params.placeid;
+        const condition_data = await overall_condition_place.findAll({include: [Place,overall_condition] ,where:{place_id: condition_id}});
+        if(condition_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",condition_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 
 exports.createoverallcondition = async(req,res) => {
     try{

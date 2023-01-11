@@ -1,29 +1,10 @@
 const multer = require('multer');
-const {Image_slider} = require("../models");
+const {Image_slider,Segment2_video} = require("../models");
 const apiResponse = require('../helpers/apiResponse');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 const sequelize = require('sequelize');
 
-// const custom_storage = multer.diskStorage({
-//     destination: (req, file, callback) => {
-//         console.log(req);
-//         callback(null, '../uploads');
-//     },
-//     filename: (req, file, callback) => {
-//         console.log(req);
-//         callback(null, Date.now() + file.originalname);
-//     }
-// });
-// var upload = multer({storage:custom_storage}).single('myFile');
-
-// const custom_file_upload = (req,res) => {
-// 	upload(req,res,function(err){
-// 		if (err)
-// 			return res.end("error uploading file");
-// 		res.end("file is uploaded");
-// 	});
-// }
 const custom_file_upload = async (req, res) => {
     // This needs to be done elsewhere. For this example we do it here.
     // await sequelize.sync()
@@ -98,4 +79,70 @@ const updatesliderbyid = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
-module.exports = {custom_file_upload,fetchallimage,deletebyid,updatesliderbyid};
+
+const segment2_create = async (req, res) => {
+
+    try{
+        const filePath = `uploads/image_slider/${req.file.filename}`
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        req.body.created_by = userId;
+        req.body.thumbnail = filePath;
+        if(req.body.title && req.body.title !== '' && req.body.link && req.body.link !== '' && req.body.ordering && req.body.ordering !== ''){
+            await Segment2_video.create(req.body)
+            return apiResponse.successResponse(res,"Successfully uploaded.")
+        }else{
+            return apiResponse.ErrorResponse(res,"title/link/ordering field is missing")
+        }
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+const segment2_fetch = async (req, res) => {
+
+    try{
+        const segment_data = await Segment2_video.findAll({
+            order: [
+                [sequelize.literal('ordering'), 'ASC']
+            ],
+        });
+        if(segment_data){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",segment_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+const update_segment2_byid = async(req,res) => {
+    let filePath = ''
+    try{
+        filePath = `uploads/image_slider/${req.file.filename}`;
+        req.body.thumbnail = filePath;
+    }catch(err){
+        // return apiResponse.ErrorResponse(res,err.message)
+    }
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        const segment_id = req.params.id;
+        const segment_data = await Segment2_video.findOne({where:{id: segment_id}});
+        req.body.updated_by = userId;
+        if(segment_data){
+            await Segment2_video.update(req.body,{where:{id:segment_id}})
+            
+            return apiResponse.successResponse(res,"Data successfully updated.")
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+module.exports = {custom_file_upload,fetchallimage,deletebyid,updatesliderbyid,segment2_create,segment2_fetch,update_segment2_byid};

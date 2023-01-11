@@ -9,6 +9,20 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      district_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Districts',
+          key: 'id'
+        }
+      },
+      division_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Divisions',
+          key: 'id'
+        }
+      },
       place_id: {
         type: Sequelize.INTEGER,
         references: {
@@ -61,6 +75,9 @@ module.exports = {
       },
       comments: {
         type: Sequelize.TEXT
+      },
+      filename: {
+        type: Sequelize.STRING
       },
       created_by: {
         type: Sequelize.INTEGER,
