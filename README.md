@@ -1,12 +1,12 @@
 #  api server
-local deployment instance required 
-nodejs version 16.17.1
-mysql version 10.1.40-MariaDB
+local deployment instance required  \
+nodejs version 16.17.1 \
+mysql version 10.1.40-MariaDB \
 
 
 Step 01
 ====================================
-clone source code from github
+clone source code from github \
 git clone https://github.com/BengalSolutions/backend_api.git
 
 Step 02
@@ -21,7 +21,7 @@ DB_HOST=127.0.0.1 \
 DB_PORT=3306 \
 DB_USER=root \
 DB_PASSWORD= \
-DB_DATABASE= \
+DB_DATABASE= 
 
 Step 04
 ====================================
