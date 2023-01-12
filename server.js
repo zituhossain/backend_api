@@ -36,16 +36,27 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-var allowlist = ['http://192.168.0.102:3000', 'https://web.zvgy.com',
-'www.zvgy.com/', 'https://zvgy.com/',
-'https://www.zvgy.com/']
-console.log(allowlist, '--------------allowlist')
 //To allow cross-origin requests
-app.use(cors({origin:allowlist}));
+
+const corsOpts = {
+	origin: '*',
+  
+	methods: [
+	  'GET',
+	  'POST',
+	  'OPTIONS'
+	],
+  
+	allowedHeaders: [
+	  'Content-Type',
+	  'Access-Control-Allow-Origin: *'
+	],
+  };
 // add multer middleware
 app.disable('x-powered-by');
 // app.use(multerMiddleware.single('file'));
 app.use(express.static(base_dir_config.base_dir));
+app.use(cors(corsOpts));
 app.use('/uploads', express.static('uploads'));
 
 //Route Prefixes
