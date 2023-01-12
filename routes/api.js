@@ -11,6 +11,8 @@ const localInfluencerRouter = require('./local_influencer');
 const ngoDetailsRouter = require('./ngo_details_info');
 const ngoDetailsPointWiseRouter = require('./ngo_details_info_point_wise');
 const NgoRouter = require("./ngo");
+const AllTitle = require("./AllTitle");
+
 
 
 
@@ -32,6 +34,8 @@ apiRouter.use('/local_influencer/', localInfluencerRouter);
 apiRouter.use('/ngo_details_info/', ngoDetailsRouter);
 apiRouter.use('/ngo_details_info_point_wise/', ngoDetailsPointWiseRouter);
 apiRouter.use('/ngo/', NgoRouter);
+apiRouter.use('/alltitle/', AllTitle);
+
 
 
 
