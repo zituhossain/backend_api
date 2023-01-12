@@ -44,3 +44,33 @@ exports.fetchall_by_place_id = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.update_ngo = async(req,res) => {
+    const ngo_id = req.params.id;
+    try{
+        const filePath = `uploads/logo/${req.file.filename}`;
+        req.body.logo = filePath;
+    }catch(err){
+
+    }
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        req.body.updated_by = userId;
+        const ngo_data = await Ngo.findAll({where: {id : ngo_id}});
+        if(ngo_data.length > 0){
+            if(req.body){
+                await Ngo.update(req.body,{where:{id:ngo_id}});
+                return apiResponse.successResponse(res,"data successfully updated.")
+            }else{
+                return apiResponse.ErrorResponse(res,"Value missing.")
+            }
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}

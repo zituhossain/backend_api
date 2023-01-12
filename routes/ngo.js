@@ -15,6 +15,7 @@ const storage = multer.diskStorage({
 })
 
 router.post('/create',auth,multer({ storage }).single('myFile'), NgoController.create_ngo);
+router.post('/update/:id',auth,multer({ storage }).single('myFile'), NgoController.update_ngo);
 router.get('/get_by_place_id/:id',auth, NgoController.fetchall_by_place_id);
 
 module.exports = router;
