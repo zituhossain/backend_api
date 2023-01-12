@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     logo: DataTypes.TEXT,
     color_code: DataTypes.STRING,
     created_by: DataTypes.INTEGER,
+    place_id: DataTypes.INTEGER,
     updated_by: DataTypes.INTEGER
   }, {
     sequelize,

@@ -25,6 +25,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      place_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Places',
+          key: 'id'
+        }
+      },
       created_by: {
         type: Sequelize.INTEGER,
         allowNull: true,
