@@ -21,8 +21,7 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
           server: ftp.zvgy.com
-          username: zvgyftp@zvgy.com
-          password: Qt45p@iTkhzK
+          username: main_d@zvgy.com
+          password: main_d@@##A1
           protocol: ftp
-          server-dir: api/v2/
           port: 21 # todo replace with your web hosts ftps port
