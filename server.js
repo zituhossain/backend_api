@@ -36,7 +36,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-var allowlist = ['http://192.168.0.102:3000', 'https://web.zvgy.com']
+var allowlist = ['http://192.168.0.102:3000', 'https://web.zvgy.com',
+'www.zvgy.com/', 'https://zvgy.com/',
+'https://www.zvgy.com/']
+console.log(allowlist, '--------------allowlist')
 //To allow cross-origin requests
 app.use(cors({origin:allowlist}));
 // add multer middleware
