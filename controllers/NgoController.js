@@ -28,3 +28,19 @@ exports.create_ngo = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.fetchall_by_place_id = async(req,res) => {
+    const ngo_id = req.params.id;
+    try{
+        const ngo_data = await Ngo.findAll({where: {place_id : ngo_id}});
+        if(ngo_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
