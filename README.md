@@ -1,5 +1,5 @@
 #  api server
-local deployment instance required  \
+local deployment instance requirement  \
 nodejs version 16.17.1 \
 mysql version 10.1.40-MariaDB \
 
