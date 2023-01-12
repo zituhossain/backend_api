@@ -19,7 +19,7 @@ module.exports = {
       },
       logo: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
       color_code: {
         type: Sequelize.STRING,
