@@ -74,3 +74,20 @@ exports.update_ngo = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.delete_by_id = async(req,res) => {
+    const ngo_id = req.params.id;
+    try{
+        const ngo_data = await Ngo.findAll({where: {id : ngo_id}});
+        if(ngo_data.length > 0){
+            await Ngo.destroy({where:{id:ngo_id}})
+            return apiResponse.successResponse(res,"Data deleted successfully.")
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
