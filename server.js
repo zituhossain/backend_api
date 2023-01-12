@@ -38,7 +38,7 @@ app.use(cookieParser());
 
 var allowlist = ['http://192.168.0.102:3000', 'https://web.zvgy.com']
 //To allow cross-origin requests
-app.use(cors({origin:allowlist}));
+app.use(cors({origin:allowlist,methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']}));
 app.options('*', cors());
 // add multer middleware
 app.disable('x-powered-by');
