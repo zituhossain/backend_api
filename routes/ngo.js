@@ -2,7 +2,18 @@ const express = require('express');
 const NgoController = require('../controllers/NgoController');
 const auth = require('../middlewares/jwt');
 const router = express.Router();
+const multer = require('multer');
+const base_dir_config = require('../config.js');
 
-router.post('/create',auth, NgoController.create_ngo);
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, base_dir_config.base_dir + 'uploads/logo/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
+    }
+})
+
+router.post('/create',auth,multer({ storage }).single('myFile'), NgoController.create_ngo);
 
 module.exports = router;

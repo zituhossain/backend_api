@@ -6,10 +6,12 @@ const apiResponse = require("../helpers/apiResponse")
 
 exports.create_ngo = async(req,res) => {
     try{
+        const filePath = `uploads/logo/${req.file.filename}`
         const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
 		const userId = decodedToken._id;
         req.body.created_by = userId;
+        req.body.logo = filePath;
 
         if(req.body){
             await Ngo.create(req.body);
