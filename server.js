@@ -7,6 +7,7 @@ const apiRouter = require('./routes/api');
 const apiResponse = require('./helpers/apiResponse');
 const { normalizePort } = require('./helpers/utility');
 const cors = require('cors');
+const {CronJob} = require('cron');
 const base_dir_config = require('./config.js');
 
 const { multerMiddleware } = require('./helpers/uploadFiles');
@@ -66,7 +67,11 @@ app.use('/', apiRouter);
 app.all('*', function (req, res) {
 	return apiResponse.notFoundResponse(res, 'Page not found');
 });
-
+const CRON_SCHDULE = `0 */1 * * * *`;
 app.listen(port, () => {
+	const cronJobInit = new CronJob(CRON_SCHDULE, async()=>{
+		
+	});
+	cronJobInit.start();
 	console.log('Server started on :', `http://localhost:${port}`);
 });
