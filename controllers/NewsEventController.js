@@ -85,3 +85,20 @@ exports.fetch_news_event_by_id = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.delete_by_id = async(req,res) => {
+    const news_event_id = req.params.id;
+    try{
+        const news_event_data = await News_event.findAll({where: {id : news_event_id}});
+        if(news_event_data.length > 0){
+            await News_event.destroy({where:{id:news_event_id}})
+            return apiResponse.successResponse(res,"Data deleted successfully.")
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
