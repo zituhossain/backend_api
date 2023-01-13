@@ -15,5 +15,6 @@ const storage = multer.diskStorage({
 })
 
 router.post('/create',auth,multer({ storage }).single('myFile'), NewsEventController.create_news_event);
+router.post('/update/:id',auth,multer({ storage }).single('myFile'), NewsEventController.update_news_event);
 
 module.exports = router;
