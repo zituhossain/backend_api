@@ -13,6 +13,7 @@ const ngoDetailsPointWiseRouter = require('./ngo_details_info_point_wise');
 const NgoRouter = require("./ngo");
 const AllTitle = require("./AllTitle");
 const YearPlaceNgoOfficer = require("./year_place_ngo_officer");
+const OfficerProfileHeading = require("./officer_profile_heading");
 
 
 
@@ -34,6 +35,8 @@ apiRouter.use('/ngo_details_info_point_wise/', ngoDetailsPointWiseRouter);
 apiRouter.use('/ngo/', NgoRouter);
 apiRouter.use('/alltitle/', AllTitle);
 apiRouter.use('/year_place_ngo_officer/', YearPlaceNgoOfficer);
+apiRouter.use('/officer_profile_heading/', OfficerProfileHeading);
+
 
 
 
