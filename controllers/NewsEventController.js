@@ -57,3 +57,31 @@ exports.update_news_event = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.fetch_news_event_by_id = async(req,res) => {
+    try{
+        const place_id = req.params.id;
+        const value_name = req.params.value;
+        let arr = []
+        if(value_name=='place'){
+            arr.push({place_id: place_id})
+        }else if(value_name=='district'){
+            arr.push({district_id: place_id})
+        }else if(value_name=='division'){
+            arr.push({division_id: place_id})
+        }
+        
+        const news_event_data = await News_event.findAll({
+            where: arr
+        });
+        if(news_event_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",news_event_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
