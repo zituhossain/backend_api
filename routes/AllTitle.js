@@ -10,3 +10,4 @@ router.post('/create_title',auth, AllTitleController.createoveralltitle);
 router.post('/update_title/:id',auth, AllTitleController.updateoveralltitlebyid);
 
 module.exports = router;
+
