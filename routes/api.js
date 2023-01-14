@@ -15,6 +15,7 @@ const AllTitle = require("./AllTitle");
 const YearPlaceNgoOfficer = require("./year_place_ngo_officer");
 const OfficerProfileHeading = require("./officer_profile_heading");
 const NewsEventRouter = require("./NewsEvent");
+const TagRouter = require("./tag");
 
 
 
@@ -42,6 +43,9 @@ apiRouter.use('/officer_profile_heading/', OfficerProfileHeading);
 
 
 apiRouter.use('/news_event/', NewsEventRouter);
+
+apiRouter.use('/tag/', TagRouter);
+
 
 
 
