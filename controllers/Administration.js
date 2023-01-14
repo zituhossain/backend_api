@@ -132,10 +132,30 @@ exports.place_comment_create = async (req,res) => {
     }
 }
 
+// exports.getplacecommentbyid = async(req,res) => {
+//     try{
+//         const place_id = req.params.id;
+//         const place_comment_data = await Place_comment.findAll({include:[Tag]},{where:{place_id: place_id}});
+//         if(place_comment_data .length > 0){
+//             return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_comment_data)
+//         }else{
+//             return apiResponse.ErrorResponse(res,"No matching query found")
+//         }
+
+//     }catch(err){
+//         return apiResponse.ErrorResponse(res,err.message)
+//     }
+// }
+
 exports.getplacecommentbyid = async(req,res) => {
     try{
         const place_id = req.params.id;
-        const place_comment_data = await Place_comment.findAll({include:[Tag]},{where:{place_id: place_id}});
+        const place_comment_data = await Tag.findAll({
+            include:[{
+                model: Place_comment,
+                where: {place_id: place_id}
+            }]
+        });
         if(place_comment_data .length > 0){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_comment_data)
         }else{
