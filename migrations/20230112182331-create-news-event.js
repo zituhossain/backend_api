@@ -35,7 +35,7 @@ module.exports = {
       },
       joining_date: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       batch: {
         type: Sequelize.INTEGER
