@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class overall_condition extends Model {
+  class all_title extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,18 +13,14 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  overall_condition.init({
-    description: DataTypes.STRING
+  all_title.init({
+    params: DataTypes.STRING,
+    title: DataTypes.STRING,
+    createdby: DataTypes.INTEGER,
+    status: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'overall_condition',
+    modelName: 'all_title',
   });
-
-  overall_condition.associate = models => {
-    overall_condition.belongsTo(models.overall_condition_place, {
-      foreignKey: 'id',
-    });
-  }
-
-  return overall_condition;
+  return all_title;
 };

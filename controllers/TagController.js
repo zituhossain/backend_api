@@ -1,12 +1,12 @@
 const apiResponse = require('../helpers/apiResponse');
-const {overall_condition  , overall_condition_place , Place} = require('../models');
+const {Tag  , overall_condition_place , Place} = require('../models');
 
 
 
 exports.fetchallovealllcondition = async(req,res) => {
-    const allOverallCondition = await overall_condition.findAll();
+    const allOverallCondition = await Tag.findAll();
     if(allOverallCondition){
-        return apiResponse.successResponseWithData(res,"overall_condition fetch successfully.",allOverallCondition)
+        return apiResponse.successResponseWithData(res,"tag fetch successfully.",allOverallCondition)
     }else{
         return apiResponse.ErrorResponse(res,"No data found")
     }
