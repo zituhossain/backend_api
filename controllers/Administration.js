@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {Administration_office,Place_comment,Tag,User,Administration_officer,District,Division} = require("../models");
+const {Administration_office,Place_comment,Tag,Place,Administration_officer,District,Division} = require("../models");
 const sequelize = require('sequelize');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -219,6 +219,20 @@ exports.getadministration_officerbyplaceid = async(req,res) => {
     try{
         const place_id = req.params.id;
         const administration_officer_data = await Administration_officer.findAll({include : [Administration_office,Division,District]},{where:{place_id: place_id}});
+        if(administration_officer_data .length > 0){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",administration_officer_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.getadministration_officer = async(req,res) => {
+    try{
+        const place_id = req.params.id;
+        const administration_officer_data = await Administration_officer.findAll({include : [Administration_office,Division,District,Place]});
         if(administration_officer_data .length > 0){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",administration_officer_data)
         }else{
