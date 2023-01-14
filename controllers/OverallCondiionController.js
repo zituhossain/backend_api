@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {overall_condition} = require('../models');
+const {overall_condition  , overall_condition_place , Place} = require('../models');
 
 
 
@@ -35,6 +35,26 @@ exports.createoverallcondition = async(req,res) => {
         }else{
             await overall_condition.create(req.body);
             return apiResponse.successResponse(res,'condition saved successfully.')
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.getoverallconditionbyplacexid = async(req,res) => {
+    try{
+        const condition_id = req.params.placeid;
+        // const condition_data = await overall_condition.findAll({include:[ overall_condition_place]});
+        const condition_data = await overall_condition.findAll({include:[ {
+            model: overall_condition_place,
+            where: {place_id: condition_id} , required: false
+        }]});
+
+        if(condition_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",condition_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
         }
 
     }catch(err){
