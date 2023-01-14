@@ -72,7 +72,6 @@ exports.register = async (req, res) => {
  * @param req
  * @param res
  */
-//hello test
 exports.login = async (req, res) => {
 	const { username, password1, password2 } = req.body;
 	try {
