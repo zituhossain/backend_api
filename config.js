@@ -7,7 +7,8 @@ module.exports = {
 		Delivery: 'delivery',
 		Customer: 'customer',
 	},
-  base_dir:'/Users/md.mahidulislam/Desktop/Full Stack/Office/GitHub/NGO/justtest/',
+  // base_dir:'/Users/md.mahidulislam/Desktop/Full Stack/Office/GitHub/NGO/justtest/',
+  base_dir: __dirname+'/',
 	database:{
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
