@@ -3,7 +3,7 @@ const {year_place_ngo_officer} = require('../models');
 
 
 
-exports.fetchallTitle = async(req,res) => {
+exports.fetchYearPlaceNgoofficer = async(req,res) => {
     const allOverallTitle = await year_place_ngo_officer.findAll();
     if(allOverallTitle){
         return apiResponse.successResponseWithData(res,"year_place_ngo_officer fetch successfully.",allOverallTitle)
@@ -12,7 +12,7 @@ exports.fetchallTitle = async(req,res) => {
     }
 }
 
-exports.getoveralltitlebyid = async(req,res) => {
+exports.getYearPlaceNgoofficerbyid = async(req,res) => {
     try{
         const title_id = req.params.id;
         const title_data = await year_place_ngo_officer.findOne({where:{id: title_id}});
@@ -27,10 +27,10 @@ exports.getoveralltitlebyid = async(req,res) => {
     }
 }
 
-exports.getoveralltitlebyparams = async(req,res) => {
+exports.getYearPlaceNgoOfficebyPlace = async(req,res) => {
     try{
-        const title_id = req.params.params;
-        const title_data = await year_place_ngo_officer.findOne({where:{params: title_id}});
+        const placeid = req.params.placeid;
+        const title_data = await year_place_ngo_officer.findOne({where:{place_id: placeid}});
         if(title_data){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",title_data)
         }else{
@@ -43,14 +43,14 @@ exports.getoveralltitlebyparams = async(req,res) => {
 }
 
 
-exports.createoveralltitle = async(req,res) => {
+exports.createYearPlaceNgoofficer = async(req,res) => {
     try{
         console.log("req.body",req.body)
         if(Object.keys(req.body).length === 0){
-            return apiResponse.ErrorResponse(res,'description missing')
+            return apiResponse.ErrorResponse(res,'placeID missing')
         }else{
             await year_place_ngo_officer.create(req.body);
-            return apiResponse.successResponse(res,'titile saved successfully.')
+            return apiResponse.successResponse(res,'Year Place Ngo Officer saved successfully.')
         }
 
     }catch(err){
@@ -64,7 +64,7 @@ exports.updateoveralltitlebyid = async(req,res) => {
         const condition_id = req.params.id;
         const condition_data = await year_place_ngo_officer.findOne({where:{id: condition_id}});
         if(condition_data){
-            if(req.body.title){
+            if(req.body.place_id){
                 await year_place_ngo_officer.update(req.body, { where: { id: condition_id } });
                 return apiResponse.successResponse(res,"Data successfully updated.")
             }else{

@@ -1,6 +1,8 @@
 const apiResponse = require('../helpers/apiResponse');
 const {officer_profile_heading} = require('../models');
-
+const secret = process.env.JWT_SECRET;
+const jwt = require('jsonwebtoken');
+const { Op } = require("sequelize");
 
 
 exports.fetchallTitle = async(req,res) => {
@@ -43,14 +45,18 @@ exports.getoveralltitlebyparams = async(req,res) => {
 }
 
 
-exports.createoveralltitle = async(req,res) => {
+exports.createOfficerProfileHeading = async(req,res) => {
     try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        req.body.created_by = userId;
         console.log("req.body",req.body)
         if(Object.keys(req.body).length === 0){
             return apiResponse.ErrorResponse(res,'description missing')
         }else{
             await officer_profile_heading.create(req.body);
-            return apiResponse.successResponse(res,'titile saved successfully.')
+            return apiResponse.successResponse(res,'OfficerProfileHeading saved successfully.')
         }
 
     }catch(err){
@@ -62,6 +68,10 @@ exports.createoveralltitle = async(req,res) => {
 exports.updateoveralltitlebyid = async(req,res) => {
     try{
         const condition_id = req.params.id;
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        req.body.updated_by = userId;
         const condition_data = await officer_profile_heading.findOne({where:{id: condition_id}});
         if(condition_data){
             if(req.body.title){
