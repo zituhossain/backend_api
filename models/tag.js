@@ -19,5 +19,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Tag',
   });
+  Tag.associate = models => {
+    Tag.hasMany(models.Place_comment, {
+      foreignKey: 'tag_id',
+    });
+  }
   return Tag;
 };
