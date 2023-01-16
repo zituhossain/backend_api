@@ -74,11 +74,11 @@ exports.updateoveralltitlebyid = async(req,res) => {
         req.body.updated_by = userId;
         const condition_data = await officer_profile_heading.findOne({where:{id: condition_id}});
         if(condition_data){
-            if(req.body.title){
+            if(req.body.heading){
                 await officer_profile_heading.update(req.body, { where: { id: condition_id } });
                 return apiResponse.successResponse(res,"Data successfully updated.")
             }else{
-                return apiResponse.ErrorResponse(res,'description missing')
+                return apiResponse.ErrorResponse(res,'heading missing')
             }
         }else{
             return apiResponse.ErrorResponse(res,"No matching query found")
