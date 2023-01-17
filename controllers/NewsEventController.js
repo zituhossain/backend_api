@@ -85,6 +85,21 @@ exports.fetch_news_event_by_id = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+exports.fetch_all_news = async(req,res) => {
+    try{
+        
+        const news_event_data = await News_event.findAll();
+        if(news_event_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",news_event_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 
 exports.delete_by_id = async(req,res) => {
     const news_event_id = req.params.id;
