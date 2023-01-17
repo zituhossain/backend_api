@@ -45,6 +45,22 @@ exports.fetchall_by_place_id = async(req,res) => {
     }
 }
 
+exports.fetchall_ngo = async(req,res) => {
+    const ngo_id = req.params.id;
+    try{
+        const ngo_data = await Ngo.findAll();
+        if(ngo_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.update_ngo = async(req,res) => {
     const ngo_id = req.params.id;
     try{
