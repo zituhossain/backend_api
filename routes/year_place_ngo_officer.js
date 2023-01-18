@@ -3,10 +3,10 @@ const YearPlaceNgoOfficerController = require('../controllers/YearPlaceNgoOffice
 const auth = require('../middlewares/jwt');
 const router = express.Router();
 
-router.get('/all_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.fetchallTitle);
-router.get('/all_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.getoveralltitlebyid);
-router.get('/all_year_place_ngo_officer_params/:params',auth, YearPlaceNgoOfficerController.getoveralltitlebyparams);
-router.post('/create_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.createoveralltitle);
+router.get('/all_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.fetchYearPlaceNgoofficer);
+router.get('/all_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.getYearPlaceNgoofficerbyid);
+router.get('/all_year_place_ngo_officer_place/:placeid',auth, YearPlaceNgoOfficerController.getYearPlaceNgoOfficebyPlace);
+router.post('/create_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.createYearPlaceNgoofficer);
 router.post('/update_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.updateoveralltitlebyid);
 
 module.exports = router;
