@@ -46,6 +46,7 @@ const authenticate = (roles = []) => {
 
 module.exports = async(req, res, next) => {
 	try {
+		// console.log(req.originalUrl)
 		let ipAddress = IP.address();
 		ipAddress = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress
 		// console.log("ip: ",ipAddress);
@@ -57,6 +58,7 @@ module.exports = async(req, res, next) => {
 		} else {
 			const user_data = await User.findOne({where:{id: userId}})
 			if(user_data.role_id && user_data.role_id === 1){
+				// console.log("super user");
 				next();
 			}else{
 				let block_list_check = await blacklist_ip.findAll({where:{[Op.and]:[{status: 'block'},{user_ip:ipAddress}]}})
