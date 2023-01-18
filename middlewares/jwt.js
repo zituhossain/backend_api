@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 const apiResponse = require('../helpers/apiResponse');
 const IP = require('ip');
-const {blacklist_ip,User} = require('../models');
+const {blacklist_ip,User,Previlege_url,Previlege_table} = require('../models');
 const { Op } = require("sequelize");
 
 
@@ -57,6 +57,9 @@ module.exports = async(req, res, next) => {
 			throw 'Invalid user ID';
 		} else {
 			const user_data = await User.findOne({where:{id: userId}})
+			if(user_data.status!=='active'){
+				return apiResponse.unauthorizedResponse(res,"User is not activated to authorize.")
+			}
 			if(user_data.role_id && user_data.role_id === 1){
 				// console.log("super user");
 				next();
@@ -65,7 +68,18 @@ module.exports = async(req, res, next) => {
 				if(block_list_check.length > 0){
 					return apiResponse.unauthorizedResponse(res, 'You are not authorized.Your Ip is blocked');
 				}else{
-					next();
+					// next();
+					const url_data = await Previlege_url.findOne({where: {url: req.originalUrl}})
+					if(url_data){
+						const url_table_data = await Previlege_table.findOne({where: {user_role_id: user_data.role_id,previlege_url_id: url_data.id}})
+						if(url_table_data){
+							next();
+						}else{
+							return apiResponse.unauthorizedResponse(res,"You have no access on this url")
+						}
+					}else{
+						return apiResponse.unauthorizedResponse(res,"You have no access on this url")
+					}
 				}
 			}
 		}
