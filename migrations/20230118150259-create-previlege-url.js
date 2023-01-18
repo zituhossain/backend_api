@@ -9,6 +9,14 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      previlege_area_id:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Previlege_areas',
+          key: 'id'
+        }
+      },
       name: {
         type: Sequelize.TEXT
       },
