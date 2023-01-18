@@ -68,18 +68,18 @@ module.exports = async(req, res, next) => {
 				if(block_list_check.length > 0){
 					return apiResponse.unauthorizedResponse(res, 'You are not authorized.Your Ip is blocked');
 				}else{
-					next();
-					// const url_data = await Previlege_url.findOne({where: {url: req.originalUrl}})
-					// if(url_data){
-					// 	const url_table_data = await Previlege_table.findOne({where: {user_role_id: user_data.role_id,previlege_url_id: url_data.id}})
-					// 	if(url_table_data){
-					// 		next();
-					// 	}else{
-					// 		return apiResponse.unauthorizedResponse(res,"You have no access on this url")
-					// 	}
-					// }else{
-					// 	return apiResponse.unauthorizedResponse(res,"You have no access on this url")
-					// }
+					// next();
+					const url_data = await Previlege_url.findOne({where: {url: req.originalUrl}})
+					if(url_data){
+						const url_table_data = await Previlege_table.findOne({where: {user_role_id: user_data.role_id,previlege_url_id: url_data.id}})
+						if(url_table_data){
+							next();
+						}else{
+							return apiResponse.unauthorizedResponse(res,"You have no access on this url")
+						}
+					}else{
+						return apiResponse.unauthorizedResponse(res,"You have no access on this url")
+					}
 				}
 			}
 		}
