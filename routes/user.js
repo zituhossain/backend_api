@@ -19,5 +19,6 @@ router.post('/update_previlege_area/:id',auth,UserRoleController.updateprevilege
 router.get('/delete_previlege_area/:id',auth,UserRoleController.deleteprevilegearea);
 
 router.post('/create_previlege_url',auth,UserRoleController.createprevilegeurl)
+router.get('/all_previlege_url',auth,UserRoleController.getallprevilegeurl)
 
 module.exports = router;

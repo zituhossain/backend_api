@@ -90,6 +90,19 @@ exports.getallprevilegearea = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+exports.getallprevilegeurl = async(req,res) => {
+    try{
+        const previlegearea_data = await Previlege_url.findAll();
+        if(previlegearea_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"Previlege url is empty.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 exports.createprevilegearea = async(req,res) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
