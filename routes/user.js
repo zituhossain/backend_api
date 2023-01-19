@@ -13,5 +13,6 @@ router.get('/role_by_id/:id',auth, UserRoleController.getrolebyid);
 router.get('/user_login_attempts',auth, UserController.getuserloginattempt);
 router.post('/user_role_assign',auth, UserRoleController.assignuserrole);
 router.post('/user_role_remove',auth, UserRoleController.removeuserrole);
+router.get('/get_all_previlege_area',auth,UserRoleController.getallprevilegearea)
 
 module.exports = router;

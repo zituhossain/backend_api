@@ -77,6 +77,20 @@ exports.getallrole = async(req,res) => {
     }
 }
 
+exports.getallprevilegearea = async(req,res) => {
+    try{
+        const previlegearea_data = await Previlege_area.findAll();
+        if(previlegearea_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"Previlege area is empty.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.getrolebyid = async(req,res) => {
     try{
         const role_id = req.params.id;
