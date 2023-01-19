@@ -99,3 +99,18 @@ exports.updatePlace = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.getDistrictmap = async(req,res) => {
+    try{
+        const id = req.params.id
+        const district_data = await District.findOne({where: {id: id}});
+        if(district_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",district_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"District table is empty.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}

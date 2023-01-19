@@ -56,7 +56,7 @@ const corsOpts = {
 app.disable('x-powered-by');
 // app.use(multerMiddleware.single('file'));
 app.use(express.static(base_dir_config.base_dir));
-app.use(cors(corsOpts));
+app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
 //Route Prefixes
