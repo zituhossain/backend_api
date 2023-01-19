@@ -39,6 +39,27 @@ exports.assignuserrole = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+exports.removeuserrole = async(req,res) => {
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        const user_data = await User.findOne({where:{id: userId}})
+        if(user_data.role_id && user_data.role_id === 1){
+            if(req.body.user_id){
+                await User.update({role_id:null},{where:{id: req.body.user_id}})
+                return apiResponse.successResponse(res,"role successfully removed.")
+            }else{
+                return apiResponse.ErrorResponse(res,"user_id missing")
+            }
+        }else{
+            return apiResponse.unauthorizedResponse(res,"You have no permission to remove user role.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 
 exports.getallrole = async(req,res) => {
     try{
