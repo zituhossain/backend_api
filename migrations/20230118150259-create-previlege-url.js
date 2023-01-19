@@ -2,18 +2,26 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Previlege_areas', {
+    await queryInterface.createTable('Previlege_urls', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
-        type: Sequelize.STRING
+      previlege_area_id:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Previlege_areas',
+          key: 'id'
+        }
       },
-      previlege_url: {
-        type: Sequelize.STRING
+      name: {
+        type: Sequelize.TEXT
+      },
+      url: {
+        type: Sequelize.TEXT
       },
       createdAt: {
         type: 'TIMESTAMP',
@@ -28,6 +36,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Previlege_areas');
+    await queryInterface.dropTable('Previlege_urls');
   }
 };
