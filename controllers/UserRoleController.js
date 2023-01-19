@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {User_role,Previlege_area,User,Previlege_url} = require('../models');
+const {User_role,Previlege_area,User,Previlege_url,Previlege_table} = require('../models');
 const db = require('../db/db');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -258,6 +258,29 @@ exports.createprevilegeurl = async(req,res) => {
                 return apiResponse.successResponse(res,"previlege area successfully created.")
             }else{
                 return apiResponse.ErrorResponse(res,"name/previlege_area_id/url missing")
+            }
+        }else{
+            return apiResponse.unauthorizedResponse(res,"You have no permission to create previlege area.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.createprevilegetable = async(req,res) => {
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        const user_data = await User.findOne({where:{id: userId}})
+        if(user_data.role_id && user_data.role_id === 1){
+            if(req.body.user_role_id && req.body.previlege_url_id){
+                req.body.permission = true;
+                await Previlege_table.create(req.body)
+                return apiResponse.successResponse(res,"previlege successfully created.")
+            }else{
+                return apiResponse.ErrorResponse(res,"user_role_id/previlege_url_id missing")
             }
         }else{
             return apiResponse.unauthorizedResponse(res,"You have no permission to create previlege area.")
