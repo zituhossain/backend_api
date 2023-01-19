@@ -198,7 +198,33 @@ exports.deleteprevilegearea = async(req,res) => {
                 
             
         }else{
-            return apiResponse.unauthorizedResponse(res,"You have no permission to create previlege area.")
+            return apiResponse.unauthorizedResponse(res,"You have no permission to delete previlege area.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.deleteprevilegeurl = async(req,res) => {
+    try{
+        const id = req.params.id;
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        const user_data = await User.findOne({where:{id: userId}})
+        if(user_data.role_id && user_data.role_id === 1){
+            const if_exist = await Previlege_url.findOne({where:{id: id}})
+            if(if_exist){
+                await Previlege_url.destroy({where: {id:id}})
+                return apiResponse.successResponse(res,"previlege url successfully deleted.")
+            }else{
+                return apiResponse.ErrorResponse(res,"No data found")
+            }
+                
+            
+        }else{
+            return apiResponse.unauthorizedResponse(res,"You have no permission to delete previlege area.")
         }
 
     }catch(err){
