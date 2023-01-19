@@ -90,7 +90,27 @@ exports.getallprevilegearea = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+exports.createprevilegearea = async(req,res) => {
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        const user_data = await User.findOne({where:{id: userId}})
+        if(user_data.role_id && user_data.role_id === 1){
+            if(req.body.name){
+                await Previlege_area.create(req.body)
+                return apiResponse.successResponse(res,"previlege area successfully created.")
+            }else{
+                return apiResponse.ErrorResponse(res,"name missing")
+            }
+        }else{
+            return apiResponse.unauthorizedResponse(res,"You have no permission to create previlege area.")
+        }
 
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 exports.getrolebyid = async(req,res) => {
     try{
         const role_id = req.params.id;
