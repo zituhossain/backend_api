@@ -290,3 +290,25 @@ exports.createprevilegetable = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.deleteprevilegetable = async(req,res) => {
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        const user_data = await User.findOne({where:{id: userId}})
+        if(user_data.role_id && user_data.role_id === 1){
+            if(req.body.user_role_id && req.body.previlege_url_id){
+                await Previlege_table.destroy({where:{user_role_id:req.body.user_role_id,previlege_url_id:req.body.previlege_url_id}})
+                return apiResponse.successResponse(res,"previlege successfully deleted.")
+            }else{
+                return apiResponse.ErrorResponse(res,"user_role_id/previlege_url_id missing")
+            }
+        }else{
+            return apiResponse.unauthorizedResponse(res,"You have no permission to delete previlege.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
