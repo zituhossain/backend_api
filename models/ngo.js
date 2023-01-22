@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Tag extends Model {
+  class Ngo extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,16 +13,17 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Tag.init({
-    name: DataTypes.STRING
+  Ngo.init({
+    name: DataTypes.TEXT,
+    short_name: DataTypes.TEXT,
+    logo: DataTypes.TEXT,
+    color_code: DataTypes.STRING,
+    created_by: DataTypes.INTEGER,
+    place_id: DataTypes.INTEGER,
+    updated_by: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'Tag',
+    modelName: 'Ngo',
   });
-  Tag.associate = models => {
-    Tag.hasMany(models.Place_comment, {
-      foreignKey: 'tag_id',
-    });
-  }
-  return Tag;
+  return Ngo;
 };

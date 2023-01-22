@@ -10,7 +10,12 @@ const overallConditionPlaceRouter = require('./overall_condition_place');
 const localInfluencerRouter = require('./local_influencer');
 const ngoDetailsRouter = require('./ngo_details_info');
 const ngoDetailsPointWiseRouter = require('./ngo_details_info_point_wise');
-
+const NgoRouter = require("./ngo");
+const AllTitle = require("./AllTitle");
+const YearPlaceNgoOfficer = require("./year_place_ngo_officer");
+const OfficerProfileHeading = require("./officer_profile_heading");
+const NewsEventRouter = require("./NewsEvent");
+const TagRouter = require("./tag");
 
 
 
@@ -30,6 +35,17 @@ apiRouter.use('/overall_condition_place/', overallConditionPlaceRouter);
 apiRouter.use('/local_influencer/', localInfluencerRouter);
 apiRouter.use('/ngo_details_info/', ngoDetailsRouter);
 apiRouter.use('/ngo_details_info_point_wise/', ngoDetailsPointWiseRouter);
+apiRouter.use('/ngo/', NgoRouter);
+apiRouter.use('/alltitle/', AllTitle);
+apiRouter.use('/year_place_ngo_officer/', YearPlaceNgoOfficer);
+apiRouter.use('/officer_profile_heading/', OfficerProfileHeading);
+
+
+
+apiRouter.use('/news_event/', NewsEventRouter);
+
+apiRouter.use('/tag/', TagRouter);
+
 
 
 

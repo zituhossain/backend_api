@@ -19,5 +19,12 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'overall_condition',
   });
+
+  overall_condition.associate = models => {
+    overall_condition.belongsTo(models.overall_condition_place, {
+      foreignKey: 'id',
+    });
+  }
+
   return overall_condition;
 };

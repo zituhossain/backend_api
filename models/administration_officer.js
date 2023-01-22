@@ -56,6 +56,9 @@ module.exports = (sequelize, DataTypes) => {
     Administration_officer.belongsTo(models.Division, {
       foreignKey: 'division_id',
     });
+    Administration_officer.belongsTo(models.Place, {
+      foreignKey: 'place_id',
+    });
   }
   return Administration_officer;
 };
