@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Previlege_area extends Model {
+  class Previlege_table extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,17 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Previlege_area.init({
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    name: DataTypes.STRING,
-    previlege_url: DataTypes.STRING
+  Previlege_table.init({
+    user_role_id: DataTypes.INTEGER,
+    previlege_url_id: DataTypes.INTEGER,
+    permission: DataTypes.BOOLEAN
   }, {
     sequelize,
-    modelName: 'Previlege_area',
+    modelName: 'Previlege_table',
   });
-  return Previlege_area;
+  return Previlege_table;
 };
