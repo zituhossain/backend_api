@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
     },
     name: DataTypes.STRING,
+    place_map: DataTypes.TEXT,
     name_bg: DataTypes.STRING,
     place_count: DataTypes.INTEGER,
     division_id: DataTypes.INTEGER
