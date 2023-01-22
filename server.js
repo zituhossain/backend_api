@@ -9,12 +9,14 @@ const { normalizePort } = require('./helpers/utility');
 const cors = require('cors');
 const {CronJob} = require('cron');
 const {CronTask} = require('./cronJob');
+const {MongoDB} = require('./db');
+const mongoDB = new MongoDB();
 const base_dir_config = require('./config.js');
 
 const { multerMiddleware } = require('./helpers/uploadFiles');
 
 // DB connection
-const MONGODB_URL = process.env.MONGODB_URL;
+
 const port = normalizePort(process.env.PORT || '8081');
 
 const db = require('./db/db');
@@ -69,7 +71,7 @@ app.all('*', function (req, res) {
 	return apiResponse.notFoundResponse(res, 'Page not found');
 });
 
-const cronTask = new CronTask();
+const cronTask = new CronTask({mongoDB});
 const CRON_SCHDULE = `0 */1 * * * *`;
 app.listen(port, () => {
 	const cronJobInit = new CronJob(CRON_SCHDULE, async()=>{
