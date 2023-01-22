@@ -10,7 +10,12 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.createTable('Districts', { place_map: Sequelize.TEXT });
+   
+    return queryInterface.addColumn(
+      'Districts',
+      'place_map',
+     Sequelize.TEXT
+    );
     
   },
 
