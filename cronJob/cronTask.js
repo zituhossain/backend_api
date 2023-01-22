@@ -26,7 +26,7 @@ class CronTask{
         
     }
     async run() {
-       this.insertData();
+    //    this.insertData();
     }
     
 
