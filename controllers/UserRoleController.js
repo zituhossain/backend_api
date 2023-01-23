@@ -246,6 +246,22 @@ exports.getrolebyid = async(req,res) => {
     }
 }
 
+exports.deleterolebyid = async(req,res) => {
+    try{
+        const role_id = req.params.id;
+        const role_data = await User_role.findOne({where:{id: role_id}});
+        if(role_data){
+            await User_role.destroy({where:{id: role_id}})
+            return apiResponse.successResponse(res,"Data successfully deleted.")
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.createprevilegeurl = async(req,res) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
