@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const {Ngo} = require("../models");
+const {Ngo , Place} = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
@@ -48,7 +48,7 @@ exports.fetchall_by_place_id = async(req,res) => {
 exports.fetchall_ngo = async(req,res) => {
     const ngo_id = req.params.id;
     try{
-        const ngo_data = await Ngo.findAll();
+        const ngo_data = await Ngo.findAll({include:[Place]});
         if(ngo_data.length > 0){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
 
