@@ -92,7 +92,9 @@ exports.getallprevilegearea = async(req,res) => {
 }
 exports.getallprevilegeurl = async(req,res) => {
     try{
-        const previlegearea_data = await Previlege_url.findAll();
+        const previlegearea_data = await Previlege_url.findAll({
+            include:[Previlege_area]
+        });
         if(previlegearea_data){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
         }else{

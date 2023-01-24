@@ -21,5 +21,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Previlege_url',
   });
+  Previlege_url.associate = models => {
+    Previlege_url.belongsTo(models.Previlege_area, {
+      foreignKey: 'previlege_area_id',
+    });
+  }
   return Previlege_url;
 };
