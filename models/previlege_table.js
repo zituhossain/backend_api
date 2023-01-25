@@ -22,8 +22,8 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Previlege_table',
   });
   Previlege_table.associate = models => {
-    Previlege_table.belongsTo(models.User_role, {
-      foreignKey: 'user_role_id',
+    Previlege_table.belongsTo(models.Previlege_url, {
+      foreignKey: 'previlege_url_id',
     });
   }
   return Previlege_table;

@@ -338,7 +338,7 @@ exports.getprevilegetable = async(req,res) => {
     try{
         const role_id = req.params.id;
         const user_data = await Previlege_table.findAll({
-            include:[User_role],
+            include:[Previlege_url],
             where:{user_role_id: role_id}
         })
         if(user_data.length > 0){
