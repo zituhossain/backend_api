@@ -344,7 +344,7 @@ exports.getprevilegetable = async(req,res) => {
         if(user_data.length > 0){
             return apiResponse.successResponseWithData(res,"Data found",user_data)
         }else{
-            return apiResponse.unauthorizedResponse(res,"No data found")
+            return apiResponse.ErrorResponse(res,"No data found")
         }
 
     }catch(err){
