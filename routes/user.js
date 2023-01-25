@@ -10,6 +10,7 @@ router.get('/alluser',auth, UserController.fetchalluser);
 router.post('/create_role',auth, UserRoleController.createuserrole);
 router.get('/all_role',auth, UserRoleController.getallrole);
 router.get('/role_by_id/:id',auth, UserRoleController.getrolebyid);
+router.get('/delete_role_by_id/:id',auth, UserRoleController.deleterolebyid);
 router.get('/user_login_attempts',auth, UserController.getuserloginattempt);
 router.post('/user_role_assign',auth, UserRoleController.assignuserrole);
 router.post('/user_role_remove',auth, UserRoleController.removeuserrole);
@@ -25,5 +26,6 @@ router.get('/delete_previlege_url/:id',auth,UserRoleController.deleteprevilegeur
 
 router.post('/create_previlege_table',auth,UserRoleController.createprevilegetable);
 router.post('/delete_previlege_table',auth,UserRoleController.deleteprevilegetable);
+router.get('/get_previlege_table/:id',auth,UserRoleController.getprevilegetable);
 
 module.exports = router;
