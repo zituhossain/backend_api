@@ -333,3 +333,21 @@ exports.deleteprevilegetable = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.getprevilegetable = async(req,res) => {
+    try{
+        const role_id = req.params.id;
+        const user_data = await Previlege_table.findAll({
+            include:[User_role],
+            where:{user_role_id: role_id}
+        })
+        if(user_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data found",user_data)
+        }else{
+            return apiResponse.unauthorizedResponse(res,"No data found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}

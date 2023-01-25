@@ -26,5 +26,6 @@ router.get('/delete_previlege_url/:id',auth,UserRoleController.deleteprevilegeur
 
 router.post('/create_previlege_table',auth,UserRoleController.createprevilegetable);
 router.post('/delete_previlege_table',auth,UserRoleController.deleteprevilegetable);
+router.get('/get_previlege_table/:id',auth,UserRoleController.getprevilegetable);
 
 module.exports = router;
