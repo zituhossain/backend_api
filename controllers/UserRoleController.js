@@ -320,7 +320,12 @@ exports.deleteprevilegetable = async(req,res) => {
         const user_data = await User.findOne({where:{id: userId}})
         if(user_data.role_id && user_data.role_id === 1){
             if(req.body.user_role_id && req.body.previlege_url_id){
-                await Previlege_table.destroy({where:{user_role_id:req.body.user_role_id,previlege_url_id:req.body.previlege_url_id}})
+                if(req.body.previlege_url_id.length > 0){
+                    for(i=0;i<req.body.previlege_url_id.length;i++){
+                        await Previlege_table.destroy({where:{user_role_id:req.body.user_role_id,previlege_url_id:req.body.previlege_url_id[i]}})
+                    }
+                }
+                
                 return apiResponse.successResponse(res,"previlege successfully deleted.")
             }else{
                 return apiResponse.ErrorResponse(res,"user_role_id/previlege_url_id missing")
