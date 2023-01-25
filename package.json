@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "nodemon server.js",
 		"start": "nodemon server.js",
+		"generate": "npx sequelize-cli migration:generate --name",
 		"migrate": "npx sequelize-cli db:migrate",
 		"pretty": "prettier --write \"./**/*.{js,jsx,json}\""
 	},
@@ -19,6 +20,7 @@
 		"brcypt": "^1.0.1",
 		"cookie-parser": "^1.4.5",
 		"cors": "^2.8.5",
+		"cron": "^2.2.0",
 		"dotenv": "^8.6.0",
 		"express": "^4.17.1",
 		"express-jwt": "^8.2.1",
@@ -27,6 +29,7 @@
 		"joi": "^17.4.0",
 		"jsonwebtoken": "^9.0.0",
 		"moment": "^2.29.1",
+		"mongodb": "^4.13.0",
 		"mongoose": "^5.12.7",
 		"morgan": "^1.10.0",
 		"multer": "^1.4.5-lts.1",
