@@ -18,6 +18,26 @@ exports.createuserrole = async(req,res) => {
     }
 }
 
+exports.updateuserrole = async(req,res) => {
+    try{
+        const roleId = req.params.id;
+        const fetchData = await User_role.findOne({where:{id:roleId}});
+        if(fetchData){
+            if(req.body.name){
+                await User_role.update(req.body,{where:{id:roleId}});
+                return apiResponse.successResponse(res,'role saved successfully.')
+            }else{
+                return apiResponse.ErrorResponse(res,'name,permission,previlege_id missing')
+            }
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.assignuserrole = async(req,res) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
@@ -296,7 +316,13 @@ exports.createprevilegetable = async(req,res) => {
             if(req.body.user_role_id && req.body.previlege_url_id){
                 if(req.body.previlege_url_id.length > 0){
                     for(i=0;i<req.body.previlege_url_id.length;i++){
-                        await Previlege_table.create({user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i],permission:true})
+                        const check_if_exist = await Previlege_table.findOne({where:{user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i]}})
+                        if(check_if_exist){
+
+                        }else{
+                            await Previlege_table.create({user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i],permission:true})
+                        }
+                        
                     }
                 }
                 return apiResponse.successResponse(res,"previlege successfully created.")
