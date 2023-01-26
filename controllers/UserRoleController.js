@@ -296,7 +296,13 @@ exports.createprevilegetable = async(req,res) => {
             if(req.body.user_role_id && req.body.previlege_url_id){
                 if(req.body.previlege_url_id.length > 0){
                     for(i=0;i<req.body.previlege_url_id.length;i++){
-                        await Previlege_table.create({user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i],permission:true})
+                        const check_if_exist = await Previlege_table.findOne({where:{user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i]}})
+                        if(check_if_exist){
+
+                        }else{
+                            await Previlege_table.create({user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i],permission:true})
+                        }
+                        
                     }
                 }
                 return apiResponse.successResponse(res,"previlege successfully created.")
