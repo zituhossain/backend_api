@@ -110,6 +110,21 @@ exports.getallprevilegearea = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.getprevilegeareabyid = async(req,res) => {
+    const id = req.params.id;
+    try{
+        const previlegearea_data = await Previlege_area.findOne({where:{id:id}});
+        if(previlegearea_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"Previlege area does not found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 exports.getallprevilegeurl = async(req,res) => {
     try{
         const previlegearea_data = await Previlege_url.findAll({
@@ -119,6 +134,23 @@ exports.getallprevilegeurl = async(req,res) => {
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
         }else{
             return apiResponse.ErrorResponse(res,"Previlege url is empty.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.getprevilegeurlbyid = async(req,res) => {
+    const id = req.params.id;
+    try{
+        const previlegearea_data = await Previlege_url.findOne({
+            include:[Previlege_area],
+            where:{id:id}
+        });
+        if(previlegearea_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"Previlege url dosenot found.")
         }
 
     }catch(err){
