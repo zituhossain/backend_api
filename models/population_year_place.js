@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Ngo extends Model {
+  class population_year_place extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,24 +13,17 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Ngo.init({
-    name: DataTypes.TEXT,
-    short_name: DataTypes.TEXT,
-    logo: DataTypes.TEXT,
-    color_code: DataTypes.STRING,
-    created_by: DataTypes.INTEGER,
+  population_year_place.init({
+    year_id: DataTypes.INTEGER,
     place_id: DataTypes.INTEGER,
-    updated_by: DataTypes.INTEGER
+    total_population: DataTypes.BIGINT,
+    served_population: DataTypes.BIGINT,
+    male: DataTypes.BIGINT,
+    female: DataTypes.BIGINT,
+    minority: DataTypes.BIGINT
   }, {
     sequelize,
-    modelName: 'Ngo',
+    modelName: 'population_year_place',
   });
-
-  
-  Ngo.associate = models => {
-    Ngo.belongsTo(models.Place, {
-      foreignKey: 'id',
-    });
-  }
-  return Ngo;
+  return population_year_place;
 };
