@@ -17,6 +17,7 @@ router.post('/user_role_assign',auth, UserRoleController.assignuserrole);
 router.post('/user_role_remove',auth, UserRoleController.removeuserrole);
 router.get('/get_all_previlege_area',auth,UserRoleController.getallprevilegearea);
 router.get('/get_previlege_area/:id',auth,UserRoleController.getprevilegeareabyid);
+router.get('/get_previlege_url/:id',auth,UserRoleController.getprevilegeurlbyid);
 router.post('/create_previlege_area',auth,UserRoleController.createprevilegearea);
 router.post('/update_previlege_area/:id',auth,UserRoleController.updateprevilegearea);
 router.get('/delete_previlege_area/:id',auth,UserRoleController.deleteprevilegearea);

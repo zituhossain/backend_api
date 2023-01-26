@@ -140,6 +140,23 @@ exports.getallprevilegeurl = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+exports.getprevilegeurlbyid = async(req,res) => {
+    const id = req.params.id;
+    try{
+        const previlegearea_data = await Previlege_url.findOne({
+            include:[Previlege_area],
+            where:{id:id}
+        });
+        if(previlegearea_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"Previlege url dosenot found.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 exports.createprevilegearea = async(req,res) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
