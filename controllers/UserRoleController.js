@@ -18,6 +18,26 @@ exports.createuserrole = async(req,res) => {
     }
 }
 
+exports.updateuserrole = async(req,res) => {
+    try{
+        const roleId = req.params.id;
+        const fetchData = await User_role.findOne({where:{id:roleId}});
+        if(fetchData){
+            if(req.body.name){
+                await User_role.update(req.body,{where:{id:roleId}});
+                return apiResponse.successResponse(res,'role saved successfully.')
+            }else{
+                return apiResponse.ErrorResponse(res,'name,permission,previlege_id missing')
+            }
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.assignuserrole = async(req,res) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
@@ -90,13 +110,47 @@ exports.getallprevilegearea = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.getprevilegeareabyid = async(req,res) => {
+    const id = req.params.id;
+    try{
+        const previlegearea_data = await Previlege_area.findOne({where:{id:id}});
+        if(previlegearea_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"Previlege area does not found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 exports.getallprevilegeurl = async(req,res) => {
     try{
-        const previlegearea_data = await Previlege_url.findAll();
+        const previlegearea_data = await Previlege_url.findAll({
+            include:[Previlege_area]
+        });
         if(previlegearea_data){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
         }else{
             return apiResponse.ErrorResponse(res,"Previlege url is empty.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.getprevilegeurlbyid = async(req,res) => {
+    const id = req.params.id;
+    try{
+        const previlegearea_data = await Previlege_url.findOne({
+            include:[Previlege_area],
+            where:{id:id}
+        });
+        if(previlegearea_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"Previlege url dosenot found.")
         }
 
     }catch(err){
@@ -246,6 +300,22 @@ exports.getrolebyid = async(req,res) => {
     }
 }
 
+exports.deleterolebyid = async(req,res) => {
+    try{
+        const role_id = req.params.id;
+        const role_data = await User_role.findOne({where:{id: role_id}});
+        if(role_data){
+            await User_role.destroy({where:{id: role_id}})
+            return apiResponse.successResponse(res,"Data successfully deleted.")
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.createprevilegeurl = async(req,res) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
@@ -278,7 +348,13 @@ exports.createprevilegetable = async(req,res) => {
             if(req.body.user_role_id && req.body.previlege_url_id){
                 if(req.body.previlege_url_id.length > 0){
                     for(i=0;i<req.body.previlege_url_id.length;i++){
-                        await Previlege_table.create({user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i],permission:true})
+                        const check_if_exist = await Previlege_table.findOne({where:{user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i]}})
+                        if(check_if_exist){
+
+                        }else{
+                            await Previlege_table.create({user_role_id : req.body.user_role_id,previlege_url_id : req.body.previlege_url_id[i],permission:true})
+                        }
+                        
                     }
                 }
                 return apiResponse.successResponse(res,"previlege successfully created.")
@@ -302,13 +378,36 @@ exports.deleteprevilegetable = async(req,res) => {
         const user_data = await User.findOne({where:{id: userId}})
         if(user_data.role_id && user_data.role_id === 1){
             if(req.body.user_role_id && req.body.previlege_url_id){
-                await Previlege_table.destroy({where:{user_role_id:req.body.user_role_id,previlege_url_id:req.body.previlege_url_id}})
+                if(req.body.previlege_url_id.length > 0){
+                    for(i=0;i<req.body.previlege_url_id.length;i++){
+                        await Previlege_table.destroy({where:{user_role_id:req.body.user_role_id,previlege_url_id:req.body.previlege_url_id[i]}})
+                    }
+                }
+                
                 return apiResponse.successResponse(res,"previlege successfully deleted.")
             }else{
                 return apiResponse.ErrorResponse(res,"user_role_id/previlege_url_id missing")
             }
         }else{
             return apiResponse.unauthorizedResponse(res,"You have no permission to delete previlege.")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.getprevilegetable = async(req,res) => {
+    try{
+        const role_id = req.params.id;
+        const user_data = await Previlege_table.findAll({
+            include:[Previlege_url],
+            where:{user_role_id: role_id}
+        })
+        if(user_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data found",user_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found")
         }
 
     }catch(err){
