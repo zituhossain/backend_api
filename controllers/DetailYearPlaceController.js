@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { ngo_detail_year_place } = require('../models');
+const { ngo_detail_year_place,Ngo } = require('../models');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const { Op } = require("sequelize");
@@ -34,7 +34,7 @@ exports.getbyYear = async (req, res) => {
         // const title_id = req.params.year; 
 
         const place = req.params.place;
-        const title_data = await ngo_detail_year_place.findAll({ where: {  place_id: place } });
+        const title_data = await ngo_detail_year_place.findAll({include: [Ngo] , where: {  place_id: place } });
         // return
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
