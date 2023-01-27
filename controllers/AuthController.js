@@ -1,4 +1,4 @@
-const { User,Login_attempt,blacklist_ip } = require('../models');
+const { User,Login_attempt,blacklist_ip,Previlege_table,Previlege_url } = require('../models');
 //helper file to prepare responses.
 const apiResponse = require('../helpers/apiResponse');
 const jwt = require('jsonwebtoken');
@@ -95,11 +95,25 @@ exports.login = async (req, res) => {
 				if(user.status==='active'){
 					const passwordmatch2 = await dycryptandmatch(password2, user.password2)
 					if (passwordmatch2) {
+						var previlege_table_data = []
+						if(user.role_id === 1){
+							previlege_table_data = await Previlege_url.findAll()
+						}else{
+							previlege_table_data = await Previlege_table.findAll({
+								include:[Previlege_url],
+								where:{user_role_id: user.role_id}
+							})
+						}
+						let final_array = []
+						for(i=0;i<previlege_table_data.length;i++){
+							final_array.push(previlege_table_data[i].name)
+						}
 						let userData = {
 							_id: user.id,
 							username: user.username,
 							phone: user.phone,
 							role: user.role_id,
+							privilege_url: final_array
 						};
 						const jwtPayload = userData;
 						const jwtData = {
