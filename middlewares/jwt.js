@@ -46,7 +46,7 @@ const authenticate = (roles = []) => {
 
 module.exports = async(req, res, next) => {
 	try {
-		// console.log(req.originalUrl)
+		// console.log(req)
 		let ipAddress = IP.address();
 		ipAddress = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress
 		// console.log("ip: ",ipAddress);
