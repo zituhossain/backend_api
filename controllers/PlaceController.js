@@ -1,10 +1,13 @@
 const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
+const checkUserRoleByPlace = require('./globalController');
 
 const {Place,Division,District, ngo_category_b} = require('../models');
 exports.getallPlace = async (req, res) => {
     try {
-
+        const token = req.headers.authorization.split(' ')[1];
+        let roleByplace = await checkUserRoleByPlace(token)
+        console.log(roleByplace)
         const place_data = await Place.findAll({
             include: [Division, District]
         });
