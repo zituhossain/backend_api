@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {User_role,Previlege_area,User,Previlege_url,Previlege_table,Previlege_place_division_district} = require('../models');
+const {User_role,Previlege_area,User,Previlege_url,Previlege_table,Previlege_place_division_district,District,Division,Place} = require('../models');
 const db = require('../db/db');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -25,6 +25,25 @@ exports.createplacerole = async(req,res) => {
             
         }else{
             return apiResponse.ErrorResponse(res,'data missing')
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.getplacerole = async(req,res) => {
+    try{
+        const role_id = req.params.id;
+        const fetch_data = await Previlege_place_division_district.findAll({
+            include:[District,Division,Place],
+            where:{user_role_id:role_id}
+        })
+        if(fetch_data.length > 0){
+            return apiResponse.successResponseWithData(res,'role saved successfully.',fetch_data)
+            
+        }else{
+            return apiResponse.ErrorResponse(res,'data not found')
         }
 
     }catch(err){

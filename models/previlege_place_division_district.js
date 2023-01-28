@@ -22,5 +22,16 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Previlege_place_division_district',
   });
+  Previlege_place_division_district.associate = models =>{
+    Previlege_place_division_district.belongsTo(models.District, {
+      foreignKey: 'district_id',
+    });
+    Previlege_place_division_district.belongsTo(models.Division, {
+      foreignKey: 'division_id',
+    });
+    Previlege_place_division_district.belongsTo(models.Place, {
+      foreignKey: 'place_id',
+    });
+  }
   return Previlege_place_division_district;
 };
