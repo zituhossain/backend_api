@@ -36,11 +36,15 @@ exports.getplacerole = async(req,res) => {
     try{
         const role_id = req.params.id;
         const fetch_data = await Previlege_place_division_district.findAll({
-            include:[District,Division,Place],
+            include:[
+                District,
+                Division,
+                Place
+            ],
             where:{user_role_id:role_id}
         })
         if(fetch_data.length > 0){
-            return apiResponse.successResponseWithData(res,'role saved successfully.',fetch_data)
+            return apiResponse.successResponseWithData(res,'role fetched successfully.',fetch_data)
             
         }else{
             return apiResponse.ErrorResponse(res,'data not found')
