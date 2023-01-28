@@ -25,5 +25,12 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Ngo',
   });
+
+  
+  Ngo.associate = models => {
+    Ngo.belongsTo(models.Place, {
+      foreignKey: 'id',
+    });
+  }
   return Ngo;
 };
