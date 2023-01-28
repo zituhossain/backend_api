@@ -1,5 +1,6 @@
+const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
-const {Place,Division,District} = require('../models');
+const {Place,Division,District, ngo_category_b} = require('../models');
 exports.getallPlace = async(req,res) => {
     try{
         const place_data = await Place.findAll({
@@ -110,6 +111,51 @@ exports.getDistrictmap = async(req,res) => {
             return apiResponse.ErrorResponse(res,"District table is empty.")
         }
 
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.placeConnectWithNgo = async(req, res)=>{
+    try{
+        const data = req.body
+        await Place.update({
+            ngo_id:data.ngo_id
+        },{where:{id:data.place_id}});
+        return apiResponse.successResponse(res,"Data successfully updated.")
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.addCategoryB = async(req, res)=>{
+    try{
+        ngo_category_b.destroy({where:{place_id:req.body.place_id}});
+        if(req.body.place_id && req.body.datas){
+            for (let index = 0; index < req.body.datas.length; index++) {
+                const element = req.body.datas[index];
+                element.place_id = req.body.place_id;
+                await ngo_category_b.create(element); 
+            }
+            return apiResponse.successResponse(res,"Data successfully saved.")
+            
+        }else{
+            return apiResponse.ErrorResponse(res,"name/place_id/short_name/name/color_code is missing.")
+        }
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.placeDetails = async(req, res)=>{
+    const place_id = req.params.id
+    try{
+        const place_data = await Place.findOne(
+            {where:{id: place_id},
+            include: [{
+                model: ngo_category_b,
+                as:"categoryB"
+              }],
+        
+        });
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
     }catch(err){
         return apiResponse.ErrorResponse(res,err.message)
     }

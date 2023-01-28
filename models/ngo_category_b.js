@@ -14,16 +14,26 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Ngo.init({
-    name: DataTypes.TEXT,
-    short_name: DataTypes.TEXT,
-    logo: DataTypes.TEXT,
-    color_code: DataTypes.STRING,
+    
+    ngo_category_id:DataTypes.INTEGER,
+    ngo_value:DataTypes.STRING,
     created_by: DataTypes.INTEGER,
-    type:DataTypes.ENUM(['regular','other']),
+    place_id: DataTypes.INTEGER,
+    status: DataTypes.STRING,
     updated_by: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'Ngo',
+    modelName: 'ngo_category_b',
   });
+
+  Ngo.associate = models => {
+    Ngo.belongsTo(models.ngo_categories, {
+      as:"category",
+      targetKey: 'id',
+      foreignKey: 'ngo_category_id',
+    });
+    
+  }
+  
   return Ngo;
 };
