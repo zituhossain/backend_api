@@ -26,7 +26,8 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     area: DataTypes.TEXT,
     division_id: DataTypes.INTEGER,
-    district_id: DataTypes.INTEGER
+    district_id: DataTypes.INTEGER,
+    ngo_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Place',
@@ -37,6 +38,11 @@ module.exports = (sequelize, DataTypes) => {
     });
     Place.belongsTo(models.District, {
       foreignKey: 'district_id',
+    });
+    Place.hasMany(models.ngo_category_b, {
+      as:"categoryB",
+      targetKey: 'id',
+      foreignKey: 'place_id',
     });
   }
   return Place;

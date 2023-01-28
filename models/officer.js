@@ -24,9 +24,18 @@ module.exports = (sequelize, DataTypes) => {
     phone: DataTypes.STRING,
     email: DataTypes.STRING,
     status: DataTypes.STRING,
+    division_id: DataTypes.INTEGER,
+    district_id: DataTypes.INTEGER,
+    place_id: DataTypes.INTEGER,
+    ngo_id: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Officer',
   });
+  Officer.associate = models => {
+    Officer.belongsTo(models.Ngo, {
+      foreignKey: 'ngo_id',
+    });
+  }
   return Officer;
 };

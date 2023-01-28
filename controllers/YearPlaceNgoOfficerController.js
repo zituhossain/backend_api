@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {year_place_ngo_officer} = require('../models');
+const {year_place_ngo_officer , Officer , Ngo} = require('../models');
 
 
 
@@ -31,6 +31,23 @@ exports.getYearPlaceNgoOfficebyPlace = async(req,res) => {
     try{
         const placeid = req.params.placeid;
         const title_data = await year_place_ngo_officer.findOne({where:{place_id: placeid}});
+        if(title_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",title_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.getYearPlaceNgoOfficebyYear = async(req,res) => {
+    try{
+        const placeid = req.params.year;
+        const id = req.params.id;
+        console.log("id",id)
+        const title_data = await year_place_ngo_officer.findOne({include:[Officer,Ngo] ,where:{year_id: placeid , ngo_id:id}});
         if(title_data){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",title_data)
         }else{

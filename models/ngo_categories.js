@@ -14,23 +14,13 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Ngo.init({
-    name: DataTypes.TEXT,
-    short_name: DataTypes.TEXT,
-    logo: DataTypes.TEXT,
-    color_code: DataTypes.STRING,
-    created_by: DataTypes.INTEGER,
-    type:DataTypes.ENUM(['regular','other']),
-    updated_by: DataTypes.INTEGER
+    
+    name:DataTypes.STRING,
+    short_name:DataTypes.STRING,
+    color_code:DataTypes.STRING,
   }, {
     sequelize,
-    modelName: 'Ngo',
+    modelName: 'ngo_categories',
   });
-
-  
-  Ngo.associate = models => {
-    Ngo.belongsTo(models.Place, {
-      foreignKey: 'id',
-    });
-  }
   return Ngo;
 };

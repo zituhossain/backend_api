@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "nodemon server.js",
 		"start": "nodemon server.js",
-		"generate": "npx sequelize-cli migration:generate --name",
+		"generate": "npx sequelize-cli migration:generate --name ",
 		"migrate": "npx sequelize-cli db:migrate",
 		"pretty": "prettier --write \"./**/*.{js,jsx,json}\""
 	},

@@ -1,5 +1,5 @@
-const sequelize = require('sequelize');
-const {Ngo , Place} = require("../models");
+const {Op} = require('sequelize');
+const {Ngo,Officer,ngo_categories,Place, ngo_category_b } = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
@@ -49,6 +49,88 @@ exports.fetchall_ngo = async(req,res) => {
     const ngo_id = req.params.id;
     try{
         const ngo_data = await Ngo.findAll({include:[Place]});
+        if(ngo_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.fetchOtherNgo =async(req,res) => {
+    const ngo_id = req.params.id;
+    try{
+        const ngo_data = await Ngo.findAll({where:{type:"other"}, raw:true});
+        if(ngo_data.length > 0){
+            let ngo_datas =[]
+            ngo_data.forEach((element,key) => {
+                ngo_datas[key] = {Ngo:element}
+            });
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_datas)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.fetchNgoCategoris =async(req,res) => {
+    try{
+        const ngo_data = await ngo_categories.findAll({attributes: {exclude: ['createdAt', 'updatedAt']},});
+        if(ngo_data.length > 0){
+            
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.fetchall_ngo_by_place =async(req,res) => {
+    const place_id = req.params.id;
+    try{
+        const ngo_data = await Officer.findAll({
+            // attributes:['Ngo'],
+            where:{place_id,
+                ngo_id: {
+                    [Op.ne]: null
+                }
+            },
+            include: [{
+                model: Ngo
+              }],
+            group:['ngo_id']
+        });
+        if(ngo_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.fetchNgoCategorisByPlace =async(req,res) => {
+    const place_id = req.params.id;
+    try{
+        const ngo_data = await ngo_category_b.findAll({
+            where:{place_id},
+            include: [{
+                model: ngo_categories,
+                as:"category",
+                attributes: {exclude: ['createdAt', 'updatedAt']}
+              }],
+        });
         if(ngo_data.length > 0){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
 
