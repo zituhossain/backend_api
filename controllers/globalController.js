@@ -26,8 +26,11 @@ const checkUserRoleByPlace = async(token) =>{
             }
         }
     }
-
-    return {place: place_arr,division: division_arr,district: district_arr}
+    if(role_id === 1){
+        return {place: [],division: [],district: []}
+    }else{
+        return {place: place_arr,division: division_arr,district: district_arr}
+    }
 }
 
 module.exports = checkUserRoleByPlace;
