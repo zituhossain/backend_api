@@ -2,7 +2,7 @@ name: Publish Website to Web Hosting
 on:
   push:
     branches:
-      - main
+      - UTA
 jobs:
   build-and-deploy:
     # The type of runner that the job will run on
