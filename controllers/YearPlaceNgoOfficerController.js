@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {year_place_ngo_officer , Officer , Ngo} = require('../models');
+const {year_place_ngo_officer ,Place, Officer , Ngo} = require('../models');
 const checkUserRoleByPlace = require('./globalController');
 
 
@@ -11,6 +11,7 @@ exports.fetchYearPlaceNgoofficer = async(req,res) => {
         arr.push({place_id: roleByplace.place})
     }
     const allOverallTitle = await year_place_ngo_officer.findAll({
+        include:[Place , Officer ,Ngo],
         where: arr
     });
     if(allOverallTitle){
