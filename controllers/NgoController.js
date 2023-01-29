@@ -1,5 +1,5 @@
 const {Op} = require('sequelize');
-const {Ngo,Officer,ngo_categories,Place, ngo_category_b, ngo_detail_year_place } = require("../models");
+const {Ngo, year_place_ngo_officer, Officer,ngo_categories,Place, ngo_category_b, ngo_detail_year_place } = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
@@ -109,7 +109,7 @@ exports.fetchall_ngo_by_place =async(req,res) => {
         //       }],
         //     group:['ngo_id']
         // });
-        const ngo_data = await ngo_detail_year_place.findAll({
+        const ngo_data = await year_place_ngo_officer.findAll({
             where:{place_id,
                         ngo_id: {
                             [Op.ne]: null
