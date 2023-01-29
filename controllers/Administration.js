@@ -251,7 +251,7 @@ exports.getadministration_officerbyplaceid = async(req,res) => {
 }
 exports.getadministration_officer = async(req,res) => {
     try{
-        const place_id = req.params.id;
+        
         const administration_officer_data = await Administration_officer.findAll({include : [Administration_office,Division,District,Place]});
         if(administration_officer_data .length > 0){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",administration_officer_data)
