@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     name:DataTypes.STRING,
     short_name:DataTypes.STRING,
     color_code:DataTypes.STRING,
+    values:DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'ngo_categories',
