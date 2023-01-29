@@ -1,10 +1,18 @@
 const apiResponse = require('../helpers/apiResponse');
 const {year_place_ngo_officer , Officer , Ngo} = require('../models');
-
+const checkUserRoleByPlace = require('./globalController');
 
 
 exports.fetchYearPlaceNgoofficer = async(req,res) => {
-    const allOverallTitle = await year_place_ngo_officer.findAll();
+    const token = req.headers.authorization.split(' ')[1];
+    let roleByplace = await checkUserRoleByPlace(token)
+    let arr = [];
+    if(roleByplace.place.length > 0){
+        arr.push({place_id: roleByplace.place})
+    }
+    const allOverallTitle = await year_place_ngo_officer.findAll({
+        where: arr
+    });
     if(allOverallTitle){
         return apiResponse.successResponseWithData(res,"year_place_ngo_officer fetch successfully.",allOverallTitle)
     }else{
