@@ -4,6 +4,7 @@ const sequelize = require('sequelize');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const { Op } = require("sequelize");
+const checkUserRoleByPlace = require('./globalController');
 
 exports.create = async (req,res) => {
     try{
@@ -251,8 +252,20 @@ exports.getadministration_officerbyplaceid = async(req,res) => {
 }
 exports.getadministration_officer = async(req,res) => {
     try{
-        
-        const administration_officer_data = await Administration_officer.findAll({include : [Administration_office,Division,District,Place]});
+        const token = req.headers.authorization.split(' ')[1];
+        let roleByplace = await checkUserRoleByPlace(token)
+        let arr = []
+        if(roleByplace.district.length > 0){
+            arr.push({district_id: roleByplace.district})
+        }else if(roleByplace.division.length > 0){
+            arr.push({division_id: roleByplace.division})
+        }else if(roleByplace.place.length > 0){
+            arr.push({place_id: roleByplace.place})
+        }
+        const administration_officer_data = await Administration_officer.findAll({
+            include : [Administration_office,Division,District,Place],
+            where: arr
+        });
         if(administration_officer_data .length > 0){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",administration_officer_data)
         }else{
