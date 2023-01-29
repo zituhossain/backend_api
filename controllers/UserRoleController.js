@@ -59,7 +59,7 @@ exports.deleteplacerole = async(req,res) => {
     try{
         const id = req.params.id;
         const fetch_data = await Previlege_place_division_district.findOne({
-            where:{id:role_id}
+            where:{id:id}
         })
         if(fetch_data){
 	    await Previlege_place_division_district.destroy({where: {id:id}})
