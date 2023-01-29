@@ -55,6 +55,25 @@ exports.getplacerole = async(req,res) => {
     }
 }
 
+exports.deleteplacerole = async(req,res) => {
+    try{
+        const id = req.params.id;
+        const fetch_data = await Previlege_place_division_district.findOne({
+            where:{id:role_id}
+        })
+        if(fetch_data){
+	    await Previlege_place_division_district.destroy({where: {id:id}})
+            return apiResponse.successResponse(res,'role deleted successfully.')
+            
+        }else{
+            return apiResponse.ErrorResponse(res,'data not found')
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.updateuserrole = async(req,res) => {
     try{
         const roleId = req.params.id;
