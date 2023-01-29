@@ -1,5 +1,5 @@
 const {Op} = require('sequelize');
-const {Ngo,Officer,ngo_categories,Place, ngo_category_b } = require("../models");
+const {Ngo,Officer,ngo_categories,Place, ngo_category_b, ngo_detail_year_place } = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
@@ -97,18 +97,30 @@ exports.fetchNgoCategoris =async(req,res) => {
 exports.fetchall_ngo_by_place =async(req,res) => {
     const place_id = req.params.id;
     try{
-        const ngo_data = await Officer.findAll({
-            // attributes:['Ngo'],
+        // const ngo_data = await Officer.findAll({
+        //     // attributes:['Ngo'],
+        //     where:{place_id,
+        //         ngo_id: {
+        //             [Op.ne]: null
+        //         }
+        //     },
+        //     include: [{
+        //         model: Ngo
+        //       }],
+        //     group:['ngo_id']
+        // });
+        const ngo_data = await ngo_detail_year_place.findAll({
             where:{place_id,
-                ngo_id: {
-                    [Op.ne]: null
-                }
-            },
-            include: [{
-                model: Ngo
-              }],
-            group:['ngo_id']
+                        ngo_id: {
+                            [Op.ne]: null
+                        }
+                },
+                include: [{
+                        model: Ngo
+                    }],
+                group:['ngo_id']
         });
+        
         if(ngo_data.length > 0){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
 
