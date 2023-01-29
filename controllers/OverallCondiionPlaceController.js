@@ -2,11 +2,20 @@ const apiResponse = require('../helpers/apiResponse');
 const {overall_condition_place , overall_condition , Place} = require('../models');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
+const checkUserRoleByPlace = require('./globalController');
 
 
 exports.fetchallovealllcondition = async(req,res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    let roleByplace = await checkUserRoleByPlace(token)
+    // console.log(roleByplace)
+    let arr = []
+    if(roleByplace.place.length > 0){
+        arr.push({place_id: roleByplace.place})
+    }
     const allOverallCondition = await overall_condition_place.findAll({
-        include: [Place,overall_condition]
+        include: [Place,overall_condition],
+        where:arr
     });
     if(allOverallCondition){
         return apiResponse.successResponseWithData(res,"overall_condition_place fetch successfully.",allOverallCondition)
