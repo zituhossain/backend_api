@@ -1,12 +1,25 @@
 const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
+const checkUserRoleByPlace = require('./globalController');
 
 const {Place,Division,District, ngo_category_b} = require('../models');
 exports.getallPlace = async (req, res) => {
     try {
-
+        const token = req.headers.authorization.split(' ')[1];
+        let roleByplace = await checkUserRoleByPlace(token)
+        // console.log(roleByplace)
+        let arr = []
+        if(roleByplace.district.length > 0){
+            arr.push({district_id: roleByplace.district})
+        }else if(roleByplace.division.length > 0){
+            arr.push({division_id: roleByplace.division})
+        }else if(roleByplace.place.length > 0){
+            arr.push({id: roleByplace.place})
+        }
+        // console.log(arr)
         const place_data = await Place.findAll({
-            include: [Division, District]
+            include: [Division, District],
+            where: arr,
         });
         if (place_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", place_data)

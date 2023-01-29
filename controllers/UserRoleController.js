@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {User_role,Previlege_area,User,Previlege_url,Previlege_table} = require('../models');
+const {User_role,Previlege_area,User,Previlege_url,Previlege_table,Previlege_place_division_district,District,Division,Place} = require('../models');
 const db = require('../db/db');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -11,6 +11,62 @@ exports.createuserrole = async(req,res) => {
         }else{
             await User_role.create(req.body);
             return apiResponse.successResponse(res,'role saved successfully.')
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.createplacerole = async(req,res) => {
+    try{
+        if(req.body){
+            await Previlege_place_division_district.create(req.body);
+            return apiResponse.successResponse(res,'role saved successfully.')
+            
+        }else{
+            return apiResponse.ErrorResponse(res,'data missing')
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.getplacerole = async(req,res) => {
+    try{
+        const role_id = req.params.id;
+        const fetch_data = await Previlege_place_division_district.findAll({
+            include:[
+                District,
+                Division,
+                Place
+            ],
+            where:{user_role_id:role_id}
+        })
+        if(fetch_data.length > 0){
+            return apiResponse.successResponseWithData(res,'role fetched successfully.',fetch_data)
+            
+        }else{
+            return apiResponse.ErrorResponse(res,'data not found')
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.deleteplacerole = async(req,res) => {
+    try{
+        const id = req.params.id;
+        const fetch_data = await Previlege_place_division_district.findOne({
+            where:{id:id}
+        })
+        if(fetch_data){
+	    await Previlege_place_division_district.destroy({where: {id:id}})
+            return apiResponse.successResponse(res,'role deleted successfully.')
+            
+        }else{
+            return apiResponse.ErrorResponse(res,'data not found')
         }
 
     }catch(err){

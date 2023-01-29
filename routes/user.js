@@ -31,4 +31,9 @@ router.post('/create_previlege_table',auth,UserRoleController.createprevilegetab
 router.post('/delete_previlege_table',auth,UserRoleController.deleteprevilegetable);
 router.get('/get_previlege_table/:id',auth,UserRoleController.getprevilegetable);
 
+
+router.post('/create_place_previlege',auth,UserRoleController.createplacerole);
+router.get('/get_place_previlege/:id',auth,UserRoleController.getplacerole);
+router.get('/delete_place_previlege/:id',auth,UserRoleController.deleteplacerole);
+
 module.exports = router;
