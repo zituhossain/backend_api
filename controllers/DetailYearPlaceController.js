@@ -3,10 +3,19 @@ const { ngo_detail_year_place,Ngo } = require('../models');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const { Op } = require("sequelize");
+const checkUserRoleByPlace = require('./globalController');
 
 
 exports.fetchall = async (req, res) => {
-    const allOverallTitle = await ngo_detail_year_place.findAll();
+    const token = req.headers.authorization.split(' ')[1];
+    let arr = [];
+    let roleByplace = await checkUserRoleByPlace(token)
+    if(roleByplace.place.length > 0){
+        arr.push({place_id: roleByplace.place})
+    }
+    const allOverallTitle = await ngo_detail_year_place.findAll({
+        where: arr
+    });
     if (allOverallTitle) {
         return apiResponse.successResponseWithData(res, "ngo_detail_year_place fetch successfully.", allOverallTitle)
     } else {
