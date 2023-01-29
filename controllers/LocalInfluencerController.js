@@ -2,11 +2,19 @@ const apiResponse = require('../helpers/apiResponse');
 const {local_influencer , Place} = require('../models');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
-
+const checkUserRoleByPlace = require('./globalController');
 
 exports.fetchalllocalinfluencer = async(req,res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    let roleByplace = await checkUserRoleByPlace(token)
+    // console.log(roleByplace)
+    let arr = []
+    if(roleByplace.place.length > 0){
+        arr.push({place_id: roleByplace.place})
+    }
     const allLocalInfluencer = await local_influencer.findAll({
-        include: [Place]
+        include: [Place],
+        where: arr
     });
     if(allLocalInfluencer){
         return apiResponse.successResponseWithData(res,"local_influencer fetch successfully.",allLocalInfluencer)

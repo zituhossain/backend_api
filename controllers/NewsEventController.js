@@ -2,6 +2,7 @@ const {News_event} = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
+const checkUserRoleByPlace = require('./globalController');
 
 exports.create_news_event = async(req,res) => {
     try{
@@ -87,8 +88,20 @@ exports.fetch_news_event_by_id = async(req,res) => {
 }
 exports.fetch_all_news = async(req,res) => {
     try{
-        
-        const news_event_data = await News_event.findAll();
+        const token = req.headers.authorization.split(' ')[1];
+        let roleByplace = await checkUserRoleByPlace(token)
+        // console.log(roleByplace)
+        let arr = []
+        if(roleByplace.district.length > 0){
+            arr.push({district_id: roleByplace.district})
+        }else if(roleByplace.division.length > 0){
+            arr.push({division_id: roleByplace.division})
+        }else if(roleByplace.place.length > 0){
+            arr.push({id: roleByplace.place})
+        }
+        const news_event_data = await News_event.findAll({
+            where: arr
+        });
         if(news_event_data.length > 0){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",news_event_data)
 
