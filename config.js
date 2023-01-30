@@ -10,12 +10,13 @@ module.exports = {
   // base_dir:'/Users/md.mahidulislam/Desktop/Full Stack/Office/GitHub/NGO/justtest/',
   base_dir: __dirname+'/',
 	database:{
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        user: process.env.DB_USER,
-        password:process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE
+        host: "zvgy.com",
+        port: "3306",
+        user: "zvgy_ngo",
+        password:"zvgy_ngo@@##",
+        database:"zvgy_ngo"
    },
+  
    pool: {
     max: 5,
     min: 0,
