@@ -11,6 +11,7 @@ module.exports = {
       },
       district_id: {
         type: Sequelize.INTEGER,
+        allowNull: true,
         references: {
           model: 'Districts',
           key: 'id'
@@ -25,6 +26,7 @@ module.exports = {
       },
       place_id: {
         type: Sequelize.INTEGER,
+        allowNull: true,
         references: {
           model: 'Places',
           key: 'id'
@@ -32,6 +34,7 @@ module.exports = {
       },
       administration_office_id: {
         type: Sequelize.INTEGER,
+        allowNull: true,
         references: {
           model: 'Administration_offices',
           key: 'id'
@@ -39,7 +42,7 @@ module.exports = {
       },
       ordering: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
       },
       name: {
         type: Sequelize.STRING,
