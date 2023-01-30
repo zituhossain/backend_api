@@ -211,15 +211,32 @@ exports.place_comment_update = async(req,res) => {
 
 
 exports.create_administration_officer = async(req,res) => {
-    
-    try{
+    if(req.file){
         const filePath = `uploads/admin_officer_photo/${req.file.filename}`
+        req.body.filename = filePath;
+    }
+    try{
+        if(req.body.district_id === 'null' || req.body.district_id === 'null'){
+            req.body.district_id = null
+        }
+
+        if(req.body.ordering === 'null' || req.body.ordering === ''){
+            req.body.ordering = null
+        }
+
+        if(req.body.place_id === 'null' || req.body.place_id === ''){
+            req.body.place_id = null
+        }
+        if(req.body.administration_office_id === 'null' || req.body.administration_office_id === ''){
+            req.body.administration_office_id = null
+        }
+        
         const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
 		const userId = decodedToken._id;
-        req.body.filename = filePath;
+        
         req.body.created_by = userId;
-        if(req.body.name && req.body.ordering && req.body.name !== '' && req.body.place_id && req.body.place_id !== '' && req.body.email && req.body.email !== '' && req.body.phone && req.body.phone !== ''){
+        if(req.body.division_id && req.body.division_id !== ''){
             const exist_data = await Administration_officer.findAll({where:{email: req.body.email,phone:req.body.phone}})
             if(exist_data.length > 0){
                 return apiResponse.ErrorResponse(res,"Duplicate officer data found.")
@@ -228,7 +245,7 @@ exports.create_administration_officer = async(req,res) => {
                 return apiResponse.successResponse(res,"data successfully saved!!!")
             }
         }else{
-            return apiResponse.ErrorResponse(res,"parameter or value is missing.")
+            return apiResponse.ErrorResponse(res,"division is missing.")
         }
 
     }catch(err){
@@ -286,12 +303,28 @@ exports.update_administration_officerbyid = async(req,res) => {
         const decodedToken = jwt.verify(token, secret);
         const userId = decodedToken._id;
         if(administration_officer_data.length > 0){
-            try{
+            if(req.file){
                 const filePath = `uploads/admin_officer_photo/${req.file.filename}`
-                
                 req.body.filename = filePath;
+            }
+            try{
+                if(req.body.district_id === 'null' || req.body.district_id === 'null'){
+                    req.body.district_id = null
+                }
+        
+                if(req.body.ordering === 'null' || req.body.ordering === ''){
+                    req.body.ordering = null
+                }
+        
+                if(req.body.place_id === 'null' || req.body.place_id === ''){
+                    req.body.place_id = null
+                }
+                if(req.body.administration_office_id === 'null' || req.body.administration_office_id === ''){
+                    req.body.administration_office_id = null
+                }
+            
                 req.body.updated_by = userId;
-                if(req.body.name && req.body.ordering && req.body.name !== '' && req.body.place_id && req.body.place_id !== '' && req.body.email && req.body.email !== '' && req.body.phone && req.body.phone !== ''){
+                if(req.body.division_id && req.body.division_id !== ''){
                     await Administration_officer.update(req.body,{where:{id: id}})
                     return apiResponse.successResponse(res,"data successfully updated!!!")
                 }else{
