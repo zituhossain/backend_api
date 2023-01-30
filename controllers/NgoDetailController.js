@@ -11,7 +11,6 @@ exports.fetchalllocalinfluencer = async (req, res) => {
         arr.push({ place_id: roleByplace.place })
     }
     const allNgoDetails = await ngo_details_info.findAll({
-        include: [Place],
         where: arr
     });
     if (allNgoDetails) {
