@@ -23,6 +23,7 @@ router.post('/update_administration_office/:id',auth, AdministrationController.u
 
 router.post('/create_place_comment',auth, AdministrationController.place_comment_create);
 router.get('/place_comment/:id',auth, AdministrationController.getplacecommentbyid);
+router.get('/all_place_comment',auth, AdministrationController.getallplacecomment);
 router.get('/place_comment_delete/:id',auth, AdministrationController.place_comment_delete);
 router.post('/place_comment_update/:id',auth, AdministrationController.place_comment_update);
 

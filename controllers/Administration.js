@@ -168,6 +168,22 @@ exports.getplacecommentbyid = async(req,res) => {
     }
 }
 
+exports.getallplacecomment = async(req,res) => {
+    try{
+        const place_comment_data = await Place_comment.findAll({
+            include:[Tag , Place]
+        });
+        if(place_comment_data .length > 0){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_comment_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.place_comment_delete = async(req,res) => {
     try{
         const place_comment_id = req.params.id;
