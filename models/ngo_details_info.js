@@ -15,16 +15,12 @@ module.exports = (sequelize, DataTypes) => {
   }
   ngo_details_info.init({
     title: DataTypes.STRING,
-    place_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'ngo_details_info',
   });
 
   ngo_details_info.associate = models => {
-    ngo_details_info.belongsTo(models.Place, {
-      foreignKey: 'place_id',
-    });
     ngo_details_info.hasMany(models.ngo_details_info_point_wise, {
       foreignKey: 'ngo_details_info_id',
     });

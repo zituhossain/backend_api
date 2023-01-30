@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { ngo_details_info, Place , ngo_details_info_point_wise } = require('../models');
+const { ngo_details_info, Place, ngo_details_info_point_wise } = require('../models');
 const checkUserRoleByPlace = require('./globalController');
 
 
@@ -7,8 +7,8 @@ exports.fetchalllocalinfluencer = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1];
     let roleByplace = await checkUserRoleByPlace(token)
     let arr = []
-    if(roleByplace.place.length > 0){
-        arr.push({place_id: roleByplace.place})
+    if (roleByplace.place.length > 0) {
+        arr.push({ place_id: roleByplace.place })
     }
     const allNgoDetails = await ngo_details_info.findAll({
         include: [Place],
@@ -39,7 +39,7 @@ exports.getlocalinfluencerbyid = async (req, res) => {
 exports.getngodetailwiseinfobyplaceid = async (req, res) => {
     try {
         const influencer_id = req.params.placeid;
-        const influencer_data = await ngo_details_info.findAll({ include: [Place , ngo_details_info_point_wise], where: { place_id: influencer_id } });
+        const influencer_data = await ngo_details_info.findAll({ include: [{ model: ngo_details_info_point_wise, where: {place_id: influencer_id},required:false }] });
         if (influencer_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
         } else {
@@ -76,7 +76,7 @@ exports.updatelocalinfluencerbyid = async (req, res) => {
         const ngo_details_id = req.params.id;
         const details_data = await ngo_details_info.findOne({ where: { id: ngo_details_id } });
         if (details_data) {
-            if (req.body.place_id && req.body.title) {
+            if (req.body.title) {
                 await ngo_details_info.update(req.body, { where: { id: ngo_details_id } });
                 return apiResponse.successResponse(res, "Data successfully updated.")
             } else {
