@@ -27,9 +27,9 @@ module.exports = (sequelize, DataTypes) => {
     ngo_details_info_point_wise.belongsTo(models.Place, {
       foreignKey: 'place_id',
     });
-    // ngo_details_info_point_wise.belongsTo(models.ngo_details_info, {
-    //   foreignKey: 'ngo_details_info_id',
-    // });
+    ngo_details_info_point_wise.belongsTo(models.ngo_details_info, {
+      foreignKey: 'ngo_details_info_id',
+    });
   }
 
   return ngo_details_info_point_wise;
