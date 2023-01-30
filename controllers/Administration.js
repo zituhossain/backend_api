@@ -232,7 +232,7 @@ exports.create_administration_officer = async(req,res) => {
         req.body.filename = filePath;
     }
     try{
-        if(req.body.district_id === 'null' || req.body.district_id === 'null'){
+        if(req.body.district_id === 'null' || req.body.district_id === ''){
             req.body.district_id = null
         }
 
