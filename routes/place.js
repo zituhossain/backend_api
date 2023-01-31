@@ -18,6 +18,7 @@ router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/get_district/:id',auth, PlaceController.getDistrict);
 router.get('/get_division/:id',auth, PlaceController.getDivision);
 router.get('/get_district_by_division_id/:id',auth, PlaceController.getDistrictByDivision);
+router.post('/add_ngo_served_percent_by_place/',auth, PlaceController.addNgoServedPercent);
 
 
 
