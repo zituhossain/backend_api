@@ -202,6 +202,8 @@ exports.addCategoryB = async(req, res)=>{
     }
 }
 exports.placeDetails = async(req, res)=>{
+    const d = new Date();
+    let year = d.getFullYear();
     const place_id = req.params.id
     try{
         const place_data = await Place.findOne(
@@ -222,6 +224,10 @@ exports.placeDetails = async(req, res)=>{
               {
                 model:year_place_ngo_officer,
                 as:"year_place_ngo_officer",
+                where:{
+                    year_id:year, 
+                },
+                required:false,
                 include:[Officer]
               }
             ],
