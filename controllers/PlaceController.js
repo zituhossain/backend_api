@@ -1,8 +1,10 @@
 const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
+const {ngoServedPercentByPlace} = require('../validator/place');
 
-const {Place,Division,District, ngo_category_b} = require('../models');
+const {Place,Division,District, ngo_category_b, ngo_served_percent_by_palces,year_place_ngo_officer, Ngo, Officer} = require('../models');
+const { where } = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -207,10 +209,48 @@ exports.placeDetails = async(req, res)=>{
             include: [{
                 model: ngo_category_b,
                 as:"categoryB"
-              }],
+              },
+              {
+                model:ngo_served_percent_by_palces,
+                as:"ngoServedPercentByPalce",
+                include:[{
+                    model:Ngo,
+                    as:"ngo"
+                }]
+
+              },
+              {
+                model:year_place_ngo_officer,
+                as:"year_place_ngo_officer",
+                include:[Officer]
+              }
+            ],
         
         });
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.addNgoServedPercent = async(req, res)=>{
+    try{
+
+        await ngoServedPercentByPlace.validateAsync({
+            ngo_id:req.body.ngo_id,
+            district_id:req.body.district_id,
+            division_id:req.body.division_id,
+            place_id:req.body.place_id,
+            percent:req.body.percent,
+        })
+
+        await ngo_served_percent_by_palces.destroy({
+            where:{
+                place_id:req.body.place_id,
+                ngo_id:req.body.ngo_id,
+            }
+        });
+        await ngo_served_percent_by_palces.create(req.body);
+        return apiResponse.successResponse(res, "Data successfully saved.")
     }catch(err){
         return apiResponse.ErrorResponse(res,err.message)
     }
