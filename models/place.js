@@ -57,8 +57,8 @@ module.exports = (sequelize, DataTypes) => {
     });
     Place.hasMany(models.year_place_ngo_officer, {
       as:"year_place_ngo_officer",
-      targetKey: 'place_id',
-      foreignKey: 'id',
+      targetKey: 'id',
+      foreignKey: 'place_id',
     });
     
   }
