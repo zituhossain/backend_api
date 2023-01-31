@@ -4,7 +4,20 @@ const apiResponse = require('../helpers/apiResponse');
 const IP = require('ip');
 const { blacklist_ip, User, Previlege_url, Previlege_table } = require('../models');
 const { Op } = require("sequelize");
+const { createLogger, format, transports } = require("winston");
+const date = new Date();
+let day = date.getDate();
+let month = date.getMonth() + 1;
+let year = date.getFullYear();
+let currentDate = `${day}-${month}-${year}`;
 
+var logger = createLogger({
+	format: format.combine(format.timestamp(), format.json()),
+	transports: [
+		new transports.Console({}),
+		new transports.File({ filename: "log/"+currentDate+".log" }),
+	],
+  });
 
 const authenticate = (roles = []) => {
 	if (typeof roles === 'string') {
@@ -53,9 +66,18 @@ function checkurl(value) {
 		return {status: false,url: value}
 	}
 }
+function createLog(data){
+	logger.info(data);
+}
 // module.exports = authenticate;
 
 module.exports = async (req, res, next) => {
+	const logdata = {
+		api_route: req.originalUrl,
+		method: req.method,
+		body: req.body
+	}
+	createLog(logdata)
 	try {
 		// console.log("aaaaaaaaaaaaaaaaaaaaaaaa", req.originalUrl)
 		let validate_url = checkurl(req.originalUrl);

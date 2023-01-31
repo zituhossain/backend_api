@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'created_by',
     });
     Place_comment.belongsTo(models.Tag, {
-      foreignKey: 'place_id',
+      foreignKey: 'tag_id',
     });
     Place_comment.belongsTo(models.Place, {
       foreignKey: 'place_id',

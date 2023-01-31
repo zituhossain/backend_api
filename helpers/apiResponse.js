@@ -1,8 +1,23 @@
+const { createLogger, format, transports } = require("winston");
+const date = new Date();
+let day = date.getDate();
+let month = date.getMonth() + 1;
+let year = date.getFullYear();
+let currentDate = `${day}-${month}-${year}`;
+
+var logger = createLogger({
+	format: format.combine(format.timestamp(), format.json()),
+	transports: [
+		new transports.Console({}),
+		new transports.File({ filename: "log/"+currentDate+".log" }),
+	],
+  });
 exports.successResponse = function (res, msg) {
 	const data = {
 		success: true,
 		message: msg,
 	};
+	logger.info(msg)
 	return res.status(200).json(data);
 };
 
@@ -12,6 +27,7 @@ exports.successResponseWithData = function (res, msg, data) {
 		message: msg,
 		data: data,
 	};
+	logger.info(msg)
 	return res.status(200).json(resData);
 };
 
@@ -22,6 +38,7 @@ exports.successResponseWithDataNToken = function (res, msg, data,token) {
 		data: data,
 		token: token,
 	};
+	logger.info(msg)
 	return res.status(200).json(resData);
 };
 
@@ -30,6 +47,7 @@ exports.ErrorResponse = function (res, msg) {
 		error: true,
 		message: msg,
 	};
+	logger.error(msg)
 	return res.status(500).json(data);
 };
 
@@ -38,6 +56,7 @@ exports.notFoundResponse = function (res, msg) {
 		error: true,
 		message: msg,
 	};
+	logger.error(msg)
 	return res.status(404).json(data);
 };
 
@@ -47,6 +66,7 @@ exports.validationErrorWithData = function (res, msg, data) {
 		message: msg,
 		data: data,
 	};
+	logger.error(msg)
 	return res.status(400).json(resData);
 };
 
@@ -55,5 +75,6 @@ exports.unauthorizedResponse = function (res, msg) {
 		error: true,
 		message: msg,
 	};
+	logger.error(msg)
 	return res.status(401).json(data);
 };
