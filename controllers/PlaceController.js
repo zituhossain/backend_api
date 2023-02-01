@@ -201,42 +201,42 @@ exports.addCategoryB = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
-exports.placeDetails = async (req, res) => {
+exports.placeDetails = async(req, res)=>{
     const d = new Date();
     let year = d.getFullYear();
     const place_id = req.params.id
-    try {
+    try{
         const place_data = await Place.findOne(
-            {
-                where: { id: place_id },
-                include: [{
-                    model: ngo_category_b,
-                    as: "categoryB"
-                },
-                {
-                    model: ngo_served_percent_by_palces,
-                    as: "ngoServedPercentByPalce",
-                    include: [{
-                        model: Ngo,
-                        as: "ngo"
-                    }]
+            {where:{id: place_id},
+            include: [{
+                model: ngo_category_b,
+                as:"categoryB"
+              },
+              {
+                model:ngo_served_percent_by_palces,
+                as:"ngoServedPercentByPalce",
+                include:[{
+                    model:Ngo,
+                    as:"ngo"
+                }]
 
+              },
+              {
+                model:year_place_ngo_officer,
+                as:"year_place_ngo_officer",
+                where:{
+                    year_id:year, 
+                    rank:1, 
                 },
-                {
-                    model: year_place_ngo_officer,
-                    as: "year_place_ngo_officer",
-                    where: {
-                        year_id: year,
-                    },
-                    required: false,
-                    include: [Officer]
-                }
-                ],
-
-            });
-        return apiResponse.successResponseWithData(res, "Data successfully fetched.", place_data)
-    } catch (err) {
-        return apiResponse.ErrorResponse(res, err.message)
+                required:false,
+                include:[Officer, Ngo]
+              }
+            ],
+        
+        });
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
     }
 }
 
