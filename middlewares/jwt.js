@@ -72,10 +72,18 @@ function createLog(data){
 // module.exports = authenticate;
 
 module.exports = async (req, res, next) => {
+	let ipAddress = IP.address();
+	ipAddress = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress
+	// console.log("ip: ",ipAddress);
+	const token = req.headers.authorization.split(' ')[1];
+	const decodedToken = jwt.verify(token, secret);
+	const userId = decodedToken._id;
 	const logdata = {
 		api_route: req.originalUrl,
 		method: req.method,
-		body: req.body
+		body: req.body,
+		user_id: userId,
+		ip: ipAddress
 	}
 	createLog(logdata)
 	try {
@@ -85,12 +93,6 @@ module.exports = async (req, res, next) => {
 		if(validate_url.status){
 			finalurl = validate_url.url
 		}
-		let ipAddress = IP.address();
-		ipAddress = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress
-		// console.log("ip: ",ipAddress);
-		const token = req.headers.authorization.split(' ')[1];
-		const decodedToken = jwt.verify(token, secret);
-		const userId = decodedToken._id;
 		if (userId && decodedToken.phone === '') {
 			throw 'Invalid user ID';
 		} else {

@@ -2,6 +2,10 @@ const apiResponse = require('../helpers/apiResponse');
 const {Officer} = require('../models');
 
 exports.createofficer = async(req,res) => {
+    if(req.file){
+        const filePath = `uploads/officer/${req.file.filename}`
+        req.body.image = filePath;
+    }
     try{
         if(req.body.name && req.body.email && req.body.phone && req.body.address){
             const officer_data = await Officer.findOne({where: {name:req.body.name}})
@@ -84,6 +88,10 @@ exports.activeofficerbyid = async(req,res) => {
 }
 
 exports.updateofficerbyid = async(req,res) => {
+    if(req.file){
+        const filePath = `uploads/officer/${req.file.filename}`
+        req.body.image = filePath;
+    }
     try{
         const officer_id = req.params.id;
         const officer_data = await Officer.findOne({where:{id: officer_id}});

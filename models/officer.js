@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     district_id: DataTypes.INTEGER,
     place_id: DataTypes.INTEGER,
     ngo_id: DataTypes.INTEGER,
+    image: DataTypes.TEXT,
   }, {
     sequelize,
     modelName: 'Officer',

@@ -53,6 +53,32 @@ exports.getlocalinfluencerbyplaceid = async(req,res) => {
     }
 }
 
+exports.getlocalinfluencerbydistrictid = async(req,res) => {
+    try{
+        const district_id = req.params.districtid;
+        let influencer_id = [];
+        const get_place_by_district = await Place.findAll({
+            where:{
+                district_id: district_id
+            }
+        })
+
+        for(i=0;i<get_place_by_district.length;i++){
+            influencer_id.push(get_place_by_district[i].id)
+        }
+        const influencer_data = await local_influencer.findAll({include: [Place] ,where:{place_id: influencer_id}});
+        
+        if(influencer_data){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",influencer_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 
 exports.createlocalinfluencer = async(req,res) => {
     try{
