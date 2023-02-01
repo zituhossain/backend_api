@@ -1,9 +1,9 @@
 const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
-const {ngoServedPercentByPlace} = require('../validator/place');
+const { ngoServedPercentByPlace } = require('../validator/place');
 
-const {Place,Division,District, ngo_category_b, ngo_served_percent_by_palces,year_place_ngo_officer, Ngo, Officer} = require('../models');
+const { Place, Division, District, ngo_category_b, ngo_served_percent_by_palces, year_place_ngo_officer, Ngo, Officer } = require('../models');
 const { where } = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
@@ -11,12 +11,12 @@ exports.getallPlace = async (req, res) => {
         let roleByplace = await checkUserRoleByPlace(token)
         // console.log(roleByplace)
         let arr = []
-        if(roleByplace.district.length > 0){
-            arr.push({district_id: roleByplace.district})
-        }else if(roleByplace.division.length > 0){
-            arr.push({division_id: roleByplace.division})
-        }else if(roleByplace.place.length > 0){
-            arr.push({id: roleByplace.place})
+        if (roleByplace.district.length > 0) {
+            arr.push({ district_id: roleByplace.district })
+        } else if (roleByplace.division.length > 0) {
+            arr.push({ division_id: roleByplace.division })
+        } else if (roleByplace.place.length > 0) {
+            arr.push({ id: roleByplace.place })
         }
         // console.log(arr)
         const place_data = await Place.findAll({
@@ -172,33 +172,33 @@ exports.getDistrictByDivision = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
-exports.placeConnectWithNgo = async(req, res)=>{
-    try{
+exports.placeConnectWithNgo = async (req, res) => {
+    try {
         const data = req.body
         await Place.update({
-            ngo_id:data.ngo_id
-        },{where:{id:data.place_id}});
-        return apiResponse.successResponse(res,"Data successfully updated.")
-    }catch(err){
-        return apiResponse.ErrorResponse(res,err.message)
+            ngo_id: data.ngo_id
+        }, { where: { id: data.place_id } });
+        return apiResponse.successResponse(res, "Data successfully updated.")
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
     }
 }
-exports.addCategoryB = async(req, res)=>{
-    try{
-        ngo_category_b.destroy({where:{place_id:req.body.place_id}});
-        if(req.body.place_id && req.body.datas){
+exports.addCategoryB = async (req, res) => {
+    try {
+        ngo_category_b.destroy({ where: { place_id: req.body.place_id } });
+        if (req.body.place_id && req.body.datas) {
             for (let index = 0; index < req.body.datas.length; index++) {
                 const element = req.body.datas[index];
                 element.place_id = req.body.place_id;
-                await ngo_category_b.create(element); 
+                await ngo_category_b.create(element);
             }
-            return apiResponse.successResponse(res,"Data successfully saved.")
-            
-        }else{
-            return apiResponse.ErrorResponse(res,"name/place_id/short_name/name/color_code is missing.")
+            return apiResponse.successResponse(res, "Data successfully saved.")
+
+        } else {
+            return apiResponse.ErrorResponse(res, "name/place_id/short_name/name/color_code is missing.")
         }
-    }catch(err){
-        return apiResponse.ErrorResponse(res,err.message)
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
     }
 }
 exports.placeDetails = async(req, res)=>{
@@ -239,26 +239,55 @@ exports.placeDetails = async(req, res)=>{
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
-exports.addNgoServedPercent = async(req, res)=>{
-    try{
+
+exports.placeDetailsAll = async (req, res) => {
+    const d = new Date();
+    let year = d.getFullYear();
+    // const place_id = req.params.id
+    try {
+        const place_data = await ngo_served_percent_by_palces.findAll({
+            include: [
+                {
+                    model: Place,
+                },
+                {
+                    model: Ngo,
+                    as: "ngo"
+                },
+                {
+                    model: Division,
+                },
+            ],
+        }
+
+
+        );
+        return apiResponse.successResponseWithData(res, "Data successfully fetched.", place_data)
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
+exports.addNgoServedPercent = async (req, res) => {
+    try {
 
         await ngoServedPercentByPlace.validateAsync({
-            ngo_id:req.body.ngo_id,
-            district_id:req.body.district_id,
-            division_id:req.body.division_id,
-            place_id:req.body.place_id,
-            percent:req.body.percent,
+            ngo_id: req.body.ngo_id,
+            district_id: req.body.district_id,
+            division_id: req.body.division_id,
+            place_id: req.body.place_id,
+            percent: req.body.percent,
         })
 
         await ngo_served_percent_by_palces.destroy({
-            where:{
-                place_id:req.body.place_id,
-                ngo_id:req.body.ngo_id,
+            where: {
+                place_id: req.body.place_id,
+                ngo_id: req.body.ngo_id,
             }
         });
         await ngo_served_percent_by_palces.create(req.body);
         return apiResponse.successResponse(res, "Data successfully saved.")
-    }catch(err){
-        return apiResponse.ErrorResponse(res,err.message)
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
     }
 }
