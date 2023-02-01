@@ -226,9 +226,10 @@ exports.placeDetails = async(req, res)=>{
                 as:"year_place_ngo_officer",
                 where:{
                     year_id:year, 
+                    rank:1, 
                 },
                 required:false,
-                include:[Officer]
+                include:[Officer, Ngo]
               }
             ],
         
