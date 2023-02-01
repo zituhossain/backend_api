@@ -56,8 +56,8 @@ exports.getoverallconditionbyplacexid = async (req, res) => {
             LEFT JOIN overall_condition_places
             ON overall_conditions.id = overall_condition_places.overall_id and overall_condition_places.place_id = ${placeid}`)
 
-        console.log("results",results)
-        console.log("metadata",metadata)
+        // console.log("results",results)
+        // console.log("metadata",metadata)
 
 
         if (results) {

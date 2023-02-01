@@ -3,6 +3,7 @@ const OfficerController = require('../controllers/OfficerController');
 const auth = require('../middlewares/jwt');
 const router = express.Router();
 const multer = require('multer');
+const base_dir_config = require('../config.js');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
