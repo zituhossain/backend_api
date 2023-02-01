@@ -247,16 +247,16 @@ exports.placeDetailsAll = async (req, res) => {
     try {
         const place_data = await ngo_served_percent_by_palces.findAll({
             include: [
-            {
-                model: Place,
-            },
-            {
-                model: Ngo,
-                as:"ngo"
-            },
-            {
-                model: Division,
-            },
+                {
+                    model: Place,
+                },
+                {
+                    model: Ngo,
+                    as: "ngo"
+                },
+                {
+                    model: Division,
+                },
             ],
         }
 
