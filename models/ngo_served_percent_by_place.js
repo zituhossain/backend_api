@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       targetKey: 'id',
       foreignKey: 'ngo_id',
       });
+      NgoServed.belongsTo(models.Place, {
+        targetKey: 'id',
+        foreignKey: 'place_id',
+        });
     
   }
   return NgoServed;
