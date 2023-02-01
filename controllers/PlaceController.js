@@ -268,9 +268,22 @@ exports.placeDetailsAll = async (req, res) => {
     }
 }
 
-exports.addNgoServedPercent = async (req, res) => {
+exports.placeHistory = async(req, res)=>{
+    const place_id = req.params.id;
     try {
-
+        const place_data = await year_place_ngo_officer.findAll({
+            where:{place_id},
+            include:[Ngo],
+            order:[['year_id', 'DESC']]
+        })
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+    
+}
+exports.addNgoServedPercent = async(req, res)=>{
+    try{
         await ngoServedPercentByPlace.validateAsync({
             ngo_id: req.body.ngo_id,
             district_id: req.body.district_id,
