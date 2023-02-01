@@ -14,6 +14,8 @@ router.get('/districtmap/:id',auth, PlaceController.getDistrictmap);
 router.post('/place_connect_with_ngo', PlaceController.placeConnectWithNgo);
 router.post('/add_category_b', PlaceController.addCategoryB);
 router.get('/place_details/:id', PlaceController.placeDetails);
+router.get('/place_details', PlaceController.placeDetailsAll);
+
 
 router.get('/get_district/:id',auth, PlaceController.getDistrict);
 router.get('/get_division/:id',auth, PlaceController.getDivision);
