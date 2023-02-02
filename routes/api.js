@@ -18,6 +18,7 @@ const NewsEventRouter = require("./NewsEvent");
 const TagRouter = require("./tag");
 
 const Filter = require("./filter");
+const ngoJot = require("./ngoJot");
 
 const populationYearPlace = require("./population_year_place");
 const ngoDetailYearPlace = require("./ngo_detail_year_place");
@@ -54,6 +55,7 @@ apiRouter.use('/news_event/', NewsEventRouter);
 
 apiRouter.use('/tag/', TagRouter);
 apiRouter.use('/filter/', Filter);
+apiRouter.use('/ngo_jot/', ngoJot);
 
 
 
