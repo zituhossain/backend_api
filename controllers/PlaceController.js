@@ -158,6 +158,21 @@ exports.getDistrictmap = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+
+exports.getDivisionmap = async (req, res) => {
+    try {
+        const id = req.params.id
+        const division_data = await Division.findOne({ where: { id: id } });
+        if (division_data) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", division_data)
+        } else {
+            return apiResponse.ErrorResponse(res, "Division table is empty.")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
 exports.getDistrictByDivision = async (req, res) => {
     try {
         const id = req.params.id
