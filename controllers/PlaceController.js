@@ -3,8 +3,8 @@ const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
 const { ngoServedPercentByPlace , ngoJotAddIntoPlace} = require('../validator/place');
 
-const { Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer } = require('../models');
-const Sequelize = require('sequelize');
+const { Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer, sequelize } = require('../models');
+const { where } = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -158,12 +158,28 @@ exports.getDistrictmap = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+
+exports.getDivisionmap = async (req, res) => {
+    try {
+        const id = req.params.id
+        const division_data = await Division.findOne({ where: { id: id } });
+        if (division_data) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", division_data)
+        } else {
+            return apiResponse.ErrorResponse(res, "Division table is empty.")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
 exports.getDistrictByDivision = async (req, res) => {
     try {
         const id = req.params.id
         const district_data = await District.findAll({ where: { division_id: id } });
-        if (district_data) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", district_data)
+		const [results, metadata]  = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id where Places.division_id = ${id} GROUP BY Places.id`);
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
             return apiResponse.ErrorResponse(res, "District table is empty.")
         }
