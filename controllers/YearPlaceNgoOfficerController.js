@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { year_place_ngo_officer, Place, Officer, Ngo } = require('../models');
+const { year_place_ngo_officer, Place, Officer, Ngo,sequelize } = require('../models');
 const checkUserRoleByPlace = require('./globalController');
 
 
@@ -102,6 +102,25 @@ exports.updateoveralltitlebyid = async (req, res) => {
             } else {
                 return apiResponse.ErrorResponse(res, 'description missing')
             }
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
+exports.getkormibyxid = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const condition_name = req.params.condition;
+        const [results, metadata]  = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id where Places.${condition_name}_id = ${id} GROUP BY Places.id`)
+
+
+
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
             return apiResponse.ErrorResponse(res, "No matching query found")
         }
