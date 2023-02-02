@@ -199,6 +199,37 @@ exports.getplacecommentbydistrictid = async(req,res) => {
     }
 }
 
+exports.getplacecommentbydivisionid = async(req,res) => {
+    try{
+        const division_id = req.params.id;
+        let place_id = [];
+        const get_place_by_division = await Place.findAll({
+            where:{
+                division_id: division_id
+            }
+        })
+
+        for(i=0;i<get_place_by_division.length;i++){
+            place_id.push(get_place_by_division[i].id)
+        }
+
+        const place_comment_data = await Tag.findAll({
+            include:[{
+                model: Place_comment,
+                where: {place_id: place_id}
+            }]
+        });
+        if(place_comment_data .length > 0){
+            return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_comment_data)
+        }else{
+            return apiResponse.ErrorResponse(res,"No matching query found")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.getallplacecomment = async(req,res) => {
     try{
         const place_comment_data = await Place_comment.findAll({
