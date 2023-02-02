@@ -8,5 +8,6 @@ const base_dir_config = require('../config.js');
 router.post('/create', NgoJotController.create);
 router.put('/update/:id', NgoJotController.update);
 router.get('/get_details/:id', NgoJotController.get_details);
+router.get('/get_details', NgoJotController.get_detailsAll);
 router.delete('/delete/:id', NgoJotController.delete);
 module.exports = router;

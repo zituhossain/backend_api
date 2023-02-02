@@ -41,6 +41,18 @@ exports.get_details = async(req,res)=>{
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+exports.get_detailsAll = async(req,res)=>{
+    try{
+       
+         const data = await ngo_jots.findAll();
+        return apiResponse.successResponseWithData(res, "Data successfully fetched.", data)
+        
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 exports.delete = async(req,res)=>{
     const id = req.params.id;
     try{
