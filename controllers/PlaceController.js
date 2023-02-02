@@ -1,9 +1,9 @@
 const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
-const { ngoServedPercentByPlace } = require('../validator/place');
+const { ngoServedPercentByPlace , ngoJotAddIntoPlace} = require('../validator/place');
 
-const { Place, Division, District, ngo_category_b, ngo_served_percent_by_palces, year_place_ngo_officer, Ngo, Officer } = require('../models');
+const { Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer } = require('../models');
 const { where } = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
@@ -302,5 +302,71 @@ exports.addNgoServedPercent = async(req, res)=>{
         return apiResponse.successResponse(res, "Data successfully saved.")
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.ngoJotAddIntoPlace = async(req, res)=>{
+    try{
+        await ngoJotAddIntoPlace.validateAsync({
+            ngo_jot_id: req.body.ngo_jot_id,
+            district_id: req.body.district_id,
+            division_id: req.body.division_id,
+            place_id: req.body.place_id,
+            percent: req.body.percent,
+        })
+
+        await ngo_jot_add_into_places.destroy({
+            where: {
+                place_id: req.body.place_id,
+                ngo_jot_id: req.body.ngo_jot_id,
+            }
+        });
+        await ngo_jot_add_into_places.create(req.body);
+        return apiResponse.successResponse(res, "Data successfully saved.")
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.allNgoJotAddIntoPlace = async(req, res)=>{
+   
+    try {
+        const place_data = await ngo_jot_add_into_places.findAll({
+            include:[Place,ngo_jots,Division,District]
+        })
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.getNgoJotAddIntoPlaceId = async(req, res)=>{
+    const place_id = req.params.id;
+    try {
+        const place_data = await ngo_jot_add_into_places.findAll({
+            include:[Place,ngo_jots,Division,District],
+            where:{place_id}
+        })
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.getNgoJotById = async(req, res)=>{
+    const id = req.params.id;
+    try {
+        const place_data = await ngo_jot_add_into_places.findByPk(id, {
+            include:[Place,ngo_jots,Division,District]
+            
+        })
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.ngoJotDeleteById = async(req, res)=>{
+    const id = req.params.id;
+    try {
+        await ngo_jot_add_into_places.destroy({where:{id}})
+        return apiResponse.successResponse(res, "Data successfully deleted.")
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
     }
 }
