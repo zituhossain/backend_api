@@ -3,7 +3,7 @@ const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
 const { ngoServedPercentByPlace , ngoJotAddIntoPlace} = require('../validator/place');
 
-const { Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer } = require('../models');
+const { Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer, sequelize } = require('../models');
 const { where } = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
@@ -177,8 +177,9 @@ exports.getDistrictByDivision = async (req, res) => {
     try {
         const id = req.params.id
         const district_data = await District.findAll({ where: { division_id: id } });
-        if (district_data) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", district_data)
+		const [results, metadata]  = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id where Places.division_id = ${id} GROUP BY Places.id`);
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
             return apiResponse.ErrorResponse(res, "District table is empty.")
         }
@@ -286,11 +287,9 @@ exports.placeDetailsAll = async (req, res) => {
 exports.placeHistory = async(req, res)=>{
     const place_id = req.params.id;
     try {
-        const place_data = await year_place_ngo_officer.findAll({
-            where:{place_id},
-            include:[Ngo],
-            order:[['year_id', 'DESC']]
-        })
+        
+        const place_data = await year_place_ngo_officer.sequelize.query('SELECT year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id where ypno.place_id = '+place_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
+
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
     }catch(err){
         return apiResponse.ErrorResponse(res,err.message)
