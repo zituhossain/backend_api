@@ -7,6 +7,7 @@ router.get('/all_ngo_details_info',auth, NgoDetailController.fetchalllocalinflue
 router.get('/all_ngo_details_info/:id',auth, NgoDetailController.getlocalinfluencerbyid);
 router.get('/all_ngo_details_info_placeId/:placeid',auth, NgoDetailController.getngodetailwiseinfobyplaceid);
 router.get('/all_ngo_details_info_districtid/:districtid',auth, NgoDetailController.getngodetailwiseinfobydistrictid);
+router.get('/all_ngo_details_info_divisionid/:divisionid',auth, NgoDetailController.getngodetailwiseinfobydivisionid);
 router.post('/create_ngo_datails',auth, NgoDetailController.createlocalinfluencer);
 router.post('/update_ngo_details/:id',auth, NgoDetailController.updatelocalinfluencerbyid);
 
