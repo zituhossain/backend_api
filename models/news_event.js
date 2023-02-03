@@ -35,5 +35,16 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'News_event',
   });
+  News_event.associate = models => {
+    News_event.belongsTo(models.Division, {
+      foreignKey: 'division_id',
+    });
+    News_event.belongsTo(models.District, {
+      foreignKey: 'district_id',
+    });
+    News_event.belongsTo(models.Place, {
+      foreignKey: 'place_id',
+    });
+  }
   return News_event;
 };

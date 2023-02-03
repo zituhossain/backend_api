@@ -1,4 +1,4 @@
-const {News_event} = require("../models");
+const {News_event,Division,District,Place} = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
@@ -16,6 +16,17 @@ exports.create_news_event = async(req,res) => {
 		const decodedToken = jwt.verify(token, secret);
 		const userId = decodedToken._id;
         req.body.created_by = userId;
+
+        if(req.body.place_id === 'null'){
+            req.body.place_id = null;
+        }
+        if(req.body.district_id === 'null'){
+            req.body.district_id = null;
+        }
+        if(req.body.division_id === 'null'){
+            req.body.division_id = null;
+        }
+
 
         if(req.body){
             await News_event.create(req.body);
@@ -44,6 +55,15 @@ exports.update_news_event = async(req,res) => {
         req.body.updated_by = userId;
         const news_event_data = await News_event.findAll({where: {id : news_event_id}});
         if(news_event_data.length > 0){
+            if(req.body.place_id === ''){
+                req.body.place_id = null;
+            }
+            if(req.body.district_id === ''){
+                req.body.district_id = null;
+            }
+            if(req.body.division_id === ''){
+                req.body.division_id = null;
+            }
             if(req.body){
                 await News_event.update(req.body,{where:{id:news_event_id}});
                 return apiResponse.successResponse(res,"data successfully updated.")
@@ -100,6 +120,7 @@ exports.fetch_all_news = async(req,res) => {
             arr.push({id: roleByplace.place})
         }
         const news_event_data = await News_event.findAll({
+            include:[Division,District,Place],
             where: arr
         });
         if(news_event_data.length > 0){
