@@ -81,18 +81,49 @@ exports.update_news_event = async(req,res) => {
 
 exports.fetch_news_event_by_id = async(req,res) => {
     try{
-        const place_id = req.params.id;
+        const id = req.params.id;
         const value_name = req.params.value;
         let arr = []
+        let place_id = [];
         if(value_name=='place'){
-            arr.push({place_id: place_id})
+            arr.push({place_id: id})
+            // const get_place_by_place = await Place.findAll({
+            //     where:{
+            //         place_id: id
+            //     }
+            // })
+    
+            // for(i=0;i<get_place_by_place.length;i++){
+            //     place_id.push(get_place_by_place[i].id)
+            // }
         }else if(value_name=='district'){
-            arr.push({district_id: place_id})
+            arr.push({district_id: id})
+            // const get_place_by_district = await Place.findAll({
+            //     where:{
+            //         district_id: id
+            //     }
+            // })
+    
+            // for(i=0;i<get_place_by_district.length;i++){
+            //     place_id.push(get_place_by_district[i].id)
+            // }
         }else if(value_name=='division'){
-            arr.push({division_id: place_id})
+            arr.push({division_id: id})
+            // const get_place_by_division = await Place.findAll({
+            //     where:{
+            //         division_id: id
+            //     }
+            // })
+    
+            // for(i=0;i<get_place_by_division.length;i++){
+            //     place_id.push(get_place_by_division[i].id)
+            // }
         }
         
+        
+        
         const news_event_data = await News_event.findAll({
+            // where: {place_id: place_id}
             where: arr
         });
         if(news_event_data.length > 0){
