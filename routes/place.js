@@ -22,6 +22,7 @@ router.get('/place_history/:id', PlaceController.placeHistory);
 router.get('/get_district/:id',auth, PlaceController.getDistrict);
 router.get('/get_division/:id',auth, PlaceController.getDivision);
 router.get('/get_district_by_division_id/:id',auth, PlaceController.getDistrictByDivision);
+router.get('/get_place_by_division_id/:id',auth, PlaceController.getPlacesByDivision);
 router.post('/add_ngo_served_percent_by_place/',auth, PlaceController.addNgoServedPercent);
 router.post('/ngo_jot_add_into_place/', PlaceController.ngoJotAddIntoPlace);
 router.get('/all_ngo_jot_add_into_place/', PlaceController.allNgoJotAddIntoPlace);

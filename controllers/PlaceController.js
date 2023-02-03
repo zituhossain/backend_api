@@ -177,6 +177,19 @@ exports.getDistrictByDivision = async (req, res) => {
     try {
         const id = req.params.id
         const district_data = await District.findAll({ where: { division_id: id } });
+        if (district_data) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", district_data)
+        } else {
+            return apiResponse.ErrorResponse(res, "District table is empty.")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.getPlacesByDivision = async (req, res) => {
+    try {
+        const id = req.params.id
 		const [results, metadata]  = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id where Places.division_id = ${id} GROUP BY Places.id`);
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
