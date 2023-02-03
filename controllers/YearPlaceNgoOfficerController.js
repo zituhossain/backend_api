@@ -115,7 +115,15 @@ exports.getkormibyxid = async (req, res) => {
     try {
         const id = req.params.id;
         const condition_name = req.params.condition;
-        const [results, metadata]  = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id where Places.${condition_name}_id = ${id} GROUP BY Places.id`)
+        let query = '';
+        if(condition_name === 'place'){
+            query = `Places.id`
+        }else if(condition_name === 'division'){
+            query = `Places.division_id`
+        }else if(condition_name === 'district'){
+            query = `Places.district_id`
+        }
+        const [results, metadata]  = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id where ${query} = ${id} GROUP BY Places.id`)
 
 
 
