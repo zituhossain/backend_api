@@ -10,48 +10,68 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       place_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: true,
       },
       division_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: true,
       },
       district_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: true,
       },
-      youtube_url: {
-        type: Sequelize.TEXT
+      type: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        values: ['youtube_url', 'news_url']
       },
+      // youtube_url: {
+      //   type: Sequelize.TEXT
+      // },
       news_url: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
       image: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
       title: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
       description: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
-      joining_date: {
-        type: Sequelize.STRING,
+      summary: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      news_time: {
+        type: 'TIMESTAMP',
         allowNull: true
       },
-      batch: {
-        type: Sequelize.INTEGER
-      },
-      ability: {
-        type: Sequelize.STRING
-      },
-      honesty: {
-        type: Sequelize.STRING
-      },
-      qualification: {
-        type: Sequelize.STRING
-      },
-      comments: {
-        type: Sequelize.TEXT
-      },
+      // joining_date: {
+      //   type: Sequelize.STRING,
+      //   allowNull: true
+      // },
+      // batch: {
+      //   type: Sequelize.INTEGER
+      // },
+      // ability: {
+      //   type: Sequelize.STRING
+      // },
+      // honesty: {
+      //   type: Sequelize.STRING
+      // },
+      // qualification: {
+      //   type: Sequelize.STRING
+      // },
+      // comments: {
+      //   type: Sequelize.TEXT
+      // },
       createdAt: {
         type: 'TIMESTAMP',
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
