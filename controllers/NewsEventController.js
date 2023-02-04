@@ -18,13 +18,13 @@ exports.create_news_event = async(req,res) => {
 		const userId = decodedToken._id;
         req.body.created_by = userId;
 
-        if(req.body.place_id === 'null'){
+        if(req.body.place_id === 'null' || req.body.place_id === ''){
             req.body.place_id = null;
         }
-        if(req.body.district_id === 'null'){
+        if(req.body.district_id === 'null' || req.body.district_id === ''){
             req.body.district_id = null;
         }
-        if(req.body.division_id === 'null'){
+        if(req.body.division_id === 'null' || req.body.division_id === ''){
             req.body.division_id = null;
         }
 
