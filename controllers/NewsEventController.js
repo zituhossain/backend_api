@@ -3,6 +3,7 @@ const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
 const checkUserRoleByPlace = require('./globalController');
+const { Op } = require("sequelize");
 
 exports.create_news_event = async(req,res) => {
     try{
@@ -128,6 +129,31 @@ exports.fetch_news_event_by_id = async(req,res) => {
         });
         if(news_event_data.length > 0){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",news_event_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.fetch_single_news_event_by_id = async(req,res) => {
+    try{
+        const id = req.params.id;
+        const news_event_data = await News_event.findOne({
+            where: {id: id},
+            include:[Place,Division,District]
+        });
+        if(news_event_data){
+            const news_other_data = await News_event.findAll({
+                where: {id: { [Op.ne]: id}}
+            });
+            const data = {
+                selected_data: news_event_data,
+                other_data : news_other_data
+            }
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",data)
 
         }else{
             return apiResponse.ErrorResponse(res,"No data found!!!")
