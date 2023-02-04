@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     color_code:DataTypes.STRING,
     values:DataTypes.STRING,
   }, {
+    timestamps:false,
     sequelize,
     modelName: 'ngo_categories',
   });
