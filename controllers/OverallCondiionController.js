@@ -97,22 +97,23 @@ exports.getoverallconditionbydivisiondistrictxid = async (req, res) => {
                 place_id.push(get_place_by_division[i].id)
             }
         }
-        let query = "("+place_id.toString()+")";
-        const [results, metadata]  = await sequelize.query(`SELECT overall_condition_places.* , overall_conditions.*
-            FROM overall_conditions
-            LEFT JOIN overall_condition_places
-            ON overall_conditions.id = overall_condition_places.overall_id and overall_condition_places.place_id in ${query}`)
+        if(place_id.length > 0){
+            let query = "("+place_id.toString()+")";
+            const [results, metadata]  = await sequelize.query(`SELECT overall_condition_places.* , overall_conditions.*
+                FROM overall_conditions
+                LEFT JOIN overall_condition_places
+                ON overall_conditions.id = overall_condition_places.overall_id and overall_condition_places.place_id in ${query}`)
 
-        console.log(`aaaaaaaaa SELECT overall_condition_places.* , overall_conditions.*
-        FROM overall_conditions
-        LEFT JOIN overall_condition_places
-        ON overall_conditions.id = overall_condition_places.overall_id and overall_condition_places.place_id in ${query}`)
 
-        if (results) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
-        } else {
+            if (results) {
+                return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+            } else {
+                return apiResponse.ErrorResponse(res, "No matching query found")
+            }
+        }else {
             return apiResponse.ErrorResponse(res, "No matching query found")
         }
+        
 
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
