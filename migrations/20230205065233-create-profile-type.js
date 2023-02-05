@@ -15,6 +15,9 @@ module.exports = {
       sort: {
         type: Sequelize.NUMBER
       },
+      created_by: {
+        type: Sequelize.NUMBER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

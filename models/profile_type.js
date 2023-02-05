@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   Profile_type.init({
     type: DataTypes.STRING,
-    sort: DataTypes.NUMBER
+    sort: DataTypes.NUMBER,
+    created_by: DataTypes.NUMBER
   }, {
     sequelize,
     modelName: 'Profile_type',
