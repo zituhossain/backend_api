@@ -24,7 +24,7 @@ const ngoJot = require("./ngoJot");
 const populationYearPlace = require("./population_year_place");
 const ngoDetailYearPlace = require("./ngo_detail_year_place");
 const placeCategoryB = require("./categoryB");
-
+const config = require('./config');
 
 
 
@@ -59,7 +59,9 @@ apiRouter.use('/tag/', TagRouter);
 apiRouter.use('/filter/', Filter);
 apiRouter.use('/ngo_jot/', ngoJot);
 apiRouter.use('/place_category_b/', placeCategoryB);
+apiRouter.use('/config/', config);
 apiRouter.use('/officer_profile_type/', OfficerProfileType);
+
 
 
 
