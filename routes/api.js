@@ -14,6 +14,7 @@ const NgoRouter = require("./ngo");
 const AllTitle = require("./AllTitle");
 const YearPlaceNgoOfficer = require("./year_place_ngo_officer");
 const OfficerProfileHeading = require("./officer_profile_heading");
+const OfficerProfileType = require("./officer_profile_type");
 const NewsEventRouter = require("./NewsEvent");
 const TagRouter = require("./tag");
 
@@ -59,6 +60,8 @@ apiRouter.use('/filter/', Filter);
 apiRouter.use('/ngo_jot/', ngoJot);
 apiRouter.use('/place_category_b/', placeCategoryB);
 apiRouter.use('/config/', config);
+apiRouter.use('/officer_profile_type/', OfficerProfileType);
+
 
 
 

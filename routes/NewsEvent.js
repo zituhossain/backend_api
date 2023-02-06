@@ -17,6 +17,7 @@ const storage = multer.diskStorage({
 router.post('/create',auth,multer({ storage }).single('myFile'), NewsEventController.create_news_event);
 router.post('/update/:id',auth,multer({ storage }).single('myFile'), NewsEventController.update_news_event);
 router.get('/fetch_news_by_id/:value/:id',auth, NewsEventController.fetch_news_event_by_id);
+router.get('/fetch_single_news_event_by_id/:id',auth, NewsEventController.fetch_single_news_event_by_id);
 router.get('/delete_news_by_id/:id',auth, NewsEventController.delete_by_id);
 router.get('/fetch_all_news',auth,NewsEventController.fetch_all_news);
 

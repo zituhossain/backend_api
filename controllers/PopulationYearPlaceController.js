@@ -47,6 +47,25 @@ exports.getbyYear = async (req, res) => {
     }
 }
 
+exports.getbyDisId = async (req, res) => {
+    try {
+        // const title_id = req.params.year; 
+
+        const disId = req.params.disId;
+    try {
+        
+        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where district_id = '+disId+' group by pyp.place_id');
+
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
 
 exports.create = async (req, res) => {
     try {

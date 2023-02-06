@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class officer_profile_heading extends Model {
+  class Profile_type extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,20 +13,18 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  officer_profile_heading.init({
-    type: DataTypes.TINYINT,
-    heading: DataTypes.STRING,
-    view_sort: DataTypes.INTEGER,
-    created_by: DataTypes.INTEGER,
-    updated_by: DataTypes.INTEGER
+  Profile_type.init({
+    type: DataTypes.STRING,
+    sort: DataTypes.NUMBER,
+    created_by: DataTypes.NUMBER
   }, {
     sequelize,
-    modelName: 'officer_profile_heading',
+    modelName: 'Profile_type',
   });
-  officer_profile_heading.associate = models => {
-    officer_profile_heading.belongsTo(models.Profile_type, {
+  Profile_type.associate = models => {
+    Profile_type.hasMany(models.officer_profile_heading, {
       foreignKey: 'type',
     });
   }
-  return officer_profile_heading;
+  return Profile_type;
 };

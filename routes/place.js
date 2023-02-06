@@ -18,6 +18,8 @@ router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/place_details', PlaceController.placeDetailsAll);
 
 router.get('/place_history/:id', PlaceController.placeHistory);
+router.get('/place_history_district/:id', PlaceController.placeHistoryDistrict);
+
 
 router.get('/get_district/:id',auth, PlaceController.getDistrict);
 router.get('/get_division/:id',auth, PlaceController.getDivision);

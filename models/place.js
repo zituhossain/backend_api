@@ -16,9 +16,9 @@ module.exports = (sequelize, DataTypes) => {
     toJSON () {
       // hide protected fields
       let attributes = Object.assign({}, this.get())
-      for (let a of PROTECTED_ATTRIBUTES) {
-        delete attributes[a]
-      }
+      // for (let a of PROTECTED_ATTRIBUTES) {
+      //   delete attributes[a]
+      // }
       return attributes
     }
   }

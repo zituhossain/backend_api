@@ -309,6 +309,21 @@ exports.placeHistory = async(req, res)=>{
     }
     
 }
+
+exports.placeHistoryDistrict = async(req, res)=>{
+    const dis_id = req.params.id;
+    try {
+        
+        const [results , metadata] = await year_place_ngo_officer.sequelize.query('SELECT year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id left join Places on Places.id=ypno.place_id where Places.district_id = '+ dis_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc');
+
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+    
+}
+
+
 exports.addNgoServedPercent = async(req, res)=>{
     try{
         await ngoServedPercentByPlace.validateAsync({
@@ -397,3 +412,12 @@ exports.ngoJotDeleteById = async(req, res)=>{
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+
+
+
+// select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where district_id = 1 group by pyp.place_id
+
+
+
+// SELECT year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id left join Places on Places.id=ypno.place_id where Places.district_id = 1 group by ypno.year_id,ypno.place_id order by ypno.year_id desc
