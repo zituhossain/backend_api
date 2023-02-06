@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   officers_heading_description.init({
     ypno_id: DataTypes.NUMBER,
+    heading_id: DataTypes.NUMBER,
     desc: DataTypes.TEXT
   }, {
     sequelize,

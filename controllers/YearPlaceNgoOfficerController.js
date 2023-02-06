@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { year_place_ngo_officer, Place, Officer, Ngo, sequelize,Profile_type,officer_profile_heading } = require('../models');
+const { year_place_ngo_officer,officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
 
 const checkUserRoleByPlace = require('./globalController');
 
@@ -25,7 +25,7 @@ exports.fetchYearPlaceNgoofficerFront = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1];
     const allOverallTitle = await Profile_type.findAll({
         include: [officer_profile_heading],
-        required:false
+        required: false
     });
     if (allOverallTitle) {
         return apiResponse.successResponseWithData(res, "year_place_ngo_officer fetch successfully.", allOverallTitle)
@@ -84,13 +84,26 @@ exports.getYearPlaceNgoOfficebyYear = async (req, res) => {
 
 exports.createYearPlaceNgoofficer = async (req, res) => {
     try {
-        console.log("req.body", req.body)
         const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id } });
         if (!get_data) {
             if (Object.keys(req.body).length === 0) {
                 return apiResponse.ErrorResponse(res, 'placeID missing')
             } else {
-                await year_place_ngo_officer.create(req.body);
+                const ypno = await year_place_ngo_officer.create(req.body);
+                console.log(ypno.dataValues);
+                const headingsList = req.body.headingsList;
+                const headingsValueList = req.body.headingsValueList;
+                headingsList.length > 0 && headingsList.map(async(res, index) => {
+                    const description = {
+                        ypno_id: ypno?.dataValues?.id,
+                        heading_id: res.headings_value,
+                        desc: headingsValueList[index].headings_value,
+                    }
+                    await officers_heading_description.create(description);
+
+                })
+
+                console.log('ypno', ypno)
                 return apiResponse.successResponse(res, 'Year Place Ngo Officer saved successfully.')
             }
         } else {

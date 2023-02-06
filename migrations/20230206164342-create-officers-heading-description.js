@@ -12,6 +12,9 @@ module.exports = {
       ypno_id: {
         type: Sequelize.NUMBER
       },
+      heading_id: {
+        type: Sequelize.NUMBER
+      },
       desc: {
         type: Sequelize.TEXT
       },
