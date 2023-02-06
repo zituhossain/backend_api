@@ -163,3 +163,31 @@ exports.getkormibyxid = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+
+
+exports.getkormitopbyxid = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const condition_name = req.params.condition;
+        let query = '';
+        if (condition_name === 'place') {
+            query = `where place_id=${id}`
+        } else if (condition_name === 'division') {
+            query = `where division_id=${id}`
+        } else if (condition_name === 'district') {
+            query = `where district_id=${id}`
+        }
+        const [results, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info `+query);
+
+
+
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
