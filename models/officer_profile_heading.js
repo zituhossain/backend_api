@@ -23,5 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'officer_profile_heading',
   });
+  officer_profile_heading.associate = models => {
+    officer_profile_heading.belongsTo(models.Profile_type, {
+      foreignKey: 'type',
+    });
+  }
   return officer_profile_heading;
 };
