@@ -90,13 +90,12 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
                 return apiResponse.ErrorResponse(res, 'placeID missing')
             } else {
                 const ypno = await year_place_ngo_officer.create(req.body);
-                console.log(ypno.dataValues);
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
                 headingsList.length > 0 && headingsList.map(async(res, index) => {
                     const description = {
                         ypno_id: ypno?.dataValues?.id,
-                        heading_id: res.headings_value,
+                        heading_id: res.id,
                         desc: headingsValueList[index].headings_value,
                     }
                     await officers_heading_description.create(description);
