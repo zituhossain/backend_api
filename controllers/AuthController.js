@@ -97,7 +97,7 @@ exports.login = async (req, res) => {
 					if (passwordmatch2) {
 						var previlege_table_data = []
 						if(user.role_id === 1){
-							previlege_table_data = await Previlege_url.findAll()
+							// previlege_table_data = await Previlege_url.findAll()
 						}else{
 							previlege_table_data = await Previlege_table.findAll({
 								include:[Previlege_url],
