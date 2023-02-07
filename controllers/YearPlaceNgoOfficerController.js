@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { year_place_ngo_officer,officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
+const { years,year_place_ngo_officer,officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
 
 const checkUserRoleByPlace = require('./globalController');
 
@@ -12,7 +12,7 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
         arr.push({ place_id: roleByplace.place })
     }
     const allOverallTitle = await year_place_ngo_officer.findAll({
-        include: [Place, Officer, Ngo],
+        include: [Place, Officer, Ngo, years],
         where: arr
     });
     if (allOverallTitle) {
@@ -24,7 +24,7 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 exports.fetchYearPlaceNgoofficerFront = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1];
     const allOverallTitle = await Profile_type.findAll({
-        include: [officer_profile_heading],
+        include: [officer_profile_heading, years],
         required: false
     });
     if (allOverallTitle) {
@@ -37,7 +37,7 @@ exports.fetchYearPlaceNgoofficerFront = async (req, res) => {
 exports.getYearPlaceNgoofficerbyid = async (req, res) => {
     try {
         const title_id = req.params.id;
-        const title_data = await year_place_ngo_officer.findOne({ where: { id: title_id } });
+        const title_data = await year_place_ngo_officer.findOne({ where: { id: title_id }, include:{years} });
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
         } else {
@@ -52,7 +52,7 @@ exports.getYearPlaceNgoofficerbyid = async (req, res) => {
 exports.getYearPlaceNgoOfficebyPlace = async (req, res) => {
     try {
         const placeid = req.params.placeid;
-        const title_data = await year_place_ngo_officer.findOne({ where: { place_id: placeid } });
+        const title_data = await year_place_ngo_officer.findOne({ where: { place_id: placeid }, include:[years] });
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
         } else {
@@ -69,7 +69,7 @@ exports.getYearPlaceNgoOfficebyYear = async (req, res) => {
         const placeid = req.params.year;
         const id = req.params.id;
         console.log("id", id)
-        const title_data = await year_place_ngo_officer.findOne({ include: [Officer, Ngo], where: { year_id: placeid, ngo_id: id } });
+        const title_data = await year_place_ngo_officer.findOne({ include: [Officer, Ngo,years], where: { year_id: placeid, ngo_id: id } });
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
         } else {
