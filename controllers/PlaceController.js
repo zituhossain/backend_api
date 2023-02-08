@@ -3,7 +3,7 @@ const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
 const { ngoServedPercentByPlace , ngoJotAddIntoPlace} = require('../validator/place');
 
-const { Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer, sequelize } = require('../models');
+const { years, Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer, sequelize } = require('../models');
 const { where } = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
@@ -231,10 +231,15 @@ exports.addCategoryB = async (req, res) => {
     }
 }
 exports.placeDetails = async(req, res)=>{
-    const d = new Date();
-    let year = d.getFullYear();
-    const place_id = req.params.id
+   
     try{
+        const yearRow = await years.findOne({
+           
+            order: [['name', 'DESC']],
+        });
+        
+        let year = yearRow.id;
+        const place_id = req.params.id
         const place_data = await Place.findOne(
             {where:{id: place_id},
             include: [{
@@ -258,7 +263,7 @@ exports.placeDetails = async(req, res)=>{
                     rank:1, 
                 },
                 required:false,
-                include:[Officer, Ngo]
+                include:[Officer, Ngo, years]
               }
             ],
         
@@ -301,9 +306,10 @@ exports.placeHistory = async(req, res)=>{
     const place_id = req.params.id;
     try {
         
-        // const place_data = await year_place_ngo_officer.sequelize.query('SELECT year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id where ypno.place_id = '+place_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
 
-        const place_data = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id LEFT JOIN years ON ypno.year_id = years.id where ypno.place_id = '+place_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
+        const place_data = await year_place_ngo_officer.sequelize.query('SELECT years.name, years.bn_name, year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = '+place_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
+
+        
 
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
     }catch(err){

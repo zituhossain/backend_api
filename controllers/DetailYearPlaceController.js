@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { ngo_detail_year_place,Ngo , Place } = require('../models');
+const { ngo_detail_year_place,Ngo , Place , years} = require('../models');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const { Op } = require("sequelize");
@@ -14,7 +14,7 @@ exports.fetchall = async (req, res) => {
         arr.push({place_id: roleByplace.place})
     }
     const allOverallTitle = await ngo_detail_year_place.findAll({
-        include:[Ngo , Place],
+        include:[Ngo , Place, years],
         where: arr
     });
     if (allOverallTitle) {
