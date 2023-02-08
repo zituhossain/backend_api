@@ -301,7 +301,9 @@ exports.placeHistory = async(req, res)=>{
     const place_id = req.params.id;
     try {
         
-        const place_data = await year_place_ngo_officer.sequelize.query('SELECT year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id where ypno.place_id = '+place_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
+        // const place_data = await year_place_ngo_officer.sequelize.query('SELECT year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id where ypno.place_id = '+place_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
+
+        const place_data = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id LEFT JOIN years ON ypno.year_id = years.id where ypno.place_id = '+place_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
 
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
     }catch(err){
@@ -314,7 +316,7 @@ exports.placeHistoryDistrict = async(req, res)=>{
     const dis_id = req.params.id;
     try {
         
-        const [results , metadata] = await year_place_ngo_officer.sequelize.query('SELECT year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id left join Places on Places.id=ypno.place_id where Places.district_id = '+ dis_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc');
+        const [results , metadata] = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id left join Places on Places.id=ypno.place_id LEFT JOIN years ON ypno.year_id = years.id where Places.district_id = '+ dis_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc');
 
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
     }catch(err){
@@ -327,7 +329,7 @@ exports.placeHistoryDivision = async(req, res)=>{
     const dis_id = req.params.id;
     try {
         
-        const [results , metadata] = await year_place_ngo_officer.sequelize.query('SELECT year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id left join Places on Places.id=ypno.place_id where Places.division_id = '+ dis_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc');
+        const [results , metadata] = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id left join Places on Places.id=ypno.place_id LEFT JOIN years ON ypno.year_id = years.id  where Places.division_id = '+ dis_id+' group by ypno.year_id,ypno.place_id order by ypno.year_id desc');
 
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
     }catch(err){
