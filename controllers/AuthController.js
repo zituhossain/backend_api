@@ -96,14 +96,14 @@ exports.login = async (req, res) => {
 					const passwordmatch2 = await dycryptandmatch(password2, user.password2)
 					if (passwordmatch2) {
 						var previlege_table_data = []
-						if(user.role_id === 1){
-							previlege_table_data = await Previlege_url.findAll()
-						}else{
-							previlege_table_data = await Previlege_table.findAll({
-								include:[Previlege_url],
-								where:{user_role_id: user.role_id}
-							})
-						}
+						// if(user.role_id === 1){
+						// 	previlege_table_data = await Previlege_url.findAll()
+						// }else{
+						// 	previlege_table_data = await Previlege_table.findAll({
+						// 		include:[Previlege_url],
+						// 		where:{user_role_id: user.role_id}
+						// 	})
+						// }
 						let final_array = []
 						for(i=0;i<previlege_table_data.length;i++){
 							final_array.push(previlege_table_data[i].name)
