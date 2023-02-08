@@ -24,7 +24,7 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 exports.fetchYearPlaceNgoofficerFront = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1];
     const allOverallTitle = await Profile_type.findAll({
-        include: [officer_profile_heading, years],
+        include: [officer_profile_heading],
         required: false
     });
     if (allOverallTitle) {
