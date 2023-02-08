@@ -13,10 +13,10 @@ module.exports = {
         type: Sequelize.STRING
       },
       sort: {
-        type: Sequelize.NUMBER
+        type: Sequelize.INTEGER
       },
       created_by: {
-        type: Sequelize.NUMBER
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
