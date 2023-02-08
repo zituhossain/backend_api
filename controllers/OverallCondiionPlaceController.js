@@ -68,7 +68,7 @@ exports.createoverallcondition = async(req,res) => {
                 place_id:req.body.place_id,
                 status:req.body.status,
                 createdby:req.body.createdby,
-                overall_id:req.body.overall_id[i].id
+                overall_id:req.body.overall_id[i].value
             }
             if(Object.keys(req.body).length === 0){
                 return apiResponse.ErrorResponse(res,'place/condtion missing')
