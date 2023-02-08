@@ -36,7 +36,7 @@ exports.getbyYear = async (req, res) => {
         // const title_id = req.params.year; 
 
         const place = req.params.place;
-        const title_data = await population_year_place.findAll({ where: {  place_id: place } });
+        const title_data = await population_year_place.findAll({ where: {  place_id: place },include:[years] });
         // return
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
