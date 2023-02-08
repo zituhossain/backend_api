@@ -10,10 +10,10 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       ypno_id: {
-        type: Sequelize.NUMBER
+        type: Sequelize.INTEGER
       },
       heading_id: {
-        type: Sequelize.NUMBER
+        type: Sequelize.INTEGER
       },
       desc: {
         type: Sequelize.TEXT
