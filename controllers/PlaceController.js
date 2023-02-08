@@ -3,7 +3,7 @@ const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
 const { ngoServedPercentByPlace , ngoJotAddIntoPlace} = require('../validator/place');
 
-const { Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer, sequelize } = require('../models');
+const { years, Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer, sequelize } = require('../models');
 const { where } = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
@@ -231,10 +231,15 @@ exports.addCategoryB = async (req, res) => {
     }
 }
 exports.placeDetails = async(req, res)=>{
-    const d = new Date();
-    let year = d.getFullYear();
-    const place_id = req.params.id
+   
     try{
+        const yearRow = await years.findOne({
+           
+            order: [['name', 'DESC']],
+        });
+        
+        let year = yearRow.name;
+        const place_id = req.params.id
         const place_data = await Place.findOne(
             {where:{id: place_id},
             include: [{

@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   year_place_ngo_officer.init({
-    name: DataTypes.STRING,
+    name: DataTypes.INTEGER,
     bn_name: DataTypes.STRING,
     bn_term: DataTypes.STRING,
   }, {

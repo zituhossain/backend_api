@@ -31,6 +31,9 @@ module.exports = (sequelize, DataTypes) => {
     ngo_detail_year_place.belongsTo(models.Ngo, {
       foreignKey: 'ngo_id',
     });
+    ngo_detail_year_place.belongsTo(models.years, {
+      foreignKey: 'year_id',
+    });
   }
 
   return ngo_detail_year_place;
