@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      logo_name: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       logo: {
         type: Sequelize.TEXT,
         allowNull: true,
