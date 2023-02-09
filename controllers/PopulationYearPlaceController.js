@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { population_year_place, years } = require('../models');
+const { population_year_place, years,Place } = require('../models');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const { Op } = require("sequelize");
@@ -7,7 +7,7 @@ const { Op } = require("sequelize");
 
 exports.fetchall = async (req, res) => {
     const allOverallTitle = await population_year_place.findAll({
-        include:[years]
+        include:[years , Place]
     });
     if (allOverallTitle) {
         return apiResponse.successResponseWithData(res, "population_year_place fetch successfully.", allOverallTitle)
