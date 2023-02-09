@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Ngo.init({
     name: DataTypes.TEXT,
     short_name: DataTypes.TEXT,
+    logo_name: DataTypes.TEXT,
     logo: DataTypes.TEXT,
     color_code: DataTypes.STRING,
     created_by: DataTypes.INTEGER,
