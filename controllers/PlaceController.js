@@ -377,21 +377,28 @@ exports.ngoJotAddIntoPlace = async(req, res)=>{
         //     percent: req.body.percent,
         // })
 
-        await ngo_jot_add_into_places.destroy({
-            where: {
-                place_id: req.body.place_id,
-                ngo_jot_id: req.body.ngo_jot_id,
-            }
-        });
+        // await ngo_jot_add_into_places.destroy({
+        //     where: {
+        //         place_id: req.body.place_id,
+        //         ngo_jot_id: req.body.ngo_jot_id,
+        //     }
+        // });
         let prev_state = req.body.ngo_jot_id;
         for(i=0;i<prev_state.length;i++){
-            prev_state.ngo_jot_id = prev_state[i].id
+            await ngo_jot_add_into_places.destroy({
+                where: {
+                    place_id: req.body.place_id,
+                    ngo_jot_id: prev_state[i].id,
+                }
+            });
+            
+            req.body.ngo_jot_id = prev_state[i].id
             if(prev_state[i]?.percent){
-                prev_state.percent = prev_state[i]?.percent
+                req.body.percent = prev_state[i]?.percent
             }else{
-                prev_state.percent = 0
+                req.body.percent = 0
             }
-            await ngo_jot_add_into_places.create(prev_state);
+            await ngo_jot_add_into_places.create(req.body);
         }
         // await ngo_jot_add_into_places.create(req.body);
         return apiResponse.successResponse(res, "Data successfully saved.")
