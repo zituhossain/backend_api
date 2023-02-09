@@ -369,13 +369,13 @@ exports.addNgoServedPercent = async(req, res)=>{
 }
 exports.ngoJotAddIntoPlace = async(req, res)=>{
     try{
-        await ngoJotAddIntoPlace.validateAsync({
-            ngo_jot_id: req.body.ngo_jot_id,
-            district_id: req.body.district_id,
-            division_id: req.body.division_id,
-            place_id: req.body.place_id,
-            percent: req.body.percent,
-        })
+        // await ngoJotAddIntoPlace.validateAsync({
+        //     ngo_jot_id: req.body.ngo_jot_id,
+        //     district_id: req.body.district_id,
+        //     division_id: req.body.division_id,
+        //     place_id: req.body.place_id,
+        //     percent: req.body.percent,
+        // })
 
         await ngo_jot_add_into_places.destroy({
             where: {
