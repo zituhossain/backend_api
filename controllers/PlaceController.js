@@ -368,22 +368,30 @@ exports.addNgoServedPercent = async(req, res)=>{
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+// exports.ngoJotAddIntoPlace = async(req, res)=>{
+//     try{
+//         await ngoJotAddIntoPlace.validateAsync({
+//             ngo_jot_id: req.body.ngo_jot_id,
+//             district_id: req.body.district_id,
+//             division_id: req.body.division_id,
+//             place_id: req.body.place_id,
+//             percent: req.body.percent,
+//         })
+
+//         await ngo_jot_add_into_places.destroy({
+//             where: {
+//                 place_id: req.body.place_id,
+//                 ngo_jot_id: req.body.ngo_jot_id,
+//             }
+//         });
+//         await ngo_jot_add_into_places.create(req.body);
+//         return apiResponse.successResponse(res, "Data successfully saved.")
+//     } catch (err) {
+//         return apiResponse.ErrorResponse(res, err.message)
+//     }
+// }
 exports.ngoJotAddIntoPlace = async(req, res)=>{
     try{
-        // await ngoJotAddIntoPlace.validateAsync({
-        //     ngo_jot_id: req.body.ngo_jot_id,
-        //     district_id: req.body.district_id,
-        //     division_id: req.body.division_id,
-        //     place_id: req.body.place_id,
-        //     percent: req.body.percent,
-        // })
-
-        // await ngo_jot_add_into_places.destroy({
-        //     where: {
-        //         place_id: req.body.place_id,
-        //         ngo_jot_id: req.body.ngo_jot_id,
-        //     }
-        // });
         let prev_state = req.body.ngo_jot_id;
         for(i=0;i<prev_state.length;i++){
             await ngo_jot_add_into_places.destroy({

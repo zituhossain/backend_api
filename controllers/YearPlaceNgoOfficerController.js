@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { years,year_place_ngo_officer,officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
+const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
 
 const checkUserRoleByPlace = require('./globalController');
 
@@ -37,9 +37,30 @@ exports.fetchYearPlaceNgoofficerFront = async (req, res) => {
 exports.getYearPlaceNgoofficerbyid = async (req, res) => {
     try {
         const title_id = req.params.id;
-        const title_data = await year_place_ngo_officer.findOne({ where: { id: title_id }, include:{years} });
+        const title_data = await year_place_ngo_officer.findOne({ where: { id: title_id }, include: { years } });
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.getNgoOfficerHeadings = async (req, res) => {
+    try {
+        const title_id = req.params.id;
+        const [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*,officer_profile_headings.*,year_place_ngo_officers.place_id,division_id,district_id
+        FROM officers_heading_descriptions
+        LEFT JOIN officer_profile_headings ON officer_profile_headings.id = officers_heading_descriptions.heading_id
+        LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.id = officers_heading_descriptions.ypno_id
+        LEFT JOIN Places ON Places.id = year_place_ngo_officers.place_id
+        WHERE ypno_id = ${title_id}
+        ORDER BY type,view_sort`)
+        
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
             return apiResponse.ErrorResponse(res, "No matching query found")
         }
@@ -52,7 +73,7 @@ exports.getYearPlaceNgoofficerbyid = async (req, res) => {
 exports.getYearPlaceNgoOfficebyPlace = async (req, res) => {
     try {
         const placeid = req.params.placeid;
-        const title_data = await year_place_ngo_officer.findOne({ where: { place_id: placeid }, include:[years] });
+        const title_data = await year_place_ngo_officer.findOne({ where: { place_id: placeid }, include: [years] });
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
         } else {
@@ -69,7 +90,7 @@ exports.getYearPlaceNgoOfficebyYear = async (req, res) => {
         const placeid = req.params.year;
         const id = req.params.id;
         console.log("id", id)
-        const title_data = await year_place_ngo_officer.findOne({ include: [Officer, Ngo,years], where: { year_id: placeid, ngo_id: id } });
+        const title_data = await year_place_ngo_officer.findOne({ include: [Officer, Ngo, years], where: { year_id: placeid, ngo_id: id } });
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
         } else {
@@ -92,7 +113,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
                 const ypno = await year_place_ngo_officer.create(req.body);
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
-                headingsList.length > 0 && headingsList.map(async(res, index) => {
+                headingsList.length > 0 && headingsList.map(async (res, index) => {
                     const description = {
                         ypno_id: ypno?.dataValues?.id,
                         heading_id: res.id,
@@ -109,7 +130,6 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
             return apiResponse.ErrorResponse(res, "Same Year Same Place Same NGO Failed")
         }
 
-
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
     }
@@ -123,6 +143,19 @@ exports.updateoveralltitlebyid = async (req, res) => {
         if (condition_data) {
             if (req.body.place_id) {
                 await year_place_ngo_officer.update(req.body, { where: { id: condition_id } });
+                officers_heading_description.destroy({ where: { ypno_id: condition_id } })
+                const headingsList = req.body.headingsList;
+                const headingsValueList = req.body.headingsValueList;
+                console.log(headingsValueList);
+                headingsList.length > 0 && headingsList.map(async (res, index) => {
+                    const description = {
+                        ypno_id: condition_id,
+                        heading_id: res.id,
+                        desc: headingsValueList[index]?.headings_value?headingsValueList[index]?.headings_value:'',
+                    }
+                    await officers_heading_description.create(description);
+
+                })
                 return apiResponse.successResponse(res, "Data successfully updated.")
             } else {
                 return apiResponse.ErrorResponse(res, 'description missing')
@@ -149,9 +182,6 @@ exports.getkormibyxid = async (req, res) => {
             query = `Places.district_id`
         }
         const [results, metadata] = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id where ${query} = ${id} GROUP BY Places.id`)
-
-
-
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
@@ -176,7 +206,7 @@ exports.getkormitopbyxid = async (req, res) => {
         } else if (condition_name === 'district') {
             query = `where district_id=${id}`
         }
-        const [results, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info `+query);
+        const [results, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info ` + query);
 
 
 
