@@ -7,7 +7,7 @@ exports.createofficer = async (req, res) => {
 		req.body.image = filePath;
 	}
 	try {
-		if (req.body.name && req.body.email && req.body.phone && req.body.address) {
+		if (req.body.name) {
 			const officer_data = await Officer.findOne({ where: { name: req.body.name } })
 			if (officer_data) {
 				return apiResponse.ErrorResponse(res, "NGO officer already found in database")
@@ -123,7 +123,7 @@ exports.updateofficerbyid = async (req, res) => {
 		const officer_id = req.params.id;
 		const officer_data = await Officer.findOne({ where: { id: officer_id } });
 		if (officer_data) {
-			if (req.body.name && req.body.email && req.body.phone && req.body.address) {
+			if (req.body.name) {
 				if (req.body.image === 'null') {
 					await Officer.update({ name: req.body.name, email: req.body.email, phone: req.body.phone, address: req.body.address }, { where: { id: officer_id } });
 				} else {
