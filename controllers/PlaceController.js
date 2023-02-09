@@ -21,6 +21,7 @@ exports.getallPlace = async (req, res) => {
         // console.log(arr)
         const place_data = await Place.findAll({
             include: [Division, District],
+            order: [['id','ASC']],
             where: arr,
         });
         if (place_data) {
