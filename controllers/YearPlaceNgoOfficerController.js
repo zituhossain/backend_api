@@ -200,12 +200,14 @@ exports.getkormitopbyxid = async (req, res) => {
         const condition_name = req.params.condition;
         let query = '';
         if (condition_name === 'place') {
-            query = `where place_id=${id}`
+            query = ` place_id=${id}`
         } else if (condition_name === 'division') {
-            query = `where division_id=${id}`
+            query = ` division_id=${id}`
         } else if (condition_name === 'district') {
-            query = `where district_id=${id}`
+            query = ` district_id=${id}`
         }
+        query = `where year = (SELECT max(year) FROM Ngo_place_info npi) and`+query  
+
         const [results, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info ` + query);
 
 
