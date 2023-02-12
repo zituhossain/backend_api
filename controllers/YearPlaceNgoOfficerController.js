@@ -58,7 +58,31 @@ exports.getNgoOfficerHeadings = async (req, res) => {
         LEFT JOIN Places ON Places.id = year_place_ngo_officers.place_id
         WHERE ypno_id = ${title_id}
         ORDER BY type,view_sort`)
-        
+
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.getNgoOfficerExists = async (req, res) => {
+    try {
+        const officer_id = req.params.officer_id;
+        const year_id = req.params.year_id;
+        const [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*
+        FROM officers_heading_descriptions
+        LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.id = officers_heading_descriptions.ypno_id
+        WHERE officer_id = ${officer_id} and year_id=${year_id}`)
+        console.log(`SELECT officers_heading_descriptions.*
+        FROM officers_heading_descriptions
+        LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.id = officers_heading_descriptions.ypno_id
+        WHERE officer_id = ${officer_id} and year_id=${year_id}`)
+
+
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
@@ -151,7 +175,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     const description = {
                         ypno_id: condition_id,
                         heading_id: res.id,
-                        desc: headingsValueList[index]?.headings_value?headingsValueList[index]?.headings_value:'',
+                        desc: headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '',
                     }
                     await officers_heading_description.create(description);
 
@@ -206,7 +230,7 @@ exports.getkormitopbyxid = async (req, res) => {
         } else if (condition_name === 'district') {
             query = ` district_id=${id}`
         }
-        query = `where year = (SELECT max(year) FROM Ngo_place_info npi) and`+query  
+        query = `where year = (SELECT max(year) FROM Ngo_place_info npi) and` + query
 
         const [results, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info ` + query);
 

@@ -11,6 +11,7 @@ router.get('/get_ngo_officer_headings/:id',auth, YearPlaceNgoOfficerController.g
 router.get('/all_year_place_kormi/:condition/:id',auth, YearPlaceNgoOfficerController.getkormibyxid);
 router.get('/all_year_place_kormi_top/:condition/:id',auth, YearPlaceNgoOfficerController.getkormitopbyxid);
 router.get('/all_year_place_ngo_officer_year/:year/:id',auth, YearPlaceNgoOfficerController.getYearPlaceNgoOfficebyYear);
+router.get('/get_ngo_officer_exists/:year_id/:officer_id',auth, YearPlaceNgoOfficerController.getNgoOfficerExists);
 router.post('/create_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.createYearPlaceNgoofficer);
 router.post('/update_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.updateoveralltitlebyid);
 
