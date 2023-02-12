@@ -117,7 +117,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
                     const description = {
                         ypno_id: ypno?.dataValues?.id,
                         heading_id: res.id,
-                        desc: headingsValueList[index].headings_value,
+                        desc: headingsValueList[index]?.headings_value,
                     }
                     await officers_heading_description.create(description);
 
