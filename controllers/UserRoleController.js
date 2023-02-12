@@ -479,13 +479,21 @@ exports.getprevilegetablebyuserid = async(req,res) => {
 		const userId = decodedToken._id;
         const user_data = await User.findOne({ where: { id: userId } })
         let previlege_module = [];
+        let previlege_data = [];
         if (user_data.role_id){
-            const previlege_data = await Previlege_table.findAll({
+            previlege_data = await Previlege_table.findAll({
                 include:[Previlege_url],
                 where:{user_role_id: user_data.role_id}
             })
-            for(i=0;i<previlege_data.length;i++){
-                previlege_module.push(previlege_data[i].Previlege_url.name)
+            if(user_data.role_id === 1){
+                previlege_data = await Previlege_url.findAll();
+                for(i=0;i<previlege_data.length;i++){
+                    previlege_module.push(previlege_data[i].name)
+                }
+            }else{
+                for(i=0;i<previlege_data.length;i++){
+                    previlege_module.push(previlege_data[i].Previlege_url.name)
+                }
             }
 
         }
