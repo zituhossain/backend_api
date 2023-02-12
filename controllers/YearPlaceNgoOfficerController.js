@@ -81,8 +81,19 @@ exports.getNgoOfficerExists = async (req, res) => {
         FROM officers_heading_descriptions
         LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.id = officers_heading_descriptions.ypno_id
         WHERE officer_id = ${officer_id} and year_id=${year_id}`)
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
 
-
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.getAllCountInformation = async (req, res) => {
+    try {
+        const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer from population_year_places`)
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
