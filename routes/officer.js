@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
         cb(null, base_dir_config.base_dir + 'uploads/officer/')
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname)
+        cb(null, req.body.name+"_"+file.originalname)
     }
 })
 
