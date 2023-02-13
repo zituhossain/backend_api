@@ -50,13 +50,14 @@ exports.getYearPlaceNgoofficerbyid = async (req, res) => {
 }
 exports.getNgoOfficerHeadings = async (req, res) => {
     try {
-        const title_id = req.params.id;
+        const officer_id = req.params.officer_id;
+        const year_id = req.params.year_id;
         const [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*,officer_profile_headings.*,year_place_ngo_officers.place_id,division_id,district_id
         FROM officers_heading_descriptions
         LEFT JOIN officer_profile_headings ON officer_profile_headings.id = officers_heading_descriptions.heading_id
         LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.id = officers_heading_descriptions.ypno_id
         LEFT JOIN Places ON Places.id = year_place_ngo_officers.place_id
-        WHERE ypno_id = ${title_id}
+        WHERE year_place_ngo_officers.year_id = ${year_id} and year_place_ngo_officers.officer_id =${officer_id}
         ORDER BY type,view_sort`)
 
         if (results) {
@@ -75,12 +76,8 @@ exports.getNgoOfficerExists = async (req, res) => {
         const year_id = req.params.year_id;
         const [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*
         FROM officers_heading_descriptions
-        LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.id = officers_heading_descriptions.ypno_id
-        WHERE officer_id = ${officer_id} and year_id=${year_id}`)
-        console.log(`SELECT officers_heading_descriptions.*
-        FROM officers_heading_descriptions
-        LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.id = officers_heading_descriptions.ypno_id
-        WHERE officer_id = ${officer_id} and year_id=${year_id}`)
+        LEFT JOIN year_place_ngo_officers on officers_heading_descriptions.officer_id = year_place_ngo_officers.officer_id AND officers_heading_descriptions.year_id = year_place_ngo_officers.year_id
+        WHERE year_place_ngo_officers.officer_id = ${officer_id} and year_place_ngo_officers.year_id=${year_id}`)
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
@@ -148,16 +145,22 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
                 const ypno = await year_place_ngo_officer.create(req.body);
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
-                headingsList.length > 0 && headingsList.map(async (res, index) => {
-                    const description = {
-                        ypno_id: ypno?.dataValues?.id,
-                        heading_id: res.id,
-                        desc: headingsValueList[index]?.headings_value,
-                    }
-                    await officers_heading_description.create(description);
+                const [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*
+        FROM officers_heading_descriptions LEFT JOIN year_place_ngo_officers on officers_heading_descriptions.officer_id = year_place_ngo_officers.officer_id AND officers_heading_descriptions.year_id = year_place_ngo_officers.year_id  WHERE year_place_ngo_officers.officer_id = ${req.body.officer_id} and year_place_ngo_officers.year_id=${req.body.year_id}`)
+        console.log(results);
+                if (results.length === 0) {
+                    headingsList.length > 0 && headingsList.map(async (res, index) => {
+                        const description = {
+                            // ypno_id: ypno?.dataValues?.id,
+                            heading_id: res.id,
+                            officer_id: req.body.officer_id,
+                            year_id: res.body.year_id,
+                            desc: headingsValueList[index]?.headings_value,
+                        }
+                        await officers_heading_description.create(description);
 
-                })
-
+                    })
+                }
                 console.log('ypno', ypno)
                 return apiResponse.successResponse(res, 'Year Place Ngo Officer saved successfully.')
             }
@@ -178,13 +181,14 @@ exports.updateoveralltitlebyid = async (req, res) => {
         if (condition_data) {
             if (req.body.place_id) {
                 await year_place_ngo_officer.update(req.body, { where: { id: condition_id } });
-                officers_heading_description.destroy({ where: { ypno_id: condition_id } })
+                officers_heading_description.destroy({ where: { officer_id: req.body.officer_id,year_id: req.body.officer_id } })
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
-                console.log(headingsValueList);
                 headingsList.length > 0 && headingsList.map(async (res, index) => {
                     const description = {
-                        ypno_id: condition_id,
+                        // ypno_id: condition_id,                        
+                        officer_id: req.body.officer_id,
+                        year_id: res.body.year_id,
                         heading_id: res.id,
                         desc: headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '',
                     }
