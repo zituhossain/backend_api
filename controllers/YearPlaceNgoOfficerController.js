@@ -55,10 +55,11 @@ exports.getNgoOfficerHeadings = async (req, res) => {
         const [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*,officer_profile_headings.*,year_place_ngo_officers.place_id,division_id,district_id
         FROM officers_heading_descriptions
         LEFT JOIN officer_profile_headings ON officer_profile_headings.id = officers_heading_descriptions.heading_id
-        LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.id = officers_heading_descriptions.ypno_id
+        LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.year_id = officers_heading_descriptions.year_id 
+        AND year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id
         LEFT JOIN Places ON Places.id = year_place_ngo_officers.place_id
-        WHERE year_place_ngo_officers.year_id = ${year_id} and year_place_ngo_officers.officer_id =${officer_id}
-        ORDER BY type,view_sort`)
+        WHERE year_place_ngo_officers.year_id = ${year_id} AND year_place_ngo_officers.officer_id =${officer_id}
+        group by officer_profile_headings.id ORDER BY TYPE,view_sort`)
 
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
@@ -154,7 +155,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
                             // ypno_id: ypno?.dataValues?.id,
                             heading_id: res.id,
                             officer_id: req.body.officer_id,
-                            year_id: res.body.year_id,
+                            year_id: req.body.year_id,
                             desc: headingsValueList[index]?.headings_value,
                         }
                         await officers_heading_description.create(description);
@@ -181,17 +182,18 @@ exports.updateoveralltitlebyid = async (req, res) => {
         if (condition_data) {
             if (req.body.place_id) {
                 await year_place_ngo_officer.update(req.body, { where: { id: condition_id } });
-                officers_heading_description.destroy({ where: { officer_id: req.body.officer_id,year_id: req.body.officer_id } })
+                officers_heading_description.destroy({ where: { officer_id: req.body.officer_id,year_id: req.body.year_id } })
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
                 headingsList.length > 0 && headingsList.map(async (res, index) => {
                     const description = {
                         // ypno_id: condition_id,                        
                         officer_id: req.body.officer_id,
-                        year_id: res.body.year_id,
+                        year_id: req.body.year_id,
                         heading_id: res.id,
                         desc: headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '',
                     }
+                    console.log(description);
                     await officers_heading_description.create(description);
 
                 })
