@@ -21,6 +21,9 @@ router.get('/place_history/:id', PlaceController.placeHistory);
 router.get('/place_history_district/:id', PlaceController.placeHistoryDistrict);
 router.get('/place_history_division/:id', PlaceController.placeHistoryDivision);
 
+router.get('/all_place_history', PlaceController.AllPlaceHistory);
+
+
 
 
 router.get('/get_district/:id',auth, PlaceController.getDistrict);

@@ -132,6 +132,31 @@ exports.fetchall_ngo_by_place =async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+exports.fetchall_year_place_ngo =async(req,res) => {
+    try{
+        const ngo_data = await year_place_ngo_officer.findAll({
+            where:{
+                        ngo_id: {
+                            [Op.ne]: null
+                        }
+                },
+                include: [{
+                        model: Ngo
+                    }],
+                group:['ngo_id']
+        });
+        
+        if(ngo_data.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 exports.fetchNgoCategorisByPlace =async(req,res) => {
     const place_id = req.params.id;
     try{
