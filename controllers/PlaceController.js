@@ -5,6 +5,7 @@ const { ngoServedPercentByPlace , ngoJotAddIntoPlace} = require('../validator/pl
 
 const { years, Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer, sequelize } = require('../models');
 const { where } = require('sequelize');
+var Sequelize = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -284,6 +285,7 @@ exports.placeDetailsAll = async (req, res) => {
     // const place_id = req.params.id
     try {
         const place_data = await ngo_served_percent_by_palces.findAll({
+            group: 'place_id' ,
             include: [
                 {
                     model: Place,
