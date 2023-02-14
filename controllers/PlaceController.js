@@ -375,7 +375,7 @@ exports.addNgoServedPercent = async(req, res)=>{
             percent: req.body.percent,
         })
         let ngo_id = req.body.ngo_id;
-        for(i=0;i<req.body.ngo_id.length;i++){
+        for(i=0;i<ngo_id.length;i++){
             await ngo_served_percent_by_palces.destroy({
                 where: {
                     place_id: req.body.place_id,
