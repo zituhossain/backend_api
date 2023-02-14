@@ -5,6 +5,7 @@ const { ngoServedPercentByPlace , ngoJotAddIntoPlace} = require('../validator/pl
 
 const { years, Place,ngo_jots, Division, District, ngo_category_b, ngo_served_percent_by_palces, ngo_jot_add_into_places, year_place_ngo_officer, Ngo, Officer, sequelize } = require('../models');
 const { where } = require('sequelize');
+var Sequelize = require('sequelize');
 exports.getallPlace = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -284,6 +285,7 @@ exports.placeDetailsAll = async (req, res) => {
     // const place_id = req.params.id
     try {
         const place_data = await ngo_served_percent_by_palces.findAll({
+            group: 'place_id' ,
             include: [
                 {
                     model: Place,
@@ -367,21 +369,33 @@ exports.placeHistoryDivision = async(req, res)=>{
 
 exports.addNgoServedPercent = async(req, res)=>{
     try{
-        await ngoServedPercentByPlace.validateAsync({
-            ngo_id: req.body.ngo_id,
-            district_id: req.body.district_id,
-            division_id: req.body.division_id,
-            place_id: req.body.place_id,
-            percent: req.body.percent,
-        })
+        // await ngoServedPercentByPlace.validateAsync({
+        //     ngo_id: req.body.ngo_id,
+        //     district_id: req.body.district_id,
+        //     division_id: req.body.division_id,
+        //     place_id: req.body.place_id,
+        //     percent: req.body.percent,
+        // })
+        let ngo_id = req.body.ngo_id;
+        for(i=0;i<ngo_id.length;i++){
+            await ngo_served_percent_by_palces.destroy({
+                where: {
+                    place_id: req.body.place_id,
+                    ngo_id: ngo_id[i].Ngo.id,
+                }
+            });
+            req.body.ngo_id = ngo_id[i].Ngo.id
+            req.body.percent = ngo_id[i].percent ?? 0
+            await ngo_served_percent_by_palces.create(req.body);
+        }
 
-        await ngo_served_percent_by_palces.destroy({
-            where: {
-                place_id: req.body.place_id,
-                ngo_id: req.body.ngo_id,
-            }
-        });
-        await ngo_served_percent_by_palces.create(req.body);
+        // await ngo_served_percent_by_palces.destroy({
+        //     where: {
+        //         place_id: req.body.place_id,
+        //         ngo_id: req.body.ngo_id,
+        //     }
+        // });
+        // await ngo_served_percent_by_palces.create(req.body);
         return apiResponse.successResponse(res, "Data successfully saved.")
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
