@@ -374,14 +374,26 @@ exports.addNgoServedPercent = async(req, res)=>{
             place_id: req.body.place_id,
             percent: req.body.percent,
         })
+        let ngo_id = req.body.ngo_id;
+        for(i=0;i<req.body.ngo_id.length;i++){
+            await ngo_served_percent_by_palces.destroy({
+                where: {
+                    place_id: req.body.place_id,
+                    ngo_id: ngo_id[i].ngo_id,
+                }
+            });
+            req.body.ngo_id = ngo_id[i].ngo_id
+            req.body.percent = ngo_id[i].percent
+            await ngo_served_percent_by_palces.create(req.body);
+        }
 
-        await ngo_served_percent_by_palces.destroy({
-            where: {
-                place_id: req.body.place_id,
-                ngo_id: req.body.ngo_id,
-            }
-        });
-        await ngo_served_percent_by_palces.create(req.body);
+        // await ngo_served_percent_by_palces.destroy({
+        //     where: {
+        //         place_id: req.body.place_id,
+        //         ngo_id: req.body.ngo_id,
+        //     }
+        // });
+        // await ngo_served_percent_by_palces.create(req.body);
         return apiResponse.successResponse(res, "Data successfully saved.")
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
