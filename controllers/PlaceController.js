@@ -401,6 +401,19 @@ exports.addNgoServedPercent = async(req, res)=>{
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+exports.getNgoServedPercent = async(req, res)=>{
+    const place_id = req.params.id;    
+    try {
+        const place_data = await ngo_served_percent_by_palces.findAll({
+            include:[Place,ngo_jots,Division,District],
+            where:{place_id}   
+
+        })
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",place_data)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 // exports.ngoJotAddIntoPlace = async(req, res)=>{
 //     try{
 //         await ngoJotAddIntoPlace.validateAsync({
