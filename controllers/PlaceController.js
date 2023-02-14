@@ -207,7 +207,7 @@ exports.placeConnectWithNgo = async (req, res) => {
         const data = req.body
         for(i=0;i<data.ngo_id.length;i++){
             await Place.update({
-                ngo_id: data.ngo_id[i]
+                ngo_id: data.ngo_id[i].value
             }, { where: { id: data.place_id } });
         }
         return apiResponse.successResponse(res, "Data successfully updated.")
