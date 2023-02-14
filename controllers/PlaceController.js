@@ -205,9 +205,11 @@ exports.getPlacesByDivision = async (req, res) => {
 exports.placeConnectWithNgo = async (req, res) => {
     try {
         const data = req.body
-        await Place.update({
-            ngo_id: data.ngo_id
-        }, { where: { id: data.place_id } });
+        for(i=0;i<data.ngo_id.length;i++){
+            await Place.update({
+                ngo_id: data.ngo_id[i]
+            }, { where: { id: data.place_id } });
+        }
         return apiResponse.successResponse(res, "Data successfully updated.")
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
