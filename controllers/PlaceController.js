@@ -367,23 +367,23 @@ exports.placeHistoryDivision = async(req, res)=>{
 
 exports.addNgoServedPercent = async(req, res)=>{
     try{
-        await ngoServedPercentByPlace.validateAsync({
-            ngo_id: req.body.ngo_id,
-            district_id: req.body.district_id,
-            division_id: req.body.division_id,
-            place_id: req.body.place_id,
-            percent: req.body.percent,
-        })
+        // await ngoServedPercentByPlace.validateAsync({
+        //     ngo_id: req.body.ngo_id,
+        //     district_id: req.body.district_id,
+        //     division_id: req.body.division_id,
+        //     place_id: req.body.place_id,
+        //     percent: req.body.percent,
+        // })
         let ngo_id = req.body.ngo_id;
         for(i=0;i<ngo_id.length;i++){
             await ngo_served_percent_by_palces.destroy({
                 where: {
                     place_id: req.body.place_id,
-                    ngo_id: ngo_id[i].ngo_id,
+                    ngo_id: ngo_id[i].Ngo.id,
                 }
             });
-            req.body.ngo_id = ngo_id[i].ngo_id
-            req.body.percent = ngo_id[i].percent
+            req.body.ngo_id = ngo_id[i].Ngo.id
+            req.body.percent = ngo_id[i].percent ?? 0
             await ngo_served_percent_by_palces.create(req.body);
         }
 
