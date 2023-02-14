@@ -91,7 +91,7 @@ exports.getNgoOfficerExists = async (req, res) => {
 }
 exports.getAllCountInformation = async (req, res) => {
     try {
-        const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer from population_year_places`)
+        const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (SELECT MAX(id) FROM years)`)
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
