@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get('/all_year_place_ngo_officer_front',auth, YearPlaceNgoOfficerController.fetchYearPlaceNgoofficerFront);
 router.get('/all_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.fetchYearPlaceNgoofficer);
+router.get('/delete_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.deleteYearPlaceNgoofficer);
 router.get('/all_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.getYearPlaceNgoofficerbyid);
 router.get('/all_year_place_ngo_officer_place/:placeid',auth, YearPlaceNgoOfficerController.getYearPlaceNgoOfficebyPlace);
 router.get('/get_ngo_officer_headings/:officer_id/:year_id',auth, YearPlaceNgoOfficerController.getNgoOfficerHeadings);
