@@ -4,6 +4,18 @@ const { years, year_place_ngo_officer, officers_heading_description, Place, Offi
 const checkUserRoleByPlace = require('./globalController');
 
 
+exports.deleteYearPlaceNgoofficer = async (req, res) => {
+    const row_id = req.params.id;
+    const allOverallTitle = await year_place_ngo_officer.findOne({
+        where: {id: row_id}
+    });
+    if (allOverallTitle) {
+        await year_place_ngo_officer.destroy({where: {id:row_id}});
+        return apiResponse.successResponse(res, "data successfully deleted")
+    } else {
+        return apiResponse.ErrorResponse(res, "No data found")
+    }
+}
 exports.fetchYearPlaceNgoofficer = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1];
     let roleByplace = await checkUserRoleByPlace(token)
