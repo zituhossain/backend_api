@@ -1,5 +1,5 @@
 const {Op} = require('sequelize');
-const {Ngo, year_place_ngo_officer, Officer,ngo_categories,Place, ngo_category_b, ngo_detail_year_place } = require("../models");
+const {Ngo, year_place_ngo_officer, Officer,ngo_categories,Place, ngo_category_b,ngo_served_percent_by_palces, ngo_detail_year_place } = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
@@ -117,6 +117,9 @@ exports.fetchall_ngo_by_place =async(req,res) => {
                 },
                 include: [{
                         model: Ngo
+                    },
+                    {
+                        model: ngo_served_percent_by_palces , where:{place_id:place_id},required:false
                     }],
                 group:['ngo_id']
         });

@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
     year_place_ngo_officer.belongsTo(models.Ngo, {
       foreignKey: 'ngo_id',
     });
+    year_place_ngo_officer.belongsTo(models.ngo_served_percent_by_palces, {
+      targetKey: 'ngo_id',
+      foreignKey: 'ngo_id',
+    });
     year_place_ngo_officer.belongsTo(models.Officer, {
       foreignKey: 'officer_id',
     });
