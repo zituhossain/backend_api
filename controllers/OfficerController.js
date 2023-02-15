@@ -55,7 +55,7 @@ exports.getOfficerInfoById = async (req, res) => {
 }
 exports.getOfficerHeadingById = async (req, res) => {
 	try {
-		const [results, metadata]  = await sequelize.query(`select GROUP_CONCAT(heading) as heading, GROUP_CONCAT(officers_heading_descriptions.desc) as descc,Profile_types.type,Profile_types.id as profile_type_id,officer_id from officer_profile_headings LEFT JOIN officers_heading_descriptions on officers_heading_descriptions.heading_id = officer_profile_headings.id LEFT join Profile_types on Profile_types.id = officer_profile_headings.type LEFT JOIN year_place_ngo_officers on year_place_ngo_officers.id = officers_heading_descriptions.ypno_id WHERE officer_id='${req.params.id}' group by officer_profile_headings.type`);
+		const [results, metadata]  = await sequelize.query(`select GROUP_CONCAT(heading) as heading, GROUP_CONCAT(officers_heading_descriptions.desc) as descc,Profile_types.type,Profile_types.id as profile_type_id,officers_heading_descriptions.officer_id from officer_profile_headings LEFT JOIN officers_heading_descriptions on officers_heading_descriptions.heading_id = officer_profile_headings.id LEFT join Profile_types on Profile_types.id = officer_profile_headings.type LEFT JOIN year_place_ngo_officers on year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.year_id WHERE officers_heading_descriptions.officer_id='${req.params.id}' group by officer_profile_headings.type`);
 		if (results) {
 			return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
 		} else {
