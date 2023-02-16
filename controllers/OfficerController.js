@@ -42,7 +42,8 @@ exports.getallofficer = async (req, res) => {
 
 exports.getOfficerInfoById = async (req, res) => {
 	try {
-		const [results, metadata]  = await sequelize.query(`select * from Ngo_place_info where officer_id = '${req.params.id}'`);
+		const [results, metadata]  = await sequelize.query(`select * from Ngo_place_info where officer_id = '${req.params.officer_id}' and place_id =${req.params.place_id}`
+);
 		if (results) {
 			return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
 		} else {
@@ -54,8 +55,13 @@ exports.getOfficerInfoById = async (req, res) => {
 	}
 }
 exports.getOfficerHeadingById = async (req, res) => {
+	const officer_id = req.params.id;
+	const place_id = req.params.place_id;
+
 	try {
-		const [results, metadata]  = await sequelize.query(`select GROUP_CONCAT(heading) as heading, GROUP_CONCAT(officers_heading_descriptions.desc) as descc,Profile_types.type,Profile_types.id as profile_type_id,officers_heading_descriptions.officer_id from officer_profile_headings LEFT JOIN officers_heading_descriptions on officers_heading_descriptions.heading_id = officer_profile_headings.id LEFT join Profile_types on Profile_types.id = officer_profile_headings.type LEFT JOIN year_place_ngo_officers on year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.year_id WHERE officers_heading_descriptions.officer_id='${req.params.id}' group by officer_profile_headings.type`);
+		const [results, metadata]  = await sequelize.query(`		
+		select GROUP_CONCAT(DISTINCT(heading)) as heading, GROUP_CONCAT(DISTINCT(officers_heading_descriptions.desc)) as descc,Profile_types.type,Profile_types.id as profile_type_id,officers_heading_descriptions.officer_id from officer_profile_headings LEFT JOIN officers_heading_descriptions on officers_heading_descriptions.heading_id = officer_profile_headings.id LEFT join Profile_types on Profile_types.id = officer_profile_headings.type LEFT JOIN year_place_ngo_officers on year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.year_id WHERE officers_heading_descriptions.officer_id=${officer_id} and year_place_ngo_officers.place_id = ${place_id} and year_place_ngo_officers.year_id = (select MAX(id) from years) group by Profile_types.id
+		`);
 		if (results) {
 			return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
 		} else {

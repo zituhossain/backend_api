@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {Division, District, Place} = require('../models');
+const {Division, District, Place,year_place_ngo_officer,Ngo,years,sequelize} = require('../models');
 
 
 
@@ -25,6 +25,26 @@ exports.placesByDistricId = async(req,res) => {
     const placeAll = await Place.findAll({where:{district_id}});
     if(placeAll){
         return apiResponse.successResponseWithData(res,"all_title fetch successfully.",placeAll)
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
+
+exports.finalReportGenerate = async(req,res) => {
+    // let arr = [];
+    let query = ''
+    if(req.body.year_id != ''){
+        // arr.push({year_id: req.body.year_id})
+        const get_year = await years.findOne({where:{id:req.body.year_id}})
+        query = ` where year = ${get_year.name}`
+    }
+    // const alldata = await year_place_ngo_officer.findAll(
+
+    //     {include:[Ngo,Place],where:arr}
+    //     );
+    const [alldata, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info` + query);
+    if(alldata.length > 0){
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
         return apiResponse.ErrorResponse(res,"No data found")
     }

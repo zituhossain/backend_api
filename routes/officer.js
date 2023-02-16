@@ -16,8 +16,8 @@ const storage = multer.diskStorage({
 
 router.post('/create_officer',auth,multer({ storage }).single('image'), OfficerController.createofficer);
 router.get('/all_officer',auth, OfficerController.getallofficer);
-router.get('/getOfficerInfo/:id',auth, OfficerController.getOfficerInfoById);
-router.get('/getOfficerHeadingById/:id',auth, OfficerController.getOfficerHeadingById);
+router.get('/getOfficerInfo/:officer_id/:place_id',auth, OfficerController.getOfficerInfoById);
+router.get('/getOfficerHeadingById/:officer_id/:place_id',auth, OfficerController.getOfficerHeadingById);
 router.get('/all_active_officer',auth, OfficerController.getactiveofficer);
 router.get('/all_deleted_officer',auth, OfficerController.getdeletedofficer);
 router.get('/get_officer/:id',auth, OfficerController.getofficerbyid);
