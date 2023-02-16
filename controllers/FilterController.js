@@ -29,7 +29,15 @@ exports.placesByDistricId = async(req,res) => {
         return apiResponse.ErrorResponse(res,"No data found")
     }
 }
-
+exports.places = async(req,res) => {
+    const district_id = req.params.id;
+    const placeAll = await Place.findAll();
+    if(placeAll.length>0){
+        return apiResponse.successResponseWithData(res,"all_place fetch successfully.",placeAll)
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
 exports.finalReportGenerate = async(req,res) => {
     let query = ''
     if(req.body.year_id != ''){
@@ -48,6 +56,24 @@ exports.finalReportGenerate = async(req,res) => {
             query += ` and division_name = '${get_division.name_bg}'`
         }else{
             query += ` where division_name = '${get_division.name_bg}'`
+        }
+        
+    }
+    if(req.body.district_id != ''){
+        const get_district = await District.findOne({where:{id:req.body.district_id}})
+        if(query.includes('where')){
+            query += ` and district_name = '${get_district.name_bg}'`
+        }else{
+            query += ` where district_name = '${get_district.name_bg}'`
+        }
+        
+    }
+    if(req.body.place_id != ''){
+        const get_place = await Place.findOne({where:{id:req.body.place_id}})
+        if(query.includes('where')){
+            query += ` and place_name = '${get_place.name}'`
+        }else{
+            query += ` where place_name = '${get_place.name}'`
         }
         
     }
