@@ -55,7 +55,7 @@ exports.getOfficerInfoById = async (req, res) => {
 	}
 }
 exports.getOfficerHeadingById = async (req, res) => {
-	const officer_id = req.params.id;
+	const officer_id = req.params.officer_id;
 	const place_id = req.params.place_id;
 
 	try {
