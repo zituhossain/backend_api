@@ -51,6 +51,15 @@ exports.finalReportGenerate = async(req,res) => {
         }
         
     }
+    if(req.body.ngo_id != ''){
+        const get_ngo = await Ngo.findOne({where:{id:req.body.ngo_id}})
+        if(query.includes('where')){
+            query += ` and ngo_name = '${get_ngo.name}'`
+        }else{
+            query += ` where ngo_name = '${get_ngo.name}'`
+        }
+        
+    }
     const [alldata, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info` + query);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
