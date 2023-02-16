@@ -31,17 +31,26 @@ exports.placesByDistricId = async(req,res) => {
 }
 
 exports.finalReportGenerate = async(req,res) => {
-    // let arr = [];
     let query = ''
     if(req.body.year_id != ''){
-        // arr.push({year_id: req.body.year_id})
         const get_year = await years.findOne({where:{id:req.body.year_id}})
-        query = ` where year = ${get_year.name}`
+        if(query.includes('where')){
+            query += ` and year = '${get_year.name}'`
+        }else{
+            query += ` where year = '${get_year.name}'`
+        }
+        
     }
-    // const alldata = await year_place_ngo_officer.findAll(
 
-    //     {include:[Ngo,Place],where:arr}
-    //     );
+    if(req.body.division_id != ''){
+        const get_division = await Division.findOne({where:{id:req.body.division_id}})
+        if(query.includes('where')){
+            query += ` and division_name = '${get_division.name_bg}'`
+        }else{
+            query += ` where division_name = '${get_division.name_bg}'`
+        }
+        
+    }
     const [alldata, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info` + query);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
