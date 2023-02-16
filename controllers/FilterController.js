@@ -42,9 +42,9 @@ exports.finalReportGenerate = async(req,res) => {
 
     //     {include:[Ngo,Place],where:arr}
     //     );
-    const alldata = await sequelize.query(`SELECT * FROM Ngo_place_info` + query);
+    const [alldata, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info` + query);
     if(alldata.length > 0){
-        return apiResponse.successResponseWithData(res,"all_title fetch successfully.",alldata)
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
         return apiResponse.ErrorResponse(res,"No data found")
     }
