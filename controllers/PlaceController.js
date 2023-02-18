@@ -342,11 +342,11 @@ exports.placeHistory = async (req, res) => {
 }
 
 exports.AllPlaceHistory = async (req, res) => {
-    const place_id = req.params.id;
+    
     try {
 
 
-        const place_data = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  group by ypno.year_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
+        const place_data = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.short_name) as ngo_short_name,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  group by ypno.year_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
 
 
 

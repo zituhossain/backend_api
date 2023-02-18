@@ -1,8 +1,9 @@
 const {Op} = require('sequelize');
-const {Ngo, year_place_ngo_officer, Officer,ngo_categories,Place, ngo_category_b,ngo_served_percent_by_palces, ngo_detail_year_place } = require("../models");
+const {Ngo, year_place_ngo_officer, Officer,ngo_categories,Place, ngo_category_b,ngo_served_percent_by_palces, ngo_detail_year_place,sequelize } = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
+// var Sequelize = require('sequelize');
 
 exports.create_ngo = async(req,res) => {
     try{
@@ -92,6 +93,19 @@ exports.fetchNgoCategoris =async(req,res) => {
 
     }catch(err){
         return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+exports.fetchNgoCategorisCount = async (req, res) => {
+    try {
+        const [results, metadata] = await sequelize.query(`SELECT short_name,count(ngo_categories.id) as place_count from ngo_categories LEFT join ngo_category_bs on ngo_categories.id = ngo_category_bs.ngo_category_id GROUP by ngo_categories.id`)
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
     }
 }
 exports.fetchall_ngo_by_place =async(req,res) => {
