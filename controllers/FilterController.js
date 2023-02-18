@@ -77,7 +77,9 @@ exports.finalReportGenerate = async(req,res) => {
         }
         
     }
+    let custome_query = '';
     if(req.body.ngo_id != ''){
+        custome_query = `,(select Officers.name from year_place_ngo_officers LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.bn_name = year(curdate()) and year_place_ngo_officers.place_id = Ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id}) as ngo_officer_one`
         const get_ngo = await Ngo.findOne({where:{id:req.body.ngo_id}})
         if(query.includes('where')){
             query += ` and ngo_name = '${get_ngo.name}'`
@@ -90,7 +92,8 @@ exports.finalReportGenerate = async(req,res) => {
         }
         
     }
-    const [alldata, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info` + query + ` GROUP BY officer_name`);
+    // const [alldata, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info` + query + ` GROUP BY officer_name`);
+    const [alldata, metadata] = await sequelize.query(`SELECT Ngo_place_info.* ${custome_query} FROM Ngo_place_info` + query + ` GROUP BY officer_name`);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
