@@ -39,7 +39,7 @@ exports.places = async(req,res) => {
     }
 }
 exports.finalReportGenerate = async(req,res) => {
-    let query = ' where year =(select years.name from years order by id DESC LIMIT 1,1)'
+    let query = ''
     if(req.body.year_id !== ''){
         const get_year = await years.findOne({where:{id:req.body.year_id}})
         if(query.includes('where')){
@@ -96,7 +96,7 @@ exports.finalReportGenerate = async(req,res) => {
         }        
     }
     // const [alldata, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info` + query + ` GROUP BY officer_name`);
-    const [alldata, metadata] = await sequelize.query(`SELECT Ngo_place_info.*,(select ngo_name from Ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2 ${custome_query} FROM Ngo_place_info` + query + ` GROUP BY place_id`);
+    const [alldata, metadata] = await sequelize.query(`SELECT Ngo_place_info.*,(select ngo_name from Ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select Officers.name from year_place_ngo_officers LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = Ngo_place_info.place_id limit 1) as ngo_officer ${custome_query} FROM Ngo_place_info` + query + ` GROUP BY place_id`);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
@@ -104,7 +104,7 @@ exports.finalReportGenerate = async(req,res) => {
     }
 }
 exports.finalReportGenerateDoubleNGO = async(req,res) => {
-    let query = ' where year =(select years.name from years order by id DESC LIMIT 1,1)'
+    let query = ''
     if(req.body.year_id != ''){
         const get_year = await years.findOne({where:{id:req.body.year_id}})
         if(query.includes('where')){
@@ -142,7 +142,7 @@ exports.finalReportGenerateDoubleNGO = async(req,res) => {
         }
         
     }
-    const [alldata, metadata] = await sequelize.query(`SELECT Ngo_place_info.*,(select ngo_name from Ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select ngo_name from Ngo_place_info npi where ngo_id = 2 limit 1) as ngo_name3,(select Officers.name from year_place_ngo_officers LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = Ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id}) as ngo_officer_one, (select Officers.name from year_place_ngo_officers LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = Ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id2}) as ngo_officer_two FROM Ngo_place_info` + query + ` GROUP BY place_id`);
+    const [alldata, metadata] = await sequelize.query(`SELECT Ngo_place_info.*,(select ngo_name from Ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select ngo_name from Ngo_place_info npi where ngo_id = 2 limit 1) as ngo_name3,(select Officers.name from year_place_ngo_officers LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = Ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id}) as ngo_officer_one, (select Officers.name from year_place_ngo_officers LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = Ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id2}) as ngo_officer_two,(select Officers.name from year_place_ngo_officers LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = Ngo_place_info.place_id limit 1) as ngo_officer FROM Ngo_place_info` + query + ` GROUP BY place_id`);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
