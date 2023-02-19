@@ -86,7 +86,7 @@ exports.finalReportGenerate = async(req,res) => {
     if(req.body.ngo_id !== ''){        
         const get_ngo = await Ngo.findOne({where:{id:req.body.ngo_id}})
         if(query.includes('where')){
-            query += ` and ngo_name = '${get_ngo.name}'`
+            // query += ` and ngo_name = '${get_ngo.name}'`
         }else{
             query += ` where ngo_name = '${get_ngo.name}'`
         }
