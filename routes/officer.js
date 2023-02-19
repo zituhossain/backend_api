@@ -21,6 +21,7 @@ router.get('/getOfficerHeadingById/:officer_id/:place_id',auth, OfficerControlle
 router.get('/all_active_officer',auth, OfficerController.getactiveofficer);
 router.get('/all_deleted_officer',auth, OfficerController.getdeletedofficer);
 router.get('/get_officer/:id',auth, OfficerController.getofficerbyid);
+router.get('/get_officer_history/:id',auth, OfficerController.getOfficerHistory);
 router.get('/delete_officer/:id',auth, OfficerController.deleteofficerbyid);
 router.get('/activate_officer/:id',auth, OfficerController.activeofficerbyid);
 router.post('/update_officer/:id',auth,multer({ storage }).single('image'), OfficerController.updateofficerbyid);

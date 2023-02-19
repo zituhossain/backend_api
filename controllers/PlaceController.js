@@ -203,6 +203,22 @@ exports.getPlacesByDivision = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+
+exports.getPlacesByDistrict = async (req, res) => {
+    try {
+        const id = req.params.id
+        const [results, metadata] = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image,Officers.id as officer_id,Ngos.name as ngo_name,Places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id left join Ngos on Ngos.id = ypno.ngo_id left join Ngos place_ngo on  place_ngo.id = Places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = Places.id left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where Places.district_id = ${id} GROUP BY Places.id`);
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+        } else {
+            return apiResponse.ErrorResponse(res, "District table is empty.")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
 exports.placeConnectWithNgo = async (req, res) => {
     try {
         const data = req.body
@@ -326,11 +342,11 @@ exports.placeHistory = async (req, res) => {
 }
 
 exports.AllPlaceHistory = async (req, res) => {
-    const place_id = req.params.id;
+    
     try {
 
 
-        const place_data = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  group by ypno.year_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
+        const place_data = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.short_name) as ngo_short_name,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  group by ypno.year_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
 
 
 
