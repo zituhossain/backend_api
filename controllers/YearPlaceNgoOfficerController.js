@@ -205,14 +205,15 @@ exports.updateoveralltitlebyid = async (req, res) => {
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
                 headingsList.length > 0 && headingsList.map(async (res, index) => {
+                    let get_desc = generateHash(headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '');
                     const description = {
                         // ypno_id: condition_id,                        
                         officer_id: req.body.officer_id,
                         year_id: req.body.year_id,
                         heading_id: res.id,
-                        desc: headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '',
+                        desc: get_desc,
                     }
-                    console.log(description);
+                    // console.log(description);
                     await officers_heading_description.create(description);
 
                 })
