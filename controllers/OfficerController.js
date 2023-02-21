@@ -91,6 +91,7 @@ exports.getOfficerHeadingById = async (req, res) => {
 			let final_data = [];
 			for(let i=0;i<results.length;i++){
 				let current_desc = results[i].descc;
+				let decoded_desc = "";
 				
 				
 				if(current_desc.includes(",")){
@@ -99,10 +100,11 @@ exports.getOfficerHeadingById = async (req, res) => {
 					for(let v=0;v<split_desc.length;v++){
 						new_arr.push(decryptHash(split_desc[v]))
 					}
-					current_desc = new_arr.join(",")
+					
+					decoded_desc = new_arr.join(",")
+				}else{
+					decoded_desc = decryptHash(current_desc);
 				}
-				console.log("aaaaaaaaaa",current_desc)
-				let decoded_desc = decryptHash(current_desc);
 				results[i].descc = decoded_desc;
 				final_data.push(results[i]);
 			}
