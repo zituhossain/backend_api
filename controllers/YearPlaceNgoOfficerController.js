@@ -1,11 +1,6 @@
 const apiResponse = require('../helpers/apiResponse');
 const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
-const bcrypt = require('bcrypt');
-const crypto = require("crypto");
-
-const algorithm = "aes-256-cbc"; 
-
-const initVector = crypto.randomBytes(16);
+const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
 
 
@@ -153,21 +148,9 @@ exports.getYearPlaceNgoOfficebyYear = async (req, res) => {
     }
 }
 var generateHash = (value) => {
-	// let salt = bcrypt.genSaltSync();
-	// return bcrypt.hashSync(value, salt);
-    const Securitykey = crypto.randomBytes(32);
-
-    // the cipher function
-    const cipher = crypto.createCipheriv(algorithm, Securitykey, initVector);
-
-    // encrypt the message
-    // input encoding
-    // output encoding
-    let encryptedData = cipher.update(value, "utf-8", "hex");
-
-    encryptedData += cipher.final("hex");
-
-    return encryptedData
+	// return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(value));
+    const passphrase = '123';
+    return CryptoJS.AES.encrypt(value, passphrase).toString();
 
 }
 
