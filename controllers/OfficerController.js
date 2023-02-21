@@ -1,5 +1,6 @@
 const apiResponse = require('../helpers/apiResponse');
 const { Officer,sequelize } = require('../models');
+const CryptoJS = require('crypto-js');
 
 exports.createofficer = async (req, res) => {
 	if (req.file) {
@@ -68,16 +69,44 @@ exports.getOfficerHistory = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message)
 	}
 }
+
+var decryptHash = (value) => {
+	// return CryptoJS.enc.Base64.parse(value).toString(CryptoJS.enc.Utf8);
+	const passphrase = '123';
+	const bytes = CryptoJS.AES.decrypt(value, passphrase);
+	const originalText = bytes.toString(CryptoJS.enc.Utf8);
+	return originalText;
+}
+
 exports.getOfficerHeadingById = async (req, res) => {
 	const officer_id = req.params.officer_id;
 	const place_id = req.params.place_id;
 
 	try {
-		const [results, metadata]  = await sequelize.query(`		
+		let [results, metadata]  = await sequelize.query(`		
 		select GROUP_CONCAT(DISTINCT(heading)) as heading, GROUP_CONCAT(DISTINCT(officers_heading_descriptions.desc)) as descc,Profile_types.type,Profile_types.id as profile_type_id,officers_heading_descriptions.officer_id from officer_profile_headings LEFT JOIN officers_heading_descriptions on officers_heading_descriptions.heading_id = officer_profile_headings.id LEFT join Profile_types on Profile_types.id = officer_profile_headings.type LEFT JOIN year_place_ngo_officers on year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.year_id WHERE officers_heading_descriptions.officer_id=${officer_id} and year_place_ngo_officers.place_id = ${place_id} and year_place_ngo_officers.year_id = (select MAX(id) from years) group by Profile_types.id
 		`);
+		// console.log("111111111111111",results)
 		if (results) {
-			return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+			let final_data = [];
+			for(let i=0;i<results.length;i++){
+				let current_desc = results[i].descc;
+				
+				
+				if(current_desc.includes(",")){
+					let split_desc = current_desc.split(",");
+					let new_arr = [];
+					for(let v=0;v<split_desc.length;v++){
+						new_arr.push(decryptHash(split_desc[v]))
+					}
+					current_desc = new_arr.join(",")
+				}
+				console.log("aaaaaaaaaa",current_desc)
+				let decoded_desc = decryptHash(current_desc);
+				results[i].descc = decoded_desc;
+				final_data.push(results[i]);
+			}
+			return apiResponse.successResponseWithData(res, "Data successfully fetched.", final_data)
 		} else {
 			return apiResponse.ErrorResponse(res, "Officer table is empty.")
 		}
