@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
+const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading,NgoServed } = require('../models');
 const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
 
@@ -10,6 +10,14 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
         where: {id: row_id}
     });
     if (allOverallTitle) {
+        let check_if_exist = year_place_ngo_officer.findOne({
+            where: {ngo_id: allOverallTitle.ngo_id,year_id: allOverallTitle.year_id}
+        });
+        if(check_if_exist){
+
+        }else{
+            await NgoServed.destroy({where: {ngo_id: allOverallTitle.ngo_id}})
+        }
         await year_place_ngo_officer.destroy({where: {id:row_id}});
         await officers_heading_description.destroy({where: {officer_id:allOverallTitle.officer_id}});
         return apiResponse.successResponse(res, "data successfully deleted")
