@@ -1,7 +1,7 @@
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const {Previlege_place_division_district} = require('../models');
-
+const CryptoJS = require('crypto-js');
 
 const checkUserRoleByPlace = async(token) =>{
     const decodedToken = jwt.verify(token, secret);
@@ -33,6 +33,19 @@ const checkUserRoleByPlace = async(token) =>{
     }else{
         return {place: place_arr,division: division_arr,district: district_arr}
     }
+}
+var generateHash = (value) => {
+	// return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(value));
+    const passphrase = '123';
+    return CryptoJS.AES.encrypt(value, passphrase).toString();
+
+}
+var decryptHash = (value) => {
+	// return CryptoJS.enc.Base64.parse(value).toString(CryptoJS.enc.Utf8);
+	const passphrase = '123';
+	const bytes = CryptoJS.AES.decrypt(value, passphrase);
+	const originalText = bytes.toString(CryptoJS.enc.Utf8);
+	return originalText;
 }
 
 module.exports = checkUserRoleByPlace;
