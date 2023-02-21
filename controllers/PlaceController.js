@@ -239,7 +239,10 @@ exports.addCategoryB = async (req, res) => {
             for (let index = 0; index < req.body.datas.length; index++) {
                 const element = req.body.datas[index];
                 element.place_id = req.body.place_id;
-                await ngo_category_b.create(element);
+                if(element.status === "colorActive"){
+                    await ngo_category_b.create(element);
+                }
+                
             }
             return apiResponse.successResponse(res, "Data successfully saved.")
 
