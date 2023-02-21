@@ -1,6 +1,11 @@
 const apiResponse = require('../helpers/apiResponse');
 const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
 const bcrypt = require('bcrypt');
+const crypto = require("crypto");
+
+const algorithm = "aes-256-cbc"; 
+
+const initVector = crypto.randomBytes(16);
 const checkUserRoleByPlace = require('./globalController');
 
 
@@ -11,6 +16,7 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
     });
     if (allOverallTitle) {
         await year_place_ngo_officer.destroy({where: {id:row_id}});
+        await officers_heading_description.destroy({where: {officer_id:allOverallTitle.officer_id}});
         return apiResponse.successResponse(res, "data successfully deleted")
     } else {
         return apiResponse.ErrorResponse(res, "No data found")
@@ -146,9 +152,22 @@ exports.getYearPlaceNgoOfficebyYear = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
-function generateHash(value) {
-	let salt = bcrypt.genSaltSync();
-	return bcrypt.hashSync(value, salt);
+var generateHash = (value) => {
+	// let salt = bcrypt.genSaltSync();
+	// return bcrypt.hashSync(value, salt);
+    const Securitykey = crypto.randomBytes(32);
+
+    // the cipher function
+    const cipher = crypto.createCipheriv(algorithm, Securitykey, initVector);
+
+    // encrypt the message
+    // input encoding
+    // output encoding
+    let encryptedData = cipher.update(value, "utf-8", "hex");
+
+    encryptedData += cipher.final("hex");
+
+    return encryptedData
 
 }
 
