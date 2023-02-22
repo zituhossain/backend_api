@@ -152,20 +152,21 @@ exports.fetchall_ngo_by_place =async(req,res) => {
 }
 exports.fetchall_year_place_ngo =async(req,res) => {
     try{
-        const ngo_data = await year_place_ngo_officer.findAll({
-            where:{
-                        ngo_id: {
-                            [Op.ne]: null
-                        }
-                },
-                include: [{
-                        model: Ngo
-                    }],
-                group:['ngo_id']
-        });
+        // const ngo_data = await year_place_ngo_officer.findAll({
+        //     where:{
+        //                 ngo_id: {
+        //                     [Op.ne]: null
+        //                 }
+        //         },
+        //         include: [{
+        //                 model: Ngo
+        //             }],
+        //         group:['ngo_id']
+        // });
+        const [results, metadata] = await sequelize.query(`select * from Places LEFT JOIN Ngos on Ngos.id = Places.ngo_id`);
         
-        if(ngo_data.length > 0){
-            return apiResponse.successResponseWithData(res,"Data fetch successfull.",ngo_data)
+        if(results.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",results)
 
         }else{
             return apiResponse.ErrorResponse(res,"No data found!!!")
