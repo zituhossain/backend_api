@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
+const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading,NgoServed } = require('../models');
 const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
 
@@ -10,6 +10,14 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
         where: {id: row_id}
     });
     if (allOverallTitle) {
+        let check_if_exist = year_place_ngo_officer.findOne({
+            where: {ngo_id: allOverallTitle.ngo_id,year_id: allOverallTitle.year_id}
+        });
+        if(check_if_exist){
+
+        }else{
+            await NgoServed.destroy({where: {ngo_id: allOverallTitle.ngo_id}})
+        }
         await year_place_ngo_officer.destroy({where: {id:row_id}});
         await officers_heading_description.destroy({where: {officer_id:allOverallTitle.officer_id}});
         return apiResponse.successResponse(res, "data successfully deleted")
@@ -170,15 +178,19 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
         // console.log(results);
                 if (results.length === 0) {
                     headingsList.length > 0 && headingsList.map(async (res, index) => {
-                        let get_desc = generateHash(headingsValueList[index]?.headings_value);
-                        const description = {
-                            // ypno_id: ypno?.dataValues?.id,
-                            heading_id: res.id,
-                            officer_id: req.body.officer_id,
-                            year_id: req.body.year_id,
-                            desc: get_desc,
+                        
+                        if(headingsValueList[index]?.headings_value){
+                            let get_desc = generateHash(headingsValueList[index]?.headings_value);
+                            const description = {
+                                // ypno_id: ypno?.dataValues?.id,
+                                heading_id: res.id,
+                                officer_id: req.body.officer_id,
+                                year_id: req.body.year_id,
+                                desc: get_desc,
+                            }
+                            await officers_heading_description.create(description);
                         }
-                        await officers_heading_description.create(description);
+                        
 
                     })
                 }
