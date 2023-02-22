@@ -177,15 +177,19 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
         // console.log(results);
                 if (results.length === 0) {
                     headingsList.length > 0 && headingsList.map(async (res, index) => {
-                        let get_desc = generateHash(headingsValueList[index]?.headings_value);
-                        const description = {
-                            // ypno_id: ypno?.dataValues?.id,
-                            heading_id: res.id,
-                            officer_id: req.body.officer_id,
-                            year_id: req.body.year_id,
-                            desc: get_desc,
+                        
+                        if(headingsValueList[index]?.headings_value){
+                            let get_desc = generateHash(headingsValueList[index]?.headings_value);
+                            const description = {
+                                // ypno_id: ypno?.dataValues?.id,
+                                heading_id: res.id,
+                                officer_id: req.body.officer_id,
+                                year_id: req.body.year_id,
+                                desc: get_desc,
+                            }
+                            await officers_heading_description.create(description);
                         }
-                        await officers_heading_description.create(description);
+                        
 
                     })
                 }
