@@ -69,11 +69,18 @@ exports.getYearPlaceNgoofficerbyid = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+var decryptHash = (value) => {
+	// return CryptoJS.enc.Base64.parse(value).toString(CryptoJS.enc.Utf8);
+	const passphrase = '123';
+	const bytes = CryptoJS.AES.decrypt(value, passphrase);
+	const originalText = bytes.toString(CryptoJS.enc.Utf8);
+	return originalText;
+}
 exports.getNgoOfficerHeadings = async (req, res) => {
     try {
         const officer_id = req.params.officer_id;
         const year_id = req.params.year_id;
-        const [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*,officer_profile_headings.*,year_place_ngo_officers.place_id,division_id,district_id
+        let [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*,officer_profile_headings.*,year_place_ngo_officers.place_id,division_id,district_id
         FROM officers_heading_descriptions
         LEFT JOIN officer_profile_headings ON officer_profile_headings.id = officers_heading_descriptions.heading_id
         LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.year_id = officers_heading_descriptions.year_id 
@@ -83,7 +90,13 @@ exports.getNgoOfficerHeadings = async (req, res) => {
         group by officer_profile_headings.id ORDER BY TYPE,view_sort`)
 
         if (results) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+            let final_arr = [];
+            for(let i=0;i<results.length;i++){
+                let decrypted_data = decryptHash(results[i].desc);
+                results[i].desc = decrypted_data;
+				final_arr.push(results[i])
+            }
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", final_arr)
         } else {
             return apiResponse.ErrorResponse(res, "No matching query found")
         }
@@ -218,16 +231,18 @@ exports.updateoveralltitlebyid = async (req, res) => {
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
                 headingsList.length > 0 && headingsList.map(async (res, index) => {
-                    let get_desc = generateHash(headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '');
-                    const description = {
-                        // ypno_id: condition_id,                        
-                        officer_id: req.body.officer_id,
-                        year_id: req.body.year_id,
-                        heading_id: res.id,
-                        desc: get_desc,
+                    if(headingsValueList[index]?.headings_value){
+                        let get_desc = generateHash(headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '');
+                        const description = {
+                            // ypno_id: condition_id,                        
+                            officer_id: req.body.officer_id,
+                            year_id: req.body.year_id,
+                            heading_id: res.id,
+                            desc: get_desc,
+                        }
+                        // console.log(description);
+                        await officers_heading_description.create(description);
                     }
-                    // console.log(description);
-                    await officers_heading_description.create(description);
 
                 })
                 return apiResponse.successResponse(res, "Data successfully updated.")
