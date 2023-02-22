@@ -192,7 +192,17 @@ exports.getDistrictByDivision = async (req, res) => {
 exports.getPlacesByDivision = async (req, res) => {
     try {
         const id = req.params.id
-        const [results, metadata] = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image,Officers.id as officer_id,Ngos.name as ngo_name,Places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id left join Ngos on Ngos.id = ypno.ngo_id left join Ngos place_ngo on  place_ngo.id = Places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = Places.id left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where Places.division_id = ${id} GROUP BY Places.id`);
+        const [results, metadata] = await sequelize.query(`select Places.name,Places.id as place_id,place_ngo.name as ngo_name,
+        Places.area,
+        place_ngo.short_name,
+        place_ngo.color_code,
+        ngo_categories.color_code as categoryb_color,
+        ngo_categories.short_name as categoryb_name 
+        from Places
+        left join Ngos place_ngo on  place_ngo.id = Places.ngo_id 
+        left join ngo_category_bs on ngo_category_bs.place_id = Places.id 
+        left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id 
+        where Places.division_id = ${id} GROUP BY Places.id`);
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
@@ -239,7 +249,10 @@ exports.addCategoryB = async (req, res) => {
             for (let index = 0; index < req.body.datas.length; index++) {
                 const element = req.body.datas[index];
                 element.place_id = req.body.place_id;
-                await ngo_category_b.create(element);
+                if(element.status === "colorActive"){
+                    await ngo_category_b.create(element);
+                }
+                
             }
             return apiResponse.successResponse(res, "Data successfully saved.")
 
@@ -342,7 +355,7 @@ exports.placeHistory = async (req, res) => {
 }
 
 exports.AllPlaceHistory = async (req, res) => {
-    
+
     try {
 
 

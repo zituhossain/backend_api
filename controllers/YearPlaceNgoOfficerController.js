@@ -1,6 +1,6 @@
 const apiResponse = require('../helpers/apiResponse');
 const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading } = require('../models');
-
+const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
 
 
@@ -11,6 +11,7 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
     });
     if (allOverallTitle) {
         await year_place_ngo_officer.destroy({where: {id:row_id}});
+        await officers_heading_description.destroy({where: {officer_id:allOverallTitle.officer_id}});
         return apiResponse.successResponse(res, "data successfully deleted")
     } else {
         return apiResponse.ErrorResponse(res, "No data found")
@@ -103,7 +104,8 @@ exports.getNgoOfficerExists = async (req, res) => {
 }
 exports.getAllCountInformation = async (req, res) => {
     try {
-        const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select id from years order by id DESC LIMIT 1,1)`)
+        // const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select id from years order by id DESC LIMIT 1,1)`)
+        const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select MAX(id) from years)`)
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
@@ -146,7 +148,12 @@ exports.getYearPlaceNgoOfficebyYear = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+var generateHash = (value) => {
+	// return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(value));
+    const passphrase = '123';
+    return CryptoJS.AES.encrypt(value, passphrase).toString();
 
+}
 
 exports.createYearPlaceNgoofficer = async (req, res) => {
     try {
@@ -160,21 +167,22 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
                 const headingsValueList = req.body.headingsValueList;
                 const [results, metadata] = await sequelize.query(`SELECT officers_heading_descriptions.*
         FROM officers_heading_descriptions LEFT JOIN year_place_ngo_officers on officers_heading_descriptions.officer_id = year_place_ngo_officers.officer_id AND officers_heading_descriptions.year_id = year_place_ngo_officers.year_id  WHERE year_place_ngo_officers.officer_id = ${req.body.officer_id} and year_place_ngo_officers.year_id=${req.body.year_id}`)
-        console.log(results);
+        // console.log(results);
                 if (results.length === 0) {
                     headingsList.length > 0 && headingsList.map(async (res, index) => {
+                        let get_desc = generateHash(headingsValueList[index]?.headings_value);
                         const description = {
                             // ypno_id: ypno?.dataValues?.id,
                             heading_id: res.id,
                             officer_id: req.body.officer_id,
                             year_id: req.body.year_id,
-                            desc: headingsValueList[index]?.headings_value,
+                            desc: get_desc,
                         }
                         await officers_heading_description.create(description);
 
                     })
                 }
-                console.log('ypno', ypno)
+                // console.log('ypno', ypno)
                 return apiResponse.successResponse(res, 'Year Place Ngo Officer saved successfully.')
             }
         } else {
@@ -198,14 +206,15 @@ exports.updateoveralltitlebyid = async (req, res) => {
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
                 headingsList.length > 0 && headingsList.map(async (res, index) => {
+                    let get_desc = generateHash(headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '');
                     const description = {
                         // ypno_id: condition_id,                        
                         officer_id: req.body.officer_id,
                         year_id: req.body.year_id,
                         heading_id: res.id,
-                        desc: headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '',
+                        desc: get_desc,
                     }
-                    console.log(description);
+                    // console.log(description);
                     await officers_heading_description.create(description);
 
                 })
