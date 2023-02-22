@@ -10,12 +10,12 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
         where: {id: row_id}
     });
     if (allOverallTitle) {
-        let check_if_exist = year_place_ngo_officer.findOne({
+        let check_if_exist = year_place_ngo_officer.findAll({
             where: {ngo_id: allOverallTitle.ngo_id,year_id: allOverallTitle.year_id}
         });
-        if(check_if_exist){
+        if(check_if_exist.length > 1){
 
-        }else{
+        }else if(check_if_exist.length === 1){
             await NgoServed.destroy({where: {ngo_id: allOverallTitle.ngo_id}})
         }
         await year_place_ngo_officer.destroy({where: {id:row_id}});
