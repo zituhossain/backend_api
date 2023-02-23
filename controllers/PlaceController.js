@@ -222,11 +222,11 @@ exports.getPlacesByDistrict = async (req, res) => {
 exports.placeConnectWithNgo = async (req, res) => {
     try {
         const data = req.body
-        for (i = 0; i < data.ngo_id.length; i++) {
+        // for (i = 0; i < data.ngo_id.length; i++) {
             await Place.update({
-                ngo_id: data.ngo_id[i].value
+                ngo_id: data.ngo_id.value
             }, { where: { id: data.place_id } });
-        }
+        // }
         return apiResponse.successResponse(res, "Data successfully updated.")
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
