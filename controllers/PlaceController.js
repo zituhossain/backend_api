@@ -534,6 +534,22 @@ exports.ngoJotDeleteById = async (req, res) => {
     }
 }
 
+exports.categoryAlist =async(req,res) => {
+    try{
+        
+        const [results, metadata] = await sequelize.query(`select * from Ngos INNER JOIN Places on Ngos.id = Places.ngo_id`);
+        
+        if(results.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",results)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 
 
 
