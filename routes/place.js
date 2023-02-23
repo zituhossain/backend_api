@@ -40,6 +40,7 @@ router.get('/get_ngo_jot_by_id/:id', PlaceController.getNgoJotById);
 router.delete('/ngo_jot_delete_by_id/:id', PlaceController.ngoJotDeleteById);
 
 router.get('/categoryAlist', PlaceController.categoryAlist);
+router.get('/categoryBlist', PlaceController.categoryBlist);
 
 
 

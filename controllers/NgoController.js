@@ -134,6 +134,9 @@ exports.fetchall_ngo_by_place =async(req,res) => {
                         model: Ngo
                     },
                     {
+                        model: Place , where:{id:place_id} 
+                    },
+                    {
                         model: ngo_served_percent_by_palces , where:{place_id:place_id},required:false
                     }],
                 group:['ngo_id']
