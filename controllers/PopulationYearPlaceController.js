@@ -56,7 +56,7 @@ exports.getbyDisId = async (req, res) => {
         const disId = req.params.disId;
     try {
         
-        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where district_id = '+disId+' and year_id = (select max(id) as year_id from years) group by pyp.place_id');
+        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where Places.district_id = '+disId+' and year_id = (select max(id) as year_id from years)');
 
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
     }catch(err){
@@ -75,7 +75,7 @@ exports.getbyDivId = async (req, res) => {
         const divId = req.params.divId;
     try {
         
-        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where division_id = '+divId+' and year_id = (select max(id) as year_id from years) group by pyp.place_id');
+        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where division_id = '+divId+' and year_id = (select max(id) as year_id from years)');
 
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
     }catch(err){
