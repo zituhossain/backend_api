@@ -346,7 +346,7 @@ exports.AllPlaceHistory = async (req, res) => {
     try {
 
 
-        const place_data = await year_place_ngo_officer.sequelize.query('SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(Ngos.id) as ngoID,GROUP_CONCAT(Ngos.name) as ngo_list,GROUP_CONCAT(Ngos.short_name) as ngo_short_name,GROUP_CONCAT(Ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join Ngos on Ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  group by ypno.year_id order by ypno.year_id desc', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
+        const place_data = await year_place_ngo_officer.sequelize.query('SELECT GROUP_CONCAT(DISTINCT(ngo_id)) as ngoID,GROUP_CONCAT(DISTINCT(Ngos.name)) as ngo_list,GROUP_CONCAT(DISTINCT(Ngos.short_name)) as ngo_short_name,GROUP_CONCAT(DISTINCT(Ngos.color_code)) as color_list,years.name as year_id,years.bn_term as term,(SELECT GROUP_CONCAT(cnt) cnt FROM ( SELECT COUNT(*) cnt,year_id FROM year_place_ngo_officers ypno where rank=1 GROUP BY ypno.ngo_id,year_id )as totla WHERE totla.year_id = year_place_ngo_officers.year_id) as percent_list FROM `year_place_ngo_officers` LEFT join Ngos on Ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN years on year_place_ngo_officers.year_id = years.id where rank=1 GROUP by year_id', { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT });
 
 
 
