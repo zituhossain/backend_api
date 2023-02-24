@@ -1,6 +1,6 @@
 const apiResponse = require('../helpers/apiResponse');
 const {Division, District, Place,year_place_ngo_officer,Ngo,years,sequelize} = require('../models');
-
+const CryptoJS = require('crypto-js');
 
 
 exports.divisions = async(req,res) => {
@@ -150,6 +150,13 @@ exports.finalReportGenerateDoubleNGO = async(req,res) => {
     }
 }
 
+var decryptHash = (value) => {
+	// return CryptoJS.enc.Base64.parse(value).toString(CryptoJS.enc.Utf8);
+	const passphrase = '123';
+	const bytes = CryptoJS.AES.decrypt(value, passphrase);
+	const originalText = bytes.toString(CryptoJS.enc.Utf8);
+	return originalText;
+}
 
 
 exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
@@ -196,7 +203,19 @@ exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
     }
     const [alldata, metadata] = await sequelize.query(`SELECT *,Places.id as place_id,Places.name as place_name,Officers.name as officer_name,Ngos.name as ngo_name,Ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join Places on Places.id = year_place_ngo_officers.place_id left join Officers on Officers.id = year_place_ngo_officers.officer_id left join Ngos on Ngos.id = year_place_ngo_officers.ngo_id`+query);
     if(alldata.length > 0){
-        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
+        let final_data = [];
+        for(let i=0;i<alldata.length;i++){
+            let current_desc = alldata[i].desc;
+            let decoded_desc = "";
+            if(current_desc){
+                decoded_desc = decryptHash(current_desc);
+            }else{
+                decoded_desc = ""
+            }
+            alldata[i].desc = decoded_desc;
+            final_data.push(alldata[i]);
+        }
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",final_data)
     }else{
         return apiResponse.ErrorResponse(res,"No data found")
     }
