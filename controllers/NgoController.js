@@ -134,6 +134,9 @@ exports.fetchall_ngo_by_place =async(req,res) => {
                         model: Ngo
                     },
                     {
+                        model: Place , where:{id:place_id} 
+                    },
+                    {
                         model: ngo_served_percent_by_palces , where:{place_id:place_id},required:false
                     }],
                 group:['ngo_id']
@@ -163,7 +166,7 @@ exports.fetchall_year_place_ngo =async(req,res) => {
         //             }],
         //         group:['ngo_id']
         // });
-        const [results, metadata] = await sequelize.query(`select * from Places RIGHT JOIN Ngos on Ngos.id = Places.ngo_id`);
+        const [results, metadata] = await sequelize.query(`select * from Ngos INNER JOIN Places on Ngos.id = Places.ngo_id`);
         
         if(results.length > 0){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",results)
