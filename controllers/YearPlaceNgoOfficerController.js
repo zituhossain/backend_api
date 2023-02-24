@@ -13,6 +13,15 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
         let check_if_exist = year_place_ngo_officer.findAll({
             where: {ngo_id: allOverallTitle.ngo_id,year_id: allOverallTitle.year_id}
         });
+        let check_if_exist_officer =await year_place_ngo_officer.findAll({
+            raw: true, where: {ngo_id: allOverallTitle.ngo_id,year_id: allOverallTitle.year_id , place_id:allOverallTitle.place_id}
+        });
+        console.log("check_if_exist_officercheck_if_exist_officer",check_if_exist_officer)
+        if(check_if_exist_officer.length ==1){
+            await Place.update({
+                ngo_id: null
+            }, { where: { id: check_if_exist_officer[0].place_id } });
+        }
         if(check_if_exist.length > 1){
 
         }else if(check_if_exist.length === 1){
@@ -178,7 +187,7 @@ var generateHash = (value) => {
 
 exports.createYearPlaceNgoofficer = async (req, res) => {
     try {
-        const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id } });
+        const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id,officer_id:req.body.officer_id } });
         if (!get_data) {
             if (Object.keys(req.body).length === 0) {
                 return apiResponse.ErrorResponse(res, 'placeID missing')
@@ -211,7 +220,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
                 return apiResponse.successResponse(res, 'Year Place Ngo Officer saved successfully.')
             }
         } else {
-            return apiResponse.ErrorResponse(res, "Same Year Same Place Same NGO Failed")
+            return apiResponse.ErrorResponse(res, "Same Year Same Place Same NGO Same Officer Failed")
         }
 
     } catch (err) {

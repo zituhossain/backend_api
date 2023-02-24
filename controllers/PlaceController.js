@@ -222,11 +222,11 @@ exports.getPlacesByDistrict = async (req, res) => {
 exports.placeConnectWithNgo = async (req, res) => {
     try {
         const data = req.body
-        for (i = 0; i < data.ngo_id.length; i++) {
+        // for (i = 0; i < data.ngo_id.length; i++) {
             await Place.update({
-                ngo_id: data.ngo_id[i].value
+                ngo_id: data.ngo_id.value
             }, { where: { id: data.place_id } });
-        }
+        // }
         return apiResponse.successResponse(res, "Data successfully updated.")
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
@@ -534,6 +534,40 @@ exports.ngoJotDeleteById = async (req, res) => {
     }
 }
 
+exports.categoryAlist =async(req,res) => {
+    try{
+        
+        const [results, metadata] = await sequelize.query(`select Ngos.id as id , Places.name as name, Ngos.name as ngoname, Ngos.color_code as color_code, Ngos.short_name as short_name  from Ngos INNER JOIN Places on Ngos.id = Places.ngo_id`);
+        
+        if(results.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",results)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
+exports.categoryBlist =async(req,res) => {
+    try{
+        
+        const [results, metadata] = await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name, 
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id`);
+        
+        if(results.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",results)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 
 
 

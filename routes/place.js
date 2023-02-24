@@ -39,6 +39,10 @@ router.get('/get_ngo_jot_list_by_place_id/:id', PlaceController.getNgoJotAddInto
 router.get('/get_ngo_jot_by_id/:id', PlaceController.getNgoJotById);
 router.delete('/ngo_jot_delete_by_id/:id', PlaceController.ngoJotDeleteById);
 
+router.get('/categoryAlist', PlaceController.categoryAlist);
+router.get('/categoryBlist', PlaceController.categoryBlist);
+
+
 
 
 module.exports = router;
