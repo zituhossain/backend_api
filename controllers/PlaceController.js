@@ -555,7 +555,7 @@ exports.categoryBlist =async(req,res) => {
     try{
         
         const [results, metadata] = await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name, 
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id`);
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
         
         if(results.length > 0){
             return apiResponse.successResponseWithData(res,"Data fetch successfull.",results)
