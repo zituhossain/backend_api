@@ -95,7 +95,8 @@ exports.finalReportGenerate = async(req,res) => {
             query += ` or ngo_name = '${get_ngo2.name}'`
         }        
     }
-    if(req.body.category !== ''){        
+    if(req.body.category !== '' && req.body.category!== null){
+        
         if(query.includes('where')){
             query += ` and categoryb_id = '${req.body.category}'`
         }else{
