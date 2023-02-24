@@ -149,3 +149,43 @@ exports.finalReportGenerateDoubleNGO = async(req,res) => {
         return apiResponse.ErrorResponse(res,"No data found")
     }
 }
+
+
+
+exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
+    let query = ''
+
+    // if(req.body.division_id != ''){
+    //     const get_division = await Division.findOne({where:{id:req.body.division_id}})
+    //     if(query.includes('where')){
+    //         query += ` and division_name = '${get_division.name_bg}'`
+    //     }else{
+    //         query += ` where division_name = '${get_division.name_bg}'`
+    //     }
+        
+    // }
+    // if(req.body.district_id != ''){
+    //     const get_district = await District.findOne({where:{id:req.body.district_id}})
+    //     if(query.includes('where')){
+    //         query += ` and district_name = '${get_district.name_bg}'`
+    //     }else{
+    //         query += ` where district_name = '${get_district.name_bg}'`
+    //     }
+        
+    // }
+    // if(req.body.place_id != ''){
+    //     const get_place = await Place.findOne({where:{id:req.body.place_id}})
+    //     if(query.includes('where')){
+    //         query += ` and place_name = '${get_place.name}'`
+    //     }else{
+    //         query += ` where place_name = '${get_place.name}'`
+    //     }
+        
+    // }
+    const [alldata, metadata] = await sequelize.query(`SELECT *,Places.name as place_name FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join Places on Places.id = year_place_ngo_officers.place_id WHERE years.name = year(curdate())`);
+    if(alldata.length > 0){
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
