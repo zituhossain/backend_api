@@ -41,6 +41,8 @@ router.delete('/ngo_jot_delete_by_id/:id', PlaceController.ngoJotDeleteById);
 
 router.get('/categoryAlist', PlaceController.categoryAlist);
 router.get('/categoryBlist', PlaceController.categoryBlist);
+router.get('/categoryBColor', PlaceController.categoryBColor);
+
 
 
 

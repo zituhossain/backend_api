@@ -569,6 +569,24 @@ exports.categoryBlist =async(req,res) => {
     }
 }
 
+exports.categoryBColor =async(req,res) => {
+    try{
+        
+        const [results, metadata] = await sequelize.query(`select Places.id as id , ngo_categories.name as categoryname , Places.name as name, 
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from Places INNER JOIN ngo_category_bs on ngo_category_bs.place_id = Places.id  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
+        
+        if(results.length > 0){
+            return apiResponse.successResponseWithData(res,"Data fetch successfull.",results)
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
+
 
 
 // select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where district_id = 1 group by pyp.place_id
