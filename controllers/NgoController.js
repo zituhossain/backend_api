@@ -97,7 +97,8 @@ exports.fetchNgoCategoris =async(req,res) => {
 }
 exports.fetchNgoCategorisCount = async (req, res) => {
     try {
-        const [results, metadata] = await sequelize.query(`SELECT short_name,count(ngo_categories.id) as place_count from ngo_categories LEFT join ngo_category_bs on ngo_categories.id = ngo_category_bs.ngo_category_id GROUP by ngo_categories.id`)
+        const [results, metadata] = await sequelize.query(`SELECT short_name,count(ngo_categories.id) as place_count from ngo_categories LEFT join ngo_category_bs on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status="colorActive" GROUP by ngo_categories.id
+        `)
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
