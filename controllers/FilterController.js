@@ -204,6 +204,16 @@ exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
         }
         
     }
+
+    if(req.body.type_id != ''){
+        if(query.includes('where')){
+            query += ` and officer_profile_headings.type = '${req.body.type_id}'`
+        }else{
+            query += ` where officer_profile_headings.type = '${req.body.type_id}'`
+        }
+        
+    }
+
     if(req.body.ngo_id !== ''){        
         if(query.includes('where')){
             query += ` and year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`
