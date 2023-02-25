@@ -9,5 +9,6 @@ router.get('/places-by-distict-id/:id', FilterController.placesByDistricId);
 router.get('/all_places', FilterController.placesByDistricId);
 router.post('/finalReportGenerate',FilterController.finalReportGenerate);
 router.post('/finalReportGenerate_double',FilterController.finalReportGenerateDoubleNGO);
+router.post('/finalReportGenerateOfficerProfile',FilterController.finalReportGenerateOfficerProfileNGO);
 
 module.exports = router;
