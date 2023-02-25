@@ -123,7 +123,13 @@ exports.getNgoOfficerExists = async (req, res) => {
         LEFT JOIN year_place_ngo_officers on officers_heading_descriptions.officer_id = year_place_ngo_officers.officer_id AND officers_heading_descriptions.year_id = year_place_ngo_officers.year_id
         WHERE year_place_ngo_officers.officer_id = ${officer_id} and year_place_ngo_officers.year_id=${year_id}`)
         if (results) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+            let final_arr = [];
+            for(let i=0;i<results.length;i++){
+                let decrypted_data = decryptHash(results[i].desc);
+                results[i].desc = decrypted_data;
+				final_arr.push(results[i])
+            }
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", final_arr)
         } else {
             return apiResponse.ErrorResponse(res, "No matching query found")
         }
