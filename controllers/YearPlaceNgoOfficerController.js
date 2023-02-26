@@ -123,7 +123,13 @@ exports.getNgoOfficerExists = async (req, res) => {
         LEFT JOIN year_place_ngo_officers on officers_heading_descriptions.officer_id = year_place_ngo_officers.officer_id AND officers_heading_descriptions.year_id = year_place_ngo_officers.year_id
         WHERE year_place_ngo_officers.officer_id = ${officer_id} and year_place_ngo_officers.year_id=${year_id}`)
         if (results) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+            let final_arr = [];
+            for(let i=0;i<results.length;i++){
+                let decrypted_data = decryptHash(results[i].desc);
+                results[i].desc = decrypted_data;
+				final_arr.push(results[i])
+            }
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", final_arr)
         } else {
             return apiResponse.ErrorResponse(res, "No matching query found")
         }
@@ -136,6 +142,21 @@ exports.getAllCountInformation = async (req, res) => {
     try {
         // const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select id from years order by id DESC LIMIT 1,1)`)
         const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select MAX(id) from years)`)
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.getNgoPopularOfficer = async (req, res) => {
+    try {
+        const [results, metadata] = await sequelize.query(`select Officers.* from year_place_ngo_officers left join Officers on Officers.id = year_place_ngo_officers.officer_id where year_place_ngo_officers.year_id =(select id from years order by id DESC LIMIT 1,1) and rank = 1 and year_place_ngo_officers.place_id = ${req.params.id
+        }`)
+
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {

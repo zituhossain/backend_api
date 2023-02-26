@@ -16,6 +16,8 @@ router.get('/get_ngo_officer_exists/:year_id/:officer_id',auth, YearPlaceNgoOffi
 router.get('/get_all_counter_info', YearPlaceNgoOfficerController.getAllCountInformation);
 router.post('/create_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.createYearPlaceNgoofficer);
 router.post('/update_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.updateoveralltitlebyid);
+router.get('/get_ngo_popular_officer/:id',auth, YearPlaceNgoOfficerController.getNgoPopularOfficer);
+
 
 module.exports = router;
 

@@ -57,7 +57,7 @@ exports.getOfficerInfoById = async (req, res) => {
 }
 exports.getOfficerHistory = async (req, res) => {
 	try {
-		const [results, metadata]  = await sequelize.query(`SELECT years.bn_name,years.bn_term,Ngos.name as ngo_name,Ngos.logo_name,Places.name as place_name,year_place_ngo_officers.rank,served_population,Places.id as place_id FROM year_place_ngo_officers left JOIN Places on Places.id = year_place_ngo_officers.place_id left join years on years.id = year_place_ngo_officers.year_id LEFT join Ngos on Ngos.id = year_place_ngo_officers.id WHERE year_place_ngo_officers.officer_id = '${req.params.id}' group by year_id `
+		const [results, metadata]  = await sequelize.query(`SELECT years.bn_name,years.bn_term,Ngos.name as ngo_name,Ngos.logo_name,Places.name as place_name,year_place_ngo_officers.rank,served_population,Places.id as place_id FROM year_place_ngo_officers left JOIN Places on Places.id = year_place_ngo_officers.place_id left join years on years.id = year_place_ngo_officers.year_id LEFT join Ngos on Ngos.id = year_place_ngo_officers.ngo_id WHERE year_place_ngo_officers.officer_id = '${req.params.id}' group by year_id order by years.id desc`
 );
 		if (results) {
 			return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
