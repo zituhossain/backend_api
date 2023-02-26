@@ -13,6 +13,15 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
         let check_if_exist = year_place_ngo_officer.findAll({
             where: {ngo_id: allOverallTitle.ngo_id,year_id: allOverallTitle.year_id}
         });
+        let check_if_exist_officer =await year_place_ngo_officer.findAll({
+            raw: true, where: {ngo_id: allOverallTitle.ngo_id,year_id: allOverallTitle.year_id , place_id:allOverallTitle.place_id}
+        });
+        console.log("check_if_exist_officercheck_if_exist_officer",check_if_exist_officer)
+        if(check_if_exist_officer.length ==1){
+            await Place.update({
+                ngo_id: null
+            }, { where: { id: check_if_exist_officer[0].place_id } });
+        }
         if(check_if_exist.length > 1){
 
         }else if(check_if_exist.length === 1){
@@ -114,7 +123,13 @@ exports.getNgoOfficerExists = async (req, res) => {
         LEFT JOIN year_place_ngo_officers on officers_heading_descriptions.officer_id = year_place_ngo_officers.officer_id AND officers_heading_descriptions.year_id = year_place_ngo_officers.year_id
         WHERE year_place_ngo_officers.officer_id = ${officer_id} and year_place_ngo_officers.year_id=${year_id}`)
         if (results) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+            let final_arr = [];
+            for(let i=0;i<results.length;i++){
+                let decrypted_data = decryptHash(results[i].desc);
+                results[i].desc = decrypted_data;
+				final_arr.push(results[i])
+            }
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", final_arr)
         } else {
             return apiResponse.ErrorResponse(res, "No matching query found")
         }
@@ -127,6 +142,21 @@ exports.getAllCountInformation = async (req, res) => {
     try {
         // const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select id from years order by id DESC LIMIT 1,1)`)
         const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select MAX(id) from years)`)
+        if (results) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.getNgoPopularOfficer = async (req, res) => {
+    try {
+        const [results, metadata] = await sequelize.query(`select Officers.* from year_place_ngo_officers left join Officers on Officers.id = year_place_ngo_officers.officer_id where year_place_ngo_officers.year_id =(select id from years order by id DESC LIMIT 1,1) and rank = 1 and year_place_ngo_officers.place_id = ${req.params.id
+        }`)
+
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
@@ -178,7 +208,7 @@ var generateHash = (value) => {
 
 exports.createYearPlaceNgoofficer = async (req, res) => {
     try {
-        const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id } });
+        const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id,officer_id:req.body.officer_id } });
         if (!get_data) {
             if (Object.keys(req.body).length === 0) {
                 return apiResponse.ErrorResponse(res, 'placeID missing')
@@ -211,7 +241,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
                 return apiResponse.successResponse(res, 'Year Place Ngo Officer saved successfully.')
             }
         } else {
-            return apiResponse.ErrorResponse(res, "Same Year Same Place Same NGO Failed")
+            return apiResponse.ErrorResponse(res, "Same Year Same Place Same NGO Same Officer Failed")
         }
 
     } catch (err) {
