@@ -105,6 +105,7 @@ exports.getNgoOfficerHeadings = async (req, res) => {
                 results[i].desc = decrypted_data;
 				final_arr.push(results[i])
             }
+            console.log("resultsresultsresultsresultsresults",results)
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", final_arr)
         } else {
             return apiResponse.ErrorResponse(res, "No matching query found")
@@ -208,6 +209,7 @@ var generateHash = (value) => {
 
 exports.createYearPlaceNgoofficer = async (req, res) => {
     try {
+        console.log("------------------createYearPlaceNgoofficer-------------------",req.body)
         const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id,officer_id:req.body.officer_id } });
         if (!get_data) {
             if (Object.keys(req.body).length === 0) {
@@ -221,9 +223,10 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
         // console.log(results);
                 if (results.length === 0) {
                     headingsList.length > 0 && headingsList.map(async (res, index) => {
+                        const heading_value = headingsValueList.find(ress=>ress.profile_id === res.id)
                         
-                        if(headingsValueList[index]?.headings_value){
-                            let get_desc = generateHash(headingsValueList[index]?.headings_value);
+                        if(heading_value?.headings_value){
+                            let get_desc = generateHash(heading_value?.headings_value);
                             const description = {
                                 // ypno_id: ypno?.dataValues?.id,
                                 heading_id: res.id,
@@ -261,8 +264,12 @@ exports.updateoveralltitlebyid = async (req, res) => {
                 const headingsList = req.body.headingsList;
                 const headingsValueList = req.body.headingsValueList;
                 headingsList.length > 0 && headingsList.map(async (res, index) => {
-                    if(headingsValueList[index]?.headings_value){
-                        let get_desc = generateHash(headingsValueList[index]?.headings_value ? headingsValueList[index]?.headings_value : '');
+
+                    // if(headingsValueList[index]?.headings_value){
+                        const heading_value = headingsValueList.find(ress=>ress.profile_id === res.id)
+                        
+                        if(heading_value?.headings_value){
+                        let get_desc = generateHash(heading_value?.headings_value ?? "");
                         const description = {
                             // ypno_id: condition_id,                        
                             officer_id: req.body.officer_id,
