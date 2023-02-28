@@ -153,6 +153,80 @@ exports.create_admin_officer_type = async (req, res) => {
 	}
 };
 
+exports.fetchallAdminType = async (req, res) => {
+	try {
+		const admin_officer_type_data = await Administration_officer_type.findAll({
+			include: [
+				{
+					model: Administration_office,
+				},
+			],
+			order: [[sequelize.literal('view_sort'), 'ASC']],
+		});
+		if (admin_officer_type_data) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				admin_officer_type_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.updateAdminType = async (req, res) => {
+	try {
+		const admin_officer_type_id = req.params.id;
+		const admin_officer_type_data = await Administration_officer_type.findOne({
+			where: { id: admin_officer_type_id },
+		});
+		if (admin_officer_type_data) {
+			if (
+				req.body.name &&
+				req.body.administration_office_id &&
+				req.body.name !== ''
+			) {
+				await Administration_officer_type.update(req.body, {
+					where: { id: admin_officer_type_id },
+				});
+				return apiResponse.successResponse(res, 'data successfully updated!!!');
+			} else {
+				return apiResponse.ErrorResponse(
+					res,
+					'name or view sort parameter is missing.'
+				);
+			}
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.deleteAdminType = async (req, res) => {
+	try {
+		const admin_officer_type_id = req.params.id;
+		const admin_officer_type_data = await Administration_officer_type.findOne({
+			where: { id: admin_officer_type_id },
+		});
+		if (admin_officer_type_data) {
+			await Administration_officer_type.destroy({
+				where: { id: admin_officer_type_id },
+			});
+			return apiResponse.successResponse(res, 'Data successfully deleted.');
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+// Place comment controller
 exports.place_comment_create = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];

@@ -40,13 +40,31 @@ router.post(
 	AdministrationController.update
 );
 
-// Administration Officer Type
+// Administration Officer Type Route
 router.post(
 	'/create_administration_officer_type',
 	auth,
 	AdministrationController.create_admin_officer_type
 );
 
+router.get(
+	'/fetchall_administration_officer_type',
+	auth,
+	AdministrationController.fetchallAdminType
+);
+router.put(
+	'/update_administration_officer_type/:id',
+	auth,
+	AdministrationController.updateAdminType
+);
+router.delete(
+	'/delete_administration_officer_type/:id',
+	auth,
+	AdministrationController.deleteAdminType
+);
+
+
+// Place comment route
 router.post(
 	'/create_place_comment',
 	auth,
