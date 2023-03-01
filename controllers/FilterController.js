@@ -221,6 +221,78 @@ exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
             query += ` where year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`
         }       
     }
+    const [alldata, metadata] = await sequelize.query(`SELECT *,GROUP_CONCAT ( DISTINCT heading) as multiple_heading,GROUP_CONCAT ( DISTINCT officers_heading_descriptions.desc) as multiple_desc,Places.id as place_id,Places.name as place_name,Officers.name as officer_name,Ngos.name as ngo_name,Ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join Places on Places.id = year_place_ngo_officers.place_id left join Officers on Officers.id = year_place_ngo_officers.officer_id left join Ngos on Ngos.id = year_place_ngo_officers.ngo_id`+query);
+    if(alldata.length > 0){
+        let final_data = [];
+        for(let i=0;i<alldata.length;i++){
+            let current_desc = alldata[i].desc;
+            let decoded_desc = "";
+            if(current_desc){
+                decoded_desc = decryptHash(current_desc);
+            }else{
+                decoded_desc = ""
+            }
+            alldata[i].desc = decoded_desc;
+            final_data.push(alldata[i]);
+        }
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",final_data)
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
+
+exports.finalReportGenerateOfficerProfileNGO_copy = async(req,res) => {
+    let query = ' where years.name = year(curdate())'
+
+    if(req.body.division_id != ''){
+        if(query.includes('where')){
+            query += ` and Places.division_id = ${req.body.division_id}`
+        }else{
+            query += ` where Places.division_id = ${req.body.division_id}`
+        }
+        
+    }
+    if(req.body.district_id != ''){
+        if(query.includes('where')){
+            query += ` and Places.district_id = '${req.body.district_id}'`
+        }else{
+            query += ` where Places.district_id = '${req.body.district_id}'`
+        }
+        
+    }
+    if(req.body.place_id != ''){
+        if(query.includes('where')){
+            query += ` and Places.id = '${req.body.place_id}'`
+        }else{
+            query += ` where Places.id = '${req.body.place_id}'`
+        }
+        
+    }
+    if(req.body.heading_id != ''){
+        if(query.includes('where')){
+            query += ` and heading_id = '${req.body.heading_id}'`
+        }else{
+            query += ` where heading_id = '${req.body.heading_id}'`
+        }
+        
+    }
+
+    if(req.body.type_id != ''){
+        if(query.includes('where')){
+            query += ` and officer_profile_headings.type = '${req.body.type_id}'`
+        }else{
+            query += ` where officer_profile_headings.type = '${req.body.type_id}'`
+        }
+        
+    }
+
+    if(req.body.ngo_id !== ''){        
+        if(query.includes('where')){
+            query += ` and year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`
+        }else{
+            query += ` where year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`
+        }       
+    }
     const [alldata, metadata] = await sequelize.query(`SELECT *,Places.id as place_id,Places.name as place_name,Officers.name as officer_name,Ngos.name as ngo_name,Ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join Places on Places.id = year_place_ngo_officers.place_id left join Officers on Officers.id = year_place_ngo_officers.officer_id left join Ngos on Ngos.id = year_place_ngo_officers.ngo_id`+query);
     if(alldata.length > 0){
         let final_data = [];
