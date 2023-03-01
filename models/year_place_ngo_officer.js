@@ -22,7 +22,8 @@ module.exports = (sequelize, DataTypes) => {
     percent_served: DataTypes.INTEGER,
     rank: DataTypes.TINYINT,
     field: DataTypes.STRING,
-    designation: DataTypes.STRING
+    designation: DataTypes.STRING,
+    status: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'year_place_ngo_officer',
