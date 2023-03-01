@@ -169,7 +169,7 @@ var decryptHash = (value) => {
 }
 
 
-exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
+exports.finalReportGenerateOfficerProfileNGO_new = async(req,res) => {
     let query = ' where years.name = year(curdate())'
 
     if(req.body.division_id != ''){
@@ -241,7 +241,7 @@ exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
     }
 }
 
-exports.finalReportGenerateOfficerProfileNGO_copy = async(req,res) => {
+exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
     let query = ' where years.name = year(curdate())'
 
     if(req.body.division_id != ''){
