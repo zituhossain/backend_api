@@ -176,6 +176,31 @@ exports.fetchallAdminType = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+exports.fetchallAdminTypeById = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const admin_officer_type_data = await Administration_officer_type.findAll({
+			include: [
+				{
+					model: Administration_office,
+				},
+			],
+			order: [[sequelize.literal('view_sort'), 'ASC']],
+			where: { administration_office_id: id },
+		});
+		if (admin_officer_type_data) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				admin_officer_type_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
 
 exports.updateAdminType = async (req, res) => {
 	try {
