@@ -49,7 +49,55 @@ exports.getngodetailwiseinfobyplaceid = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+exports.getngodetailwiseinfobydistrictid = async (req, res) => {
+    try {
+        const district_id = req.params.districtid;
+        let influencer_id = [];
+        const get_place_by_district = await Place.findAll({
+            where:{
+                district_id: district_id
+            }
+        })
+        for(i=0;i<get_place_by_district.length;i++){
+            influencer_id.push(get_place_by_district[i].id)
+        }
+        const influencer_data = await ngo_details_info.findAll({ include: [{ model: ngo_details_info_point_wise, where: {place_id: influencer_id},required:false }] });
+        
+        if (influencer_data) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
 
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
+exports.getngodetailwiseinfobydivisionid = async (req, res) => {
+    try {
+        const division_id = req.params.divisionid;
+        let influencer_id = [];
+        const get_place_by_division = await Place.findAll({
+            where:{
+                division_id: division_id
+            }
+        })
+        for(i=0;i<get_place_by_division.length;i++){
+            influencer_id.push(get_place_by_division[i].id)
+        }
+        const influencer_data = await ngo_details_info.findAll({ include: [{ model: ngo_details_info_point_wise, where: {place_id: influencer_id},required:false }] });
+        
+        if (influencer_data) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
 
 exports.createlocalinfluencer = async (req, res) => {
     try {

@@ -470,3 +470,38 @@ exports.getprevilegetable = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
+
+exports.getprevilegetablebyuserid = async(req,res) => {
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+        const user_data = await User.findOne({ where: { id: userId } })
+        let previlege_module = [];
+        let previlege_data = [];
+        if (user_data.role_id){
+            previlege_data = await Previlege_table.findAll({
+                include:[Previlege_url],
+                where:{user_role_id: user_data.role_id}
+            })
+            if(user_data.role_id === 1){
+                previlege_data = await Previlege_url.findAll();
+                for(i=0;i<previlege_data.length;i++){
+                    previlege_module.push(previlege_data[i].name)
+                }
+            }else{
+                for(i=0;i<previlege_data.length;i++){
+                    previlege_module.push(previlege_data[i].Previlege_url.name)
+                }
+            }
+
+        }
+
+        return apiResponse.successResponseWithData(res,"Data fetch success.",previlege_module)
+        
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}

@@ -41,8 +41,8 @@ exports.getoverallconditionbyid = async(req,res) => {
 
 exports.getoverallconditionbyplaceid = async(req,res) => {
     try{
-        const condition_id = req.params.placeid;
-        const condition_data = await overall_condition_place.findAll({include: [Place,overall_condition] ,where:{place_id: condition_id}});
+        const placeid = req.params.placeid;
+        const condition_data = await overall_condition_place.findAll({include: [Place,overall_condition] ,where:{place_id: placeid}});
         if(condition_data){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",condition_data)
         }else{
@@ -61,13 +61,23 @@ exports.createoverallcondition = async(req,res) => {
 		const decodedToken = jwt.verify(token, secret);
 		const userId = decodedToken._id;
         req.body.createdby = userId;
-        if(Object.keys(req.body).length === 0){
-            return apiResponse.ErrorResponse(res,'place/condtion missing')
-        }else{
-            await overall_condition_place.create(req.body);
-            return apiResponse.successResponse(res,'condition saved successfully.')
-        }
+	    await overall_condition_place.destroy({where: {place_id:req.body.place_id}})
 
+        for(var i =0; i <req.body.overall_id.length ; i++){
+            const newObject = {
+                place_id:req.body.place_id,
+                status:req.body.status,
+                createdby:req.body.createdby,
+                overall_id:req.body.overall_id[i].value
+            }
+            if(Object.keys(req.body).length === 0){
+                return apiResponse.ErrorResponse(res,'place/condtion missing')
+            }
+            else{
+                await overall_condition_place.create(newObject);
+            }
+        }
+        return apiResponse.successResponse(res,'condition saved successfully.')
     }catch(err){
         return apiResponse.ErrorResponse(res,err.message)
     }

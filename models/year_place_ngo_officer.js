@@ -21,7 +21,9 @@ module.exports = (sequelize, DataTypes) => {
     served_population: DataTypes.BIGINT,
     percent_served: DataTypes.INTEGER,
     rank: DataTypes.TINYINT,
-    field: DataTypes.STRING
+    field: DataTypes.STRING,
+    designation: DataTypes.STRING,
+    status: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'year_place_ngo_officer',
@@ -34,8 +36,15 @@ module.exports = (sequelize, DataTypes) => {
     year_place_ngo_officer.belongsTo(models.Ngo, {
       foreignKey: 'ngo_id',
     });
+    year_place_ngo_officer.belongsTo(models.ngo_served_percent_by_palces, {
+      targetKey: 'ngo_id',
+      foreignKey: 'ngo_id',
+    });
     year_place_ngo_officer.belongsTo(models.Officer, {
       foreignKey: 'officer_id',
+    });
+    year_place_ngo_officer.belongsTo(models.years, {
+      foreignKey: 'year_id',
     });
   }
 

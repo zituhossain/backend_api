@@ -25,5 +25,13 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'population_year_place',
   });
+  population_year_place.associate = models => {
+    population_year_place.belongsTo(models.years, {
+      foreignKey: 'year_id',
+    });
+    population_year_place.belongsTo(models.Place, {
+      foreignKey: 'place_id',
+    });
+  }
   return population_year_place;
 };

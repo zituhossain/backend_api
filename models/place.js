@@ -16,9 +16,9 @@ module.exports = (sequelize, DataTypes) => {
     toJSON () {
       // hide protected fields
       let attributes = Object.assign({}, this.get())
-      for (let a of PROTECTED_ATTRIBUTES) {
-        delete attributes[a]
-      }
+      // for (let a of PROTECTED_ATTRIBUTES) {
+      //   delete attributes[a]
+      // }
       return attributes
     }
   }
@@ -44,6 +44,23 @@ module.exports = (sequelize, DataTypes) => {
       targetKey: 'id',
       foreignKey: 'place_id',
     });
+    Place.hasMany(models.ngo_served_percent_by_palces, {
+      as:"ngoServedPercentByPalce",
+      targetKey: 'id',
+      foreignKey: 'place_id',
+    });
+
+    Place.hasMany(models.ngo_served_percent_by_palces, {
+      as:"officer",
+      targetKey: 'id',
+      foreignKey: 'place_id',
+    });
+    Place.hasMany(models.year_place_ngo_officer, {
+      as:"year_place_ngo_officer",
+      targetKey: 'id',
+      foreignKey: 'place_id',
+    });
+    
   }
   return Place;
 };

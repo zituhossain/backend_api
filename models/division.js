@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: DataTypes.STRING,
     name_bg: DataTypes.STRING,
+    district_map:DataTypes.STRING,
     district_count: DataTypes.INTEGER
   }, {
     sequelize,

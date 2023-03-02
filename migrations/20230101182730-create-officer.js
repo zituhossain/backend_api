@@ -32,6 +32,10 @@ module.exports = {
         values: ['active', 'deleted']
     
       },
+      image: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
       createdAt: {
         type: 'TIMESTAMP',
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

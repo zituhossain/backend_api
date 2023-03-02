@@ -1,12 +1,14 @@
 const apiResponse = require('../helpers/apiResponse');
-const { population_year_place } = require('../models');
+const { population_year_place, years,Place } = require('../models');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const { Op } = require("sequelize");
 
 
 exports.fetchall = async (req, res) => {
-    const allOverallTitle = await population_year_place.findAll();
+    const allOverallTitle = await population_year_place.findAll({
+        include:[years , Place]
+    });
     if (allOverallTitle) {
         return apiResponse.successResponseWithData(res, "population_year_place fetch successfully.", allOverallTitle)
     } else {
@@ -17,7 +19,7 @@ exports.fetchall = async (req, res) => {
 exports.getbyid = async (req, res) => {
     try {
         const title_id = req.params.id;
-        const title_data = await population_year_place.findOne({ where: { id: title_id } });
+        const title_data = await population_year_place.findOne({ where: { id: title_id }, include:[years] });
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
         } else {
@@ -34,13 +36,51 @@ exports.getbyYear = async (req, res) => {
         // const title_id = req.params.year; 
 
         const place = req.params.place;
-        const title_data = await population_year_place.findAll({ where: {  place_id: place } });
+        const title_data = await population_year_place.findAll({ where: {  place_id: place },include:[years] });
         // return
         if (title_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
         } else {
             return apiResponse.ErrorResponse(res, "No matching query found ashik")
         }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
+exports.getbyDisId = async (req, res) => {
+    try {
+        // const title_id = req.params.year; 
+
+        const disId = req.params.disId;
+    try {
+        
+        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where Places.district_id = '+disId+' and year_id = (select max(id) as year_id from years)');
+
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
+exports.getbyDivId = async (req, res) => {
+    try {
+        // const title_id = req.params.year; 
+
+        const divId = req.params.divId;
+    try {
+        
+        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where division_id = '+divId+' and year_id = (select max(id) as year_id from years)');
+
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
 
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)

@@ -6,5 +6,5 @@ uploads
 log
 /log
 /.idea
-config.js
+/config.js
 config/config_development.json
