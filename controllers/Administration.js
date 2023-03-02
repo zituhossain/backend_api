@@ -555,12 +555,15 @@ exports.getadministration_officer = async (req, res) => {
 					model: Place,
 				},
 				{
+					model: Administration_officer_type,
+				},
+				{
 					model: Administration_office,
-					include: [
-						{
-							model: Administration_officer_type,
-						},
-					],
+					// include: [
+					// 	{
+					// 		model: Administration_officer_type,
+					// 	},
+					// ],
 				},
 			],
 			// include: [Administration_office, Division, District, Place , Administration_officer_type],
