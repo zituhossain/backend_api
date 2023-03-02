@@ -52,6 +52,12 @@ router.get(
 	auth,
 	AdministrationController.fetchallAdminType
 );
+
+router.get(
+	'/fetchall_administration_officer_type_by_officeid/:id',
+	auth,
+	AdministrationController.fetchallAdminTypeById
+);
 router.put(
 	'/update_administration_officer_type/:id',
 	auth,
@@ -62,7 +68,6 @@ router.delete(
 	auth,
 	AdministrationController.deleteAdminType
 );
-
 
 // Place comment route
 router.post(
