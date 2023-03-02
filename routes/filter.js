@@ -10,5 +10,6 @@ router.get('/all_places', FilterController.placesByDistricId);
 router.post('/finalReportGenerate',FilterController.finalReportGenerate);
 router.post('/finalReportGenerate_double',FilterController.finalReportGenerateDoubleNGO);
 router.post('/finalReportGenerateOfficerProfile',FilterController.finalReportGenerateOfficerProfileNGO);
+router.post('/finalReportGenerateAdminOfficer',FilterController.finalReportGenerateAdminOfficer);
 
 module.exports = router;

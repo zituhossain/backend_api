@@ -312,3 +312,39 @@ exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
         return apiResponse.ErrorResponse(res,"No data found")
     }
 }
+
+exports.finalReportGenerateAdminOfficer = async(req,res) => {
+    let query = ''
+
+    if(req.body.division_id != ''){
+        if(query.includes('where')){
+            query += ` and Administration_officers.division_id = '${req.body.division_id}'`
+        }else{
+            query += ` where Administration_officers.division_id = '${req.body.division_id}'`
+        }
+        
+    }
+    if(req.body.district_id != ''){
+        const get_district = await District.findOne({where:{id:req.body.district_id}})
+        if(query.includes('where')){
+            query += ` and Administration_officers.district_id = '${req.body.district_id}'`
+        }else{
+            query += ` where Administration_officers.district_id = '${req.body.district_id}'`
+        }
+        
+    }
+    if(req.body.place_id != ''){
+        if(query.includes('where')){
+            query += ` and Administration_officers.place_id = '${req.body.place_id}'`
+        }else{
+            query += ` where Administration_officers.place_id = '${req.body.place_id}'`
+        }
+        
+    }
+    const [alldata, metadata] = await sequelize.query(`select *,Administration_officers.name as officer_name,Administration_offices.name as office_name from Administration_officers left join Administration_offices on Administration_officers.administration_office_id = Administration_offices.id`+query);
+    if(alldata.length > 0){
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
