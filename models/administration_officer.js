@@ -59,6 +59,10 @@ module.exports = (sequelize, DataTypes) => {
     Administration_officer.belongsTo(models.Place, {
       foreignKey: 'place_id',
     });
+    // Administration_officer.belongsTo(models.Administration_officer_type, {
+    //   targetKey: 'administration_office_id',
+    //   foreignKey: 'id',
+    // });
   }
   return Administration_officer;
 };
