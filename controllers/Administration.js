@@ -544,7 +544,29 @@ exports.getadministration_officer = async (req, res) => {
 			arr.push({ place_id: roleByplace.place });
 		}
 		const administration_officer_data = await Administration_officer.findAll({
-			include: [Administration_office, Division, District, Place],
+			include: [
+				{
+					model: Division,
+				},
+				{
+					model: District,
+				},
+				{
+					model: Place,
+				},
+				{
+					model: Administration_officer_type,
+				},
+				{
+					model: Administration_office,
+					// include: [
+					// 	{
+					// 		model: Administration_officer_type,
+					// 	},
+					// ],
+				},
+			],
+			// include: [Administration_office, Division, District, Place , Administration_officer_type],
 			where: arr,
 		});
 		if (administration_officer_data.length > 0) {

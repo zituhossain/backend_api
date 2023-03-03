@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
     Administration_office.hasMany(models.Administration_officer, {
       foreignKey: 'administration_office_id',
     });
+    Administration_office.belongsTo(models.Administration_officer_type, {
+      targetKey: 'administration_office_id',
+      foreignKey: 'id',
+    });
   }
   return Administration_office;
 };
