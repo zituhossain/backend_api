@@ -11,5 +11,6 @@ router.post('/finalReportGenerate',FilterController.finalReportGenerate);
 router.post('/finalReportGenerate_double',FilterController.finalReportGenerateDoubleNGO);
 router.post('/finalReportGenerateOfficerProfile',FilterController.finalReportGenerateOfficerProfileNGO);
 router.post('/finalReportGenerateAdminOfficer',FilterController.finalReportGenerateAdminOfficer);
+router.post('/finalReportGenerateResult',FilterController.finalReportGenerateResult);
 
 module.exports = router;
