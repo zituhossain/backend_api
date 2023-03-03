@@ -348,3 +348,123 @@ exports.finalReportGenerateAdminOfficer = async(req,res) => {
         return apiResponse.ErrorResponse(res,"No data found")
     }
 }
+
+exports.finalReportGenerateResult = async(req,res) => {
+    let query = ''
+    // if(req.body.year_id != ''){
+    //     const get_year = await years.findOne({where:{id:req.body.year_id}})
+    //     if(query.includes('where')){
+    //         query += ` and year = '${get_year.name}'`
+    //     }else{
+    //         query += ` where year = '${get_year.name}'`
+    //     }
+        
+    // }
+
+    // if(req.body.division_id != ''){
+    //     if(query.includes('where')){
+    //         query += ` and Administration_officers.division_id = '${req.body.division_id}'`
+    //     }else{
+    //         query += ` where Administration_officers.division_id = '${req.body.division_id}'`
+    //     }
+        
+    // }
+    // if(req.body.district_id != ''){
+    //     const get_district = await District.findOne({where:{id:req.body.district_id}})
+    //     if(query.includes('where')){
+    //         query += ` and Administration_officers.district_id = '${req.body.district_id}'`
+    //     }else{
+    //         query += ` where Administration_officers.district_id = '${req.body.district_id}'`
+    //     }
+        
+    // }
+    // if(req.body.place_id != ''){
+    //     if(query.includes('where')){
+    //         query += ` and Administration_officers.place_id = '${req.body.place_id}'`
+    //     }else{
+    //         query += ` where Administration_officers.place_id = '${req.body.place_id}'`
+    //     }
+        
+    // }
+    // if(req.body.ngo_id !== ''){        
+    //     if(query.includes('where')){
+    //         query += ` and year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`
+    //     }else{
+    //         query += ` where year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`
+    //     }       
+    // }
+    const [alldata, metadata] = await sequelize.query(`SELECT
+        Places.id AS place_id,
+        Places.name AS place_name,
+        (
+        SELECT
+            Officers.name
+        FROM
+            year_place_ngo_officers
+        LEFT JOIN Officers ON Officers.id = year_place_ngo_officers.officer_id
+        WHERE
+            rank = 1 AND year_place_ngo_officers.place_id = Places.id AND year_place_ngo_officers.year_id = 4 AND year_place_ngo_officers.status = 1
+        GROUP BY
+            year_place_ngo_officers.ngo_id
+    ) AS ngo_officer1,
+    (
+        SELECT
+            Ngos.name
+        FROM
+            year_place_ngo_officers
+        LEFT JOIN Ngos ON Ngos.id = year_place_ngo_officers.ngo_id
+        WHERE
+            rank = 1 AND year_place_ngo_officers.place_id = Places.id AND year_place_ngo_officers.year_id = 4 AND year_place_ngo_officers.status = 1
+        GROUP BY
+            year_place_ngo_officers.ngo_id
+    ) AS ngo1,
+    (
+        SELECT
+            year_place_ngo_officers.served_population
+        FROM
+            year_place_ngo_officers
+        WHERE
+            rank = 1 AND year_place_ngo_officers.place_id = Places.id AND year_place_ngo_officers.year_id = 4 AND year_place_ngo_officers.status = 1
+        GROUP BY
+            year_place_ngo_officers.ngo_id
+    ) AS served_population1,
+    (
+        SELECT
+            Officers.name
+        FROM
+            year_place_ngo_officers
+        LEFT JOIN Officers ON Officers.id = year_place_ngo_officers.officer_id
+        WHERE
+            rank = 2 AND year_place_ngo_officers.place_id = Places.id AND year_place_ngo_officers.year_id = 4 AND year_place_ngo_officers.status = 1
+        GROUP BY
+            year_place_ngo_officers.ngo_id
+    ) AS ngo_officer2,
+    (
+        SELECT
+            Ngos.name
+        FROM
+            year_place_ngo_officers
+        LEFT JOIN Ngos ON Ngos.id = year_place_ngo_officers.ngo_id
+        WHERE
+            rank = 2 AND year_place_ngo_officers.place_id = Places.id AND year_place_ngo_officers.year_id = 4 AND year_place_ngo_officers.status = 1
+        GROUP BY
+            year_place_ngo_officers.ngo_id
+    ) AS ngo2,
+    (
+        SELECT
+            year_place_ngo_officers.served_population
+        FROM
+            year_place_ngo_officers
+        WHERE
+            rank = 2 AND year_place_ngo_officers.place_id = Places.id AND year_place_ngo_officers.year_id = 4 AND year_place_ngo_officers.status = 1
+        GROUP BY
+            year_place_ngo_officers.ngo_id
+    ) AS served_population2
+    FROM
+        Places`);
+    if(alldata.length > 0){
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
