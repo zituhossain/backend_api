@@ -555,3 +555,14 @@ exports.finalReportGenerateOfficerChange = async(req,res) => {
         return apiResponse.ErrorResponse(res,"No data found")
     }
 }
+
+
+exports.YearGet = async(req,res) => {
+    const year = req.params.year;
+    const [year_data, metadata] = await sequelize.query(`select * from years where name=${year}`);
+    if(year_data.length>0){
+        return apiResponse.successResponseWithData(res,"year fetch successfully.",year_data[0])
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
