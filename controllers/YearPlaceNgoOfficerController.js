@@ -212,7 +212,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
         console.log("------------------createYearPlaceNgoofficer-------------------", req.body)
         const rank_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, rank: req.body.rank } });
         console.log("------------------createYearPlaceNgoofficer----------------", rank_data)
-        if (!rank_data) {
+        if (!rank_data || req.body.rank !==1) {
             const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id, officer_id: req.body.officer_id } });
             if (!get_data) {
                 if (Object.keys(req.body).length === 0) {
@@ -264,7 +264,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
         if (condition_data) {
             const rank_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, rank: req.body.rank } });
             console.log("------------------createYearPlaceNgoofficer----------------", rank_data)
-            if (!rank_data) {
+            if (!rank_data || req.body.rank !==1) {
                 // const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id, officer_id: req.body.officer_id } });
                 // if (!get_data) {
 
