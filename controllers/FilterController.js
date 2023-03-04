@@ -242,7 +242,13 @@ exports.finalReportGenerateOfficerProfileNGO_new = async(req,res) => {
 }
 
 exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
-    let query = ' and years.name = year(curdate())'
+    let query = 'where years.id = (select MAX(id) from years)'
+    let type = '';
+    let heading = '';
+    let headingType = '';
+    let descType = '';
+    let headingDesc = '';
+
 
     if(req.body.division_id != ''){
         if(query.includes('where')){
@@ -269,21 +275,25 @@ exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
         
     }
     if(req.body.heading_id != ''){
-        if(query.includes('where')){
-            query += ` and heading_id = '${req.body.heading_id}'`
-        }else{
-            query += ` where heading_id = '${req.body.heading_id}'`
-        }
+        // if(heading.includes('where')){
+            heading += ` and id = '${req.body.heading_id}'`
+            headingDesc += ` and heading_id = '${req.body.heading_id}'`
+        // }else{
+        //     heading += ` where heading_id = '${req.body.heading_id}'`
+        // }
         
     }
 
     if(req.body.type_id != ''){
-        if(query.includes('where')){
-            query += ` and officer_profile_headings.type = '${req.body.type_id}'`
+        if(type.includes('where')){
+            type += ` and officer_profile_headings.type_id = '${req.body.type_id}'`
+            headingType += ` and officer_profile_headings.type = '${req.body.type_id}'`
+            
         }else{
-            query += ` where officer_profile_headings.type = '${req.body.type_id}'`
+            type += ` where id = '${req.body.type_id}'`
+            headingType += ` where officer_profile_headings.type = '${req.body.type_id}'`
         }
-        
+        descType += ` and officer_profile_headings.type = '${req.body.type_id}'`
     }
 
     if(req.body.ngo_id !== ''){        
@@ -294,14 +304,16 @@ exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
         }       
     }
     // const [alldata, metadata] = await sequelize.query(`SELECT *,Places.id as place_id,Places.name as place_name,Officers.name as officer_name,Ngos.name as ngo_name,Ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join Places on Places.id = year_place_ngo_officers.place_id left join Officers on Officers.id = year_place_ngo_officers.officer_id left join Ngos on Ngos.id = year_place_ngo_officers.ngo_id`+query);
-    const [alldata, metadata] = await sequelize.query(`select (select GROUP_CONCAT(concat(id,'-',type)) from Profile_types ORDER by sort) as type_list,(select GROUP_CONCAT(concat(type,'-',id,'-',heading)) from officer_profile_headings ORDER by view_sort,type) heading_list,(select GROUP_CONCAT(CONCAT(heading_id,'-',type,'-',officers_heading_descriptions.desc)) from officers_heading_descriptions left join officer_profile_headings on officers_heading_descriptions.heading_id = officer_profile_headings.id where officer_id = year_place_ngo_officers.officer_id and year_id = year_place_ngo_officers.year_id order by heading_id) description_list, Places.id as place_id,Places.name as place_name,Ngos.name as ngo_name,Officers.name as officer_name,Officers.image as officer_photo,Places.area from Places LEFT join year_place_ngo_officers on year_place_ngo_officers.place_id = Places.id LEFT join Ngos on Ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id left JOIN years on years.id = year_place_ngo_officers.year_id where year_place_ngo_officers.status = 1 ${query} GROUP by year_place_ngo_officers.officer_id`);
-    console.log(alldata);
+    const [alldata, metadata] = await sequelize.query(`select (select GROUP_CONCAT(concat(id,'-',type)) from Profile_types ${type} ORDER by sort) as type_list,(select GROUP_CONCAT(concat(type,'-',id,'-',heading)) from officer_profile_headings ${headingType}${heading} ORDER by view_sort,type) heading_list,(select GROUP_CONCAT(CONCAT(heading_id,'-',type,'-',officers_heading_descriptions.desc)) from officers_heading_descriptions left join officer_profile_headings on officers_heading_descriptions.heading_id = officer_profile_headings.id where officer_id = year_place_ngo_officers.officer_id and year_id = year_place_ngo_officers.year_id ${descType}${headingDesc} order by heading_id) description_list, Places.id as place_id,Places.name as place_name,Ngos.name as ngo_name,Officers.name as officer_name,Officers.image as officer_photo,Places.area from Places LEFT join year_place_ngo_officers on year_place_ngo_officers.place_id = Places.id LEFT join Ngos on Ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id left JOIN years on years.id = year_place_ngo_officers.year_id ${query} GROUP by year_place_ngo_officers.officer_id`);
+    console.log(`select (select GROUP_CONCAT(concat(id,'-',type)) from Profile_types ORDER by sort) as type_list,(select GROUP_CONCAT(concat(type,'-',id,'-',heading)) from officer_profile_headings ORDER by view_sort,type) heading_list,(select GROUP_CONCAT(CONCAT(heading_id,'-',type,'-',officers_heading_descriptions.desc)) from officers_heading_descriptions left join officer_profile_headings on officers_heading_descriptions.heading_id = officer_profile_headings.id where officer_id = year_place_ngo_officers.officer_id and year_id = year_place_ngo_officers.year_id order by heading_id) description_list, Places.id as place_id,Places.name as place_name,Ngos.name as ngo_name,Officers.name as officer_name,Officers.image as officer_photo,Places.area from Places LEFT join year_place_ngo_officers on year_place_ngo_officers.place_id = Places.id LEFT join Ngos on Ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id left JOIN years on years.id = year_place_ngo_officers.year_id ${query} GROUP by year_place_ngo_officers.officer_id`);
     if(alldata.length > 0){
         let final_data = [];
         for(let i=0;i<alldata.length;i++){
             alldata[i].description_list = alldata[i].description_list!== null?alldata[i].description_list.split(',')?.map(res=> {
                 const desc = res.split('-');
+                console.log(desc[2]);
                 const newDesc = decryptHash(desc[2]);
+                console.log(newDesc);
                 return desc[0].concat("-", desc[1]).concat("-", newDesc);
             }):alldata[i].description_list;
             // let decoded_desc = "";
