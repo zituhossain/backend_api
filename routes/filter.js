@@ -13,5 +13,6 @@ router.post('/finalReportGenerateOfficerProfile',FilterController.finalReportGen
 router.post('/finalReportGenerateAdminOfficer',FilterController.finalReportGenerateAdminOfficer);
 router.post('/finalReportGenerateResult',FilterController.finalReportGenerateResult);
 router.post('/finalReportGenerateOfficerChange',FilterController.finalReportGenerateOfficerChange);
+router.get('/yearget/:year',FilterController.YearGet);
 
 module.exports = router;
