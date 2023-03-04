@@ -294,15 +294,15 @@ exports.finalReportGenerateOfficerProfileNGO = async(req,res) => {
         }       
     }
     // const [alldata, metadata] = await sequelize.query(`SELECT *,Places.id as place_id,Places.name as place_name,Officers.name as officer_name,Ngos.name as ngo_name,Ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join Places on Places.id = year_place_ngo_officers.place_id left join Officers on Officers.id = year_place_ngo_officers.officer_id left join Ngos on Ngos.id = year_place_ngo_officers.ngo_id`+query);
-    const [alldata, metadata] = await sequelize.query(`select (select GROUP_CONCAT(concat(id,'-',type)) from Profile_types ORDER by sort) as type_list,(select GROUP_CONCAT(concat(type,'-',heading)) from officer_profile_headings ORDER by view_sort,type) heading_list,(select GROUP_CONCAT(concat(heading_id,'-',officers_heading_descriptions.desc)) from officers_heading_descriptions where officer_id = year_place_ngo_officers.officer_id and year_id = year_place_ngo_officers.year_id order by heading_id) description_list, Places.id as place_id,Places.name as place_name,Ngos.name as ngo_name,Officers.name as officer_name,Officers.image as officer_photo,Places.area from Places LEFT join year_place_ngo_officers on year_place_ngo_officers.place_id = Places.id LEFT join Ngos on Ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id left JOIN years on years.id = year_place_ngo_officers.year_id where year_place_ngo_officers.status = 1 ${query} GROUP by year_place_ngo_officers.officer_id`);
+    const [alldata, metadata] = await sequelize.query(`select (select GROUP_CONCAT(concat(id,'-',type)) from Profile_types ORDER by sort) as type_list,(select GROUP_CONCAT(concat(type,'-',id,'-',heading)) from officer_profile_headings ORDER by view_sort,type) heading_list,(select GROUP_CONCAT(CONCAT(heading_id,'-',type,'-',officers_heading_descriptions.desc)) from officers_heading_descriptions left join officer_profile_headings on officers_heading_descriptions.heading_id = officer_profile_headings.id where officer_id = year_place_ngo_officers.officer_id and year_id = year_place_ngo_officers.year_id order by heading_id) description_list, Places.id as place_id,Places.name as place_name,Ngos.name as ngo_name,Officers.name as officer_name,Officers.image as officer_photo,Places.area from Places LEFT join year_place_ngo_officers on year_place_ngo_officers.place_id = Places.id LEFT join Ngos on Ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN Officers on Officers.id = year_place_ngo_officers.officer_id left JOIN years on years.id = year_place_ngo_officers.year_id where year_place_ngo_officers.status = 1 ${query} GROUP by year_place_ngo_officers.officer_id`);
     console.log(alldata);
     if(alldata.length > 0){
         let final_data = [];
         for(let i=0;i<alldata.length;i++){
             alldata[i].description_list = alldata[i].description_list!== null?alldata[i].description_list.split(',')?.map(res=> {
                 const desc = res.split('-');
-                const newDesc = decryptHash(desc[1]);
-                return desc[0].concat("-", newDesc);
+                const newDesc = decryptHash(desc[2]);
+                return desc[0].concat("-", desc[1]).concat("-", newDesc);
             }):alldata[i].description_list;
             // let decoded_desc = "";
             // if(current_desc){
@@ -467,6 +467,88 @@ exports.finalReportGenerateResult = async(req,res) => {
     ) AS served_population2
     FROM
         Places`+query);
+    if(alldata.length > 0){
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
+
+exports.finalReportGenerateOfficerChange = async(req,res) => {
+    let query = ''
+    let default_year = '(select id from years order by id DESC LIMIT 1,1)'
+
+    if(req.body.division_id != ''){
+        if(query.includes('where')){
+            query += ` and division_id = '${req.body.division_id}'`
+        }else{
+            query += ` where division_id = '${req.body.division_id}'`
+        }
+        
+    }
+    if(req.body.district_id != ''){
+        const get_district = await District.findOne({where:{id:req.body.district_id}})
+        if(query.includes('where')){
+            query += ` and district_id = '${req.body.district_id}'`
+        }else{
+            query += ` where district_id = '${req.body.district_id}'`
+        }
+        
+    }
+    if(req.body.place_id != ''){
+        if(query.includes('where')){
+            query += ` and Places.id = '${req.body.place_id}'`
+        }else{
+            query += ` where Places.id = '${req.body.place_id}'`
+        }
+        
+    }
+    if(req.body.ngo_id !== ''){        
+        if(query.includes('where')){
+            query += ` and ngo_id = '${req.body.ngo_id}'`
+        }else{
+            query += ` where ngo_id = '${req.body.ngo_id}'`
+        }       
+    }
+    const [alldata, metadata] = await sequelize.query(`SELECT
+        Places.id AS place_id,
+        Places.name AS place_name,
+        Ngos.id AS ngo_id,
+        Places.division_id  AS division_id,
+        Places.district_id AS district_id,
+        (
+        SELECT
+            Officers.name
+        FROM
+            year_place_ngo_officers
+        LEFT JOIN Officers ON Officers.id = year_place_ngo_officers.officer_id
+        WHERE year_place_ngo_officers.ngo_id = 6 and 
+            year_place_ngo_officers.place_id = Places.id AND year_place_ngo_officers.year_id = ${default_year} AND year_place_ngo_officers.status = 1
+        GROUP BY
+            year_place_ngo_officers.ngo_id
+    ) AS ngo_officer1,
+    (
+        SELECT
+            Officers.name
+        FROM
+            year_place_ngo_officers
+        LEFT JOIN Officers ON Officers.id = year_place_ngo_officers.officer_id
+        WHERE year_place_ngo_officers.ngo_id = 6 and year_place_ngo_officers.place_id = Places.id AND year_place_ngo_officers.year_id = ${default_year} AND year_place_ngo_officers.status = 0
+        GROUP BY
+            year_place_ngo_officers.ngo_id
+    ) AS ngo_officer2,
+    (
+        SELECT
+            ngo_categories.short_name
+        FROM
+            ngo_category_bs
+        LEFT JOIN ngo_categories ON ngo_categories.id = ngo_category_bs.ngo_category_id
+        WHERE ngo_category_bs.place_id = Places.id and status = 'colorActive'
+    ) AS categoryType
+    ,Ngos.short_name
+    FROM
+        Places
+        LEFT JOIN Ngos on Ngos.id = Places.ngo_id`+query);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
