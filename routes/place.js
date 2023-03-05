@@ -69,6 +69,11 @@ router.get('/categoryBColor', PlaceController.categoryBColor);
 // Sub Place Route
 router.post('/create_sub_place', auth, PlaceController.createSubPlace);
 router.get('/all_sub_place', auth, PlaceController.fetchallSubPlace);
+router.get(
+	'/sub_place_by_place_id/:id',
+	auth,
+	PlaceController.fetchSubPlaceByPlaceId
+);
 router.delete('/delete_sub_place/:id', auth, PlaceController.deleteSubPlace);
 router.put('/update_sub_place/:id', auth, PlaceController.updateSubPlace);
 
