@@ -578,3 +578,12 @@ exports.YearGet = async(req,res) => {
         return apiResponse.ErrorResponse(res,"No data found")
     }
 }
+
+exports.LatestYearGet = async(req,res) => {
+    const [year_data, metadata] = await sequelize.query(`select id,name from years order by id DESC LIMIT 1,1`);
+    if(year_data.length>0){
+        return apiResponse.successResponseWithData(res,"year fetch successfully.",year_data[0])
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
