@@ -707,12 +707,12 @@ exports.createSubPlace = async (req, res) => {
 	try {
 		if (
 			req.body.name &&
-			req.body.area &&
-			req.body.place_id &&
-			req.body.assigned_officer &&
-			req.body.officer_phone &&
-			req.body.population &&
-			req.body.type
+			// req.body.area &&
+			req.body.place_id
+			// req.body.assigned_officer &&
+			// req.body.officer_phone &&
+			// req.body.population &&
+			// req.body.type
 		) {
 			const if_place_exists = await Sub_place.findOne({
 				where: { name: req.body.name },
@@ -757,6 +757,31 @@ exports.fetchallSubPlace = async (req, res) => {
 	}
 };
 
+exports.fetchSubPlaceByPlaceId = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const sub_place_data = await Sub_place.findAll({
+			include: [
+				{
+					model: Place,
+				},
+			],
+			where: { place_id: id },
+		});
+		if (sub_place_data) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				sub_place_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 exports.updateSubPlace = async (req, res) => {
 	try {
 		const sub_place_id = req.params.id;
@@ -766,12 +791,12 @@ exports.updateSubPlace = async (req, res) => {
 		if (sub_place_data) {
 			if (
 				req.body.name &&
-				req.body.area &&
+				// req.body.area &&
 				req.body.place_id &&
-				req.body.assigned_officer &&
-				req.body.officer_phone &&
-				req.body.population &&
-				req.body.type &&
+				// req.body.assigned_officer &&
+				// req.body.officer_phone &&
+				// req.body.population &&
+				// req.body.type
 				req.body.name !== ''
 			) {
 				await Sub_place.update(req.body, {
