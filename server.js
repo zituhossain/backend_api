@@ -11,6 +11,28 @@ const {CronJob} = require('cron');
 const {CronTask} = require('./cronJob');
 const {MongoDB} = require('./db');
 const mongoDB = new MongoDB();
+const mongoose = require("mongoose");
+const { mongo_db_url } = require('./config.js');
+
+try{
+	mongoose.connect(mongo_db_url,
+		{
+			useNewUrlParser: true,
+			useFindAndModify: false,
+			useUnifiedTopology: true
+		}
+	);
+	console.log("mongo connect successfully")
+}catch(err){
+	console.log("mongo connect error ",err.message)
+}
+
+var cutom_mongo_db = mongoose.connection;
+cutom_mongo_db.on("error", console.error.bind(console, "mongo connection error: "));
+cutom_mongo_db.once("open", function () {
+  console.log("mongo Connected successfully");
+});
+
 const base_dir_config = require('./config.js');
 
 const { multerMiddleware } = require('./helpers/uploadFiles');
