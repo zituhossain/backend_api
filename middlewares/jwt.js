@@ -11,6 +11,8 @@ let month = date.getMonth() + 1;
 let year = date.getFullYear();
 let currentDate = `${day}-${month}-${year}`;
 
+const userModel = require("../models/mongo_models");
+
 var logger = createLogger({
 	format: format.combine(format.timestamp(), format.json()),
 	transports: [
@@ -66,8 +68,19 @@ function checkurl(value) {
 		return {status: false,url: value}
 	}
 }
+const save_to_mongo = async (body) => {
+    const user = new userModel(body);
+  
+    try {
+      await user.save();
+    } catch (error) {
+    //   response.status(500).send(error);
+    }
+};
+
 function createLog(data){
 	logger.info(data);
+	// save_to_mongo(data);
 }
 // module.exports = authenticate;
 
