@@ -70,17 +70,20 @@ function checkurl(value) {
 }
 const save_to_mongo = async (body) => {
     const user = new userModel(body);
+	// const users = await userModel.find({});
+	// console.log(users)
   
     try {
       await user.save();
+	//   console.log("mongo saved")
     } catch (error) {
-    //   response.status(500).send(error);
+		console.log("mongo save error: ",error.message)
     }
 };
 
 function createLog(data){
 	logger.info(data);
-	// save_to_mongo(data);
+	save_to_mongo(data);
 }
 // module.exports = authenticate;
 
@@ -94,7 +97,7 @@ module.exports = async (req, res, next) => {
 	const logdata = {
 		api_route: req.originalUrl,
 		method: req.method,
-		body: req.body,
+		body: req.body && Object.keys(req.body).length === 0 ? "" : req.body,
 		user_id: userId,
 		ip: ipAddress
 	}
