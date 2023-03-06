@@ -68,6 +68,43 @@ exports.getbyDisId = async (req, res) => {
     }
 }
 
+exports.getbyPlaceId = async (req, res) => {
+    try {
+        // const title_id = req.params.year; 
+
+        const placeId = req.params.placeId;
+    try {
+        
+        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join Places on Places.id = pyp.place_id where Places.id = '+placeId+' and year_id = (select max(id) as year_id from years)');
+
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+exports.getMinoritybyPlaceId = async (req, res) => {
+    try {
+        // const title_id = req.params.year; 
+
+        const placeId = req.params.placeId;
+    try {
+        
+        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.minority) as total_minority from population_year_places pyp left join Places on Places.id = pyp.place_id where Places.id = '+placeId+' and year_id = (select max(id) as year_id from years)');
+
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
 exports.getbyDivId = async (req, res) => {
     try {
         // const title_id = req.params.year; 
