@@ -10,11 +10,11 @@ module.exports = {
 	// base_dir:'/Users/md.mahidulislam/Desktop/Full Stack/Office/GitHub/NGO/justtest/',
 	base_dir: __dirname + '/',
 	database: {
-		host: 'zvgy.com',
+		host: '127.0.0.1',
 		port: '3306',
-		user: 'zvgy_ngo',
-		password: '=9&Z9Iw23!-mag',
-		database: 'zvgy_ngo',
+		user: 'root',
+		password: '',
+		database: 'ngonew',
 	},
 
 	pool: {
