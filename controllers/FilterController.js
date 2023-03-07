@@ -362,9 +362,9 @@ exports.finalReportGenerateAdminOfficer = async(req,res) => {
 
     if(req.body.admin_office_id != ''){
         if(query.includes('where')){
-            query += ` and administration_office_id = '${req.body.admin_office_id}'`
+            query += ` and Administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`
         }else{
-            query += ` where administration_office_id = '${req.body.admin_office_id}'`
+            query += ` where Administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`
         }
         
     }
