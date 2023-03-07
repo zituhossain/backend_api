@@ -83,7 +83,7 @@ const save_to_mongo = async (body) => {
 
 function createLog(data){
 	logger.info(data);
-	save_to_mongo(data);
+	// save_to_mongo(data);
 }
 // module.exports = authenticate;
 
