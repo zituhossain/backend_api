@@ -262,9 +262,9 @@ exports.updateoveralltitlebyid = async (req, res) => {
         const condition_id = req.params.id;
         const condition_data = await year_place_ngo_officer.findOne({ where: { id: condition_id } });
         if (condition_data) {
-            const rank_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, rank: req.body.rank } });
+            const rank_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, rank: req.body.rank } ,raw: true});
             console.log("------------------createYearPlaceNgoofficer----------------", rank_data)
-            if (!rank_data || req.body.rank !==1) {
+            if (!rank_data || req.body.rank !==1 || rank_data.rank ===1) {
                 // const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id, officer_id: req.body.officer_id } });
                 // if (!get_data) {
 

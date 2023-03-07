@@ -1,23 +1,23 @@
 {
-  "development": {
-    "username": "zvgy_ngo",
-    "password": "zvgy_ngo@@##",
-    "database": "zvgy_ngo",
-    "host": "zvgy.com",
-    "dialect": "mysql"
-  }, 
-  "test": {
-    "username": "zvgy_ngo",
-    "password": "zvgy_ngo@@##",
-    "database": "zvgy_ngo",
-    "host": "zvgy.com",
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "zvgy_ngo",
-    "password": "zvgy_ngo@@##",
-    "database": "zvgy_ngo",
-    "host": "zvgy.com",
-    "dialect": "mysql"
-  }
+	"development": {
+		"username": "zvgy_ngo",
+		"password": "=9&Z9Iw23!-mag",
+		"database": "zvgy_ngo",
+		"host": "zvgy.com",
+		"dialect": "mysql"
+	},
+	"test": {
+		"username": "zvgy_ngo",
+		"password": "zvgy_ngo@@##",
+		"database": "zvgy_ngo",
+		"host": "zvgy.com",
+		"dialect": "mysql"
+	},
+	"production": {
+		"username": "zvgy_ngo",
+		"password": "zvgy_ngo@@##",
+		"database": "zvgy_ngo",
+		"host": "zvgy.com",
+		"dialect": "mysql"
+	}
 }
