@@ -41,6 +41,7 @@ module.exports = (sequelize, DataTypes) => {
 			qualification: DataTypes.STRING,
 			educational_institute: DataTypes.STRING,
 			old_work_place: DataTypes.STRING,
+			current_work_place: DataTypes.STRING,
 			other_info: DataTypes.STRING,
 			comments: DataTypes.TEXT,
 			created_by: DataTypes.INTEGER,
