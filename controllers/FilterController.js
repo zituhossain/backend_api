@@ -428,6 +428,7 @@ exports.finalReportGenerateResult = async(req,res) => {
     const [alldata, metadata] = await sequelize.query(`SELECT
         Places.id AS place_id,
         Places.name AS place_name,
+        Places.area AS place_area,
         Places.division_id  AS division_id,
         Places.district_id AS district_id,
         (

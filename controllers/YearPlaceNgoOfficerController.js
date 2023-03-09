@@ -155,8 +155,7 @@ exports.getAllCountInformation = async (req, res) => {
 }
 exports.getNgoPopularOfficer = async (req, res) => {
     try {
-        const [results, metadata] = await sequelize.query(`select Officers.* from year_place_ngo_officers left join Officers on Officers.id = year_place_ngo_officers.officer_id where year_place_ngo_officers.year_id =(select id from years order by id DESC LIMIT 1,1) and rank = 1 and year_place_ngo_officers.place_id = ${req.params.id
-            }`)
+        const [results, metadata] = await sequelize.query(`select Officers.* from year_place_ngo_officers left join Officers on Officers.id = year_place_ngo_officers.officer_id where year_place_ngo_officers.year_id =(select id from years order by id DESC LIMIT 1,1) and rank = 1 and year_place_ngo_officers.place_id = ${req.params.id}`)
 
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
