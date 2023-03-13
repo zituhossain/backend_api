@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     // comments: DataTypes.TEXT,
   }, {
     sequelize,
+    tableName: 'news_events',
     modelName: 'News_event',
   });
   News_event.associate = models => {

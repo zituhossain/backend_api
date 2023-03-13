@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.STRING
   }, {
     sequelize,
+    tableName: 'login_attempts',
     modelName: 'Login_attempt',
   });
   return Login_attempt;

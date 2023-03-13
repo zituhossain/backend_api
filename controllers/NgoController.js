@@ -168,7 +168,7 @@ exports.fetchall_year_place_ngo = async (req, res) => {
         //             }],
         //         group:['ngo_id']
         // });
-        const [results, metadata] = await sequelize.query(`select * from Ngos INNER JOIN Places on Ngos.id = Places.ngo_id`);
+        const [results, metadata] = await sequelize.query(`select * from ngos INNER JOIN places on ngos.id = places.ngo_id`);
 
         if (results.length > 0) {
             return apiResponse.successResponseWithData(res, "Data fetch successfull.", results)
@@ -254,7 +254,7 @@ exports.delete_by_id = async (req, res) => {
 exports.NgoCounter = async (req, res) => {
     try {
 
-        const [results, metadata] = await Ngo.sequelize.query('Select (select count(*) FROM Places WHERE Places.ngo_id = "6") as Count1, (select count(*) FROM ngo_category_bs where ngo_category_id="1" AND status="colorActive") as Count2 , (select count(*) FROM ngo_category_bs where ngo_category_id="4" AND status="colorActive") as Count3');
+        const [results, metadata] = await Ngo.sequelize.query('Select (select count(*) FROM places WHERE places.ngo_id = "6") as Count1, (select count(*) FROM ngo_category_bs where ngo_category_id="1" AND status="colorActive") as Count2 , (select count(*) FROM ngo_category_bs where ngo_category_id="4" AND status="colorActive") as Count3');
 
         return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
     } catch (err) {
@@ -266,6 +266,6 @@ exports.NgoCounter = async (req, res) => {
 
 
 
-// SELECT ( SELECT COUNT(*) FROM Places WHERE Places.ngo_id = "6" ) AS catACount, ( SELECT COUNT(*) FROM ngo_category_bs where ngo_category_bs.ngo_category_id="1" AND ngo_category_bs.status="colorActive" ) AS catBA FROM dual
+// SELECT ( SELECT COUNT(*) FROM places WHERE places.ngo_id = "6" ) AS catACount, ( SELECT COUNT(*) FROM ngo_category_bs where ngo_category_bs.ngo_category_id="1" AND ngo_category_bs.status="colorActive" ) AS catBA FROM dual
 
-// Select (select count(*) FROM Places WHERE Places.ngo_id = "6") as Count1, (select count(*) FROM ngo_category_bs where ngo_category_id="1" AND status="colorActive") as Count2 , (select count(*) FROM ngo_category_bs where ngo_category_id="4" AND status="colorActive") as Count3
+// Select (select count(*) FROM places WHERE places.ngo_id = "6") as Count1, (select count(*) FROM ngo_category_bs where ngo_category_id="1" AND status="colorActive") as Count2 , (select count(*) FROM ngo_category_bs where ngo_category_id="4" AND status="colorActive") as Count3

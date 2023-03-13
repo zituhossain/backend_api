@@ -1,15 +1,15 @@
 {
 	"development": {
-		"username": "root",
-		"password": "",
-		"database": "ngonew",
-		"host": "127.0.0.1",
+		"username": "zvgy_kafi",
+		"password": "het8Wj3vJSve@2",
+		"database": "zvgy_kafi",
+		"host": "zvgy.com",
 		"dialect": "mysql"
 	},
 	"test": {
-		"username": "zvgy_ngo",
-		"password": "zvgy_ngo@@##",
-		"database": "zvgy_ngo",
+		"username": "zvgy_kafi",
+		"password": "het8Wj3vJSve@2",
+		"database": "zvgy_kafi",
 		"host": "zvgy.com",
 		"dialect": "mysql"
 	},

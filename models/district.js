@@ -35,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
     division_id: DataTypes.INTEGER
   }, {
     sequelize,
+    tableName: 'districts',
     modelName: 'District',
   });
   District.associate = models => {

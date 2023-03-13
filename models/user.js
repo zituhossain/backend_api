@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
+
     static associate(models) {
       // define association here
     }
@@ -21,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       }
       return attributes
     }
+
   }
   User.init({
     username: DataTypes.STRING,
@@ -40,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
   }, {
     sequelize,
+    tableName: 'users',
     modelName: 'User',
   });
   User.associate = models =>{

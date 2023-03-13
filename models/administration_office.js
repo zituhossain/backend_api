@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     ordering: DataTypes.INTEGER
   }, {
     sequelize,
+    tableName: 'administration_offices',
     modelName: 'Administration_office',
   });
   Administration_office.associate = models => {
