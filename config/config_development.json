@@ -1,9 +1,9 @@
 {
 	"development": {
-		"username": "root",
-		"password": "",
-		"database": "ngonew",
-		"host": "127.0.0.1",
+		"username": "zvgy_ngo",
+		"password": "=9&Z9Iw23!-mag",
+		"database": "zvgy_ngo",
+		"host": "zvgy.com",
 		"dialect": "mysql"
 	},
 	"test": {
