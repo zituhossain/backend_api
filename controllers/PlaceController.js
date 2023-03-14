@@ -10,6 +10,8 @@ const {
 	years,
 	Place,
 	Sub_place,
+	Upazilla,
+	Union,
 	ngo_jots,
 	Division,
 	District,
@@ -741,6 +743,12 @@ exports.fetchallSubPlace = async (req, res) => {
 				{
 					model: Place,
 				},
+				{
+					model: Upazilla,
+				},
+				{
+					model: Union,
+				},
 			],
 		});
 		if (sub_place_data) {
@@ -833,6 +841,233 @@ exports.deleteSubPlace = async (req, res) => {
 	}
 };
 
+// Upazila Controller
+exports.createUpazila = async (req, res) => {
+	try {
+		if (req.body.name && req.body.place_id) {
+			const if_upazila_exists = await Upazilla.findOne({
+				where: { name: req.body.name },
+			});
+			if (if_upazila_exists) {
+				return apiResponse.ErrorResponse(
+					res,
+					'Upazilla already found in database.'
+				);
+			} else {
+				await Upazilla.create(req.body);
+				return apiResponse.successResponse(res, 'Data successfully saved.');
+			}
+		} else {
+			return apiResponse.ErrorResponse(res, 'name/place is missing.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.fetchallUpazila = async (req, res) => {
+	try {
+		const upazilla_data = await Upazilla.findAll({
+			include: [
+				{
+					model: Place,
+				},
+			],
+		});
+		if (upazilla_data) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				upazilla_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.fetchallUpazilaByPlaceId = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const upazilla_data = await Upazilla.findAll({
+			include: [
+				{
+					model: Place,
+				},
+			],
+			where: { place_id: id },
+		});
+		if (upazilla_data) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				upazilla_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.updateUpazila = async (req, res) => {
+	try {
+		const upazilla_id = req.params.id;
+		const upazilla_data = await Upazilla.findOne({
+			where: { id: upazilla_id },
+		});
+		if (upazilla_data) {
+			if (req.body.name && req.body.place_id && req.body.name !== '') {
+				await Upazilla.update(req.body, {
+					where: { id: upazilla_id },
+				});
+				return apiResponse.successResponse(res, 'data successfully updated!!!');
+			} else {
+				return apiResponse.ErrorResponse(res, 'name is missing.');
+			}
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.deleteUpazila = async (req, res) => {
+	try {
+		const upazilla_id = req.params.id;
+		const upazilla_data = await Upazilla.findOne({
+			where: { id: upazilla_id },
+		});
+		if (upazilla_data) {
+			await Upazilla.destroy({
+				where: { id: upazilla_id },
+			});
+			return apiResponse.successResponse(res, 'Data successfully deleted.');
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+// Union Controller
+exports.createUnion = async (req, res) => {
+	try {
+		if (req.body.name && req.body.upazilla_id) {
+			const if_union_exists = await Union.findOne({
+				where: { name: req.body.name },
+			});
+			if (if_union_exists) {
+				return apiResponse.ErrorResponse(
+					res,
+					'Union already found in database.'
+				);
+			} else {
+				await Union.create(req.body);
+				return apiResponse.successResponse(res, 'Data successfully saved.');
+			}
+		} else {
+			return apiResponse.ErrorResponse(res, 'name/upazilla is missing.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.fetchallUnion = async (req, res) => {
+	try {
+		const union_data = await Union.findAll({
+			include: [
+				{
+					model: Upazilla,
+				},
+			],
+		});
+		if (union_data) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				union_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.fetchallUnionByUpazilaId = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const union_data = await Union.findAll({
+			include: [
+				{
+					model: Upazilla,
+				},
+			],
+			where: { upazilla_id: id },
+		});
+		if (union_data) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				union_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.updateUnion = async (req, res) => {
+	try {
+		const union_id = req.params.id;
+		const union_data = await Union.findOne({
+			where: { id: union_id },
+		});
+		if (union_data) {
+			if (req.body.name && req.body.upazilla_id && req.body.name !== '') {
+				await Union.update(req.body, {
+					where: { id: union_id },
+				});
+				return apiResponse.successResponse(res, 'data successfully updated!!!');
+			} else {
+				return apiResponse.ErrorResponse(res, 'name is missing.');
+			}
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.deleteUnion = async (req, res) => {
+	try {
+		const union_id = req.params.id;
+		const union_data = await Union.findOne({
+			where: { id: union_id },
+		});
+		if (union_data) {
+			await Union.destroy({
+				where: { id: union_id },
+			});
+			return apiResponse.successResponse(res, 'Data successfully deleted.');
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
 // select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join places on places.id = pyp.place_id where district_id = 1 group by pyp.place_id
 
 // SELECT year_id,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id left join places on places.id=ypno.place_id where places.district_id = 1 group by ypno.year_id,ypno.place_id order by ypno.year_id desc

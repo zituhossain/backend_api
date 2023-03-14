@@ -63,8 +63,12 @@ module.exports = (sequelize, DataTypes) => {
 			foreignKey: 'place_id',
 		});
 		Place.hasMany(models.Sub_place, {
-			targetKey: 'place_id',
-			foreignKey: 'id',
+			targetKey: 'id',
+			foreignKey: 'place_id',
+		});
+		Place.hasMany(models.Upazilla, {
+			targetKey: 'id',
+			foreignKey: 'place_id',
 		});
 	};
 	return Place;

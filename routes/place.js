@@ -77,4 +77,26 @@ router.get(
 router.delete('/delete_sub_place/:id', auth, PlaceController.deleteSubPlace);
 router.put('/update_sub_place/:id', auth, PlaceController.updateSubPlace);
 
+// Upazila Route
+router.post('/create_upazila', auth, PlaceController.createUpazila);
+router.get('/all_upazila', auth, PlaceController.fetchallUpazila);
+router.get(
+	'/all_upazila_by_place_id/:id',
+	auth,
+	PlaceController.fetchallUpazilaByPlaceId
+);
+router.delete('/delete_upazila/:id', auth, PlaceController.deleteUpazila);
+router.put('/update_upazila/:id', auth, PlaceController.updateUpazila);
+
+// Union Route
+router.post('/create_union', auth, PlaceController.createUnion);
+router.get('/all_union', auth, PlaceController.fetchallUnion);
+router.get(
+	'/all_union_by_upazila_id/:id',
+	auth,
+	PlaceController.fetchallUnionByUpazilaId
+);
+router.delete('/delete_union/:id', auth, PlaceController.deleteUnion);
+router.put('/update_union/:id', auth, PlaceController.updateUnion);
+
 module.exports = router;
