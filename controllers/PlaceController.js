@@ -591,6 +591,7 @@ exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
 		const place_data = await ngo_jot_add_into_places.findAll({
 			include: [Place, ngo_jots, Division, District],
+			// group:"place_id"
 		});
 		return apiResponse.successResponseWithData(
 			res,
@@ -665,8 +666,29 @@ exports.categoryAlist = async (req, res) => {
 exports.categoryBlist = async (req, res) => {
 	try {
 		const [results, metadata] =
-			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name, 
+			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name, Places.id as placeid , Places.district_id as districtid , Places.division_id as divisionid,
         ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
+
+		if (results.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				results
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.categoryBlistID = async (req, res) => {
+	try {
+		const id = req.params.id
+		const [results, metadata] =
+			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name,Places.id as placeid , Places.district_id as districtid , Places.division_id as divisionid,
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.id =${id}`);
 
 		if (results.length > 0) {
 			return apiResponse.successResponseWithData(
