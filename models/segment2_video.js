@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     visibility: DataTypes.BOOLEAN
   }, {
     sequelize,
+    tableName: 'segment2_videos',
     modelName: 'Segment2_video',
   });
   return Segment2_video;

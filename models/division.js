@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     district_count: DataTypes.INTEGER
   }, {
     sequelize,
+    tableName: 'divisions',
     modelName: 'Division',
   });
   return Division;

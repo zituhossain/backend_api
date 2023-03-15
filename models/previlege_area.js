@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     previlege_url: DataTypes.STRING
   }, {
     sequelize,
+    tableName: 'previlege_areas',
     modelName: 'Previlege_area',
   });
   return Previlege_area;

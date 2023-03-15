@@ -593,7 +593,6 @@ exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
 		const place_data = await ngo_jot_add_into_places.findAll({
 			include: [Place, ngo_jots, Division, District],
-			// group:"place_id"
 		});
 		return apiResponse.successResponseWithData(
 			res,
@@ -670,27 +669,6 @@ exports.categoryBlist = async (req, res) => {
 		const [results, metadata] =
 			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, 
         ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
-
-		if (results.length > 0) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				results
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-exports.categoryBlistID = async (req, res) => {
-	try {
-		const id = req.params.id
-		const [results, metadata] =
-			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name,Places.id as placeid , Places.district_id as districtid , Places.division_id as divisionid,
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.id =${id}`);
 
 		if (results.length > 0) {
 			return apiResponse.successResponseWithData(
@@ -790,21 +768,16 @@ exports.fetchallSubPlace = async (req, res) => {
 exports.fetchSubPlaceByPlaceId = async (req, res) => {
 	try {
 		const id = req.params.id;
-		const sub_place_data = await Upazilla.findAll({
+		const sub_place_data = await Sub_place.findAll({
 			include: [
-				// {
-				// 	model: Place,
-				// },
-				// {
-				// 	model: Upazilla,
-				// },
+				{
+					model: Place,
+				},
+				{
+					model: Upazilla,
+				},
 				{
 					model: Union,
-					include: [
-						{
-							model: Sub_place,
-						},
-					],
 				},
 			],
 			where: { place_id: id },
