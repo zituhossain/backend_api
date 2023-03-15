@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     created_by: DataTypes.NUMBER
   }, {
     sequelize,
+    tableName: 'profile_types',
     modelName: 'Profile_type',
   });
   Profile_type.associate = models => {

@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     district_id: DataTypes.INTEGER
   }, {
     sequelize,
+    tableName: 'previlege_place_division_districts',
     modelName: 'Previlege_place_division_district',
   });
   Previlege_place_division_district.associate = models =>{

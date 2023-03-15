@@ -1,7 +1,7 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-	class Sub_place extends Model {
+	class Union extends Model {
 		/**
 		 * Helper method for defining associations.
 		 * This method is not a part of Sequelize lifecycle.
@@ -19,32 +19,24 @@ module.exports = (sequelize, DataTypes) => {
 			return attributes;
 		}
 	}
-	Sub_place.init(
+	Union.init(
 		{
 			name: DataTypes.STRING,
-			area: DataTypes.STRING,
-			place_id: DataTypes.INTEGER,
-			assigned_officer: DataTypes.STRING,
-			officer_phone: DataTypes.STRING,
-			population: DataTypes.STRING,
-			type: DataTypes.STRING,
+			upazilla_id: DataTypes.INTEGER,
 		},
 		{
 			sequelize,
-			tableName: 'sub_places',
-			modelName: 'Sub_place',
+			tableName: 'unions',
+			modelName: 'Union',
 		}
 	);
-	Sub_place.associate = (models) => {
-		Sub_place.belongsTo(models.Place, {
-			foreignKey: 'place_id',
-		});
-		Sub_place.belongsTo(models.Upazilla, {
+	Union.associate = (models) => {
+		Union.belongsTo(models.Upazilla, {
 			foreignKey: 'upazilla_id',
 		});
-		Sub_place.belongsTo(models.Union, {
+		Union.hasMany(models.Sub_place, {
 			foreignKey: 'union_id',
 		});
 	};
-	return Sub_place;
+	return Union;
 };

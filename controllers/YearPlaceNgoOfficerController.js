@@ -94,7 +94,7 @@ exports.getNgoOfficerHeadings = async (req, res) => {
         LEFT JOIN officer_profile_headings ON officer_profile_headings.id = officers_heading_descriptions.heading_id
         LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.year_id = officers_heading_descriptions.year_id 
         AND year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id
-        LEFT JOIN Places ON Places.id = year_place_ngo_officers.place_id
+        LEFT JOIN places ON places.id = year_place_ngo_officers.place_id
         WHERE year_place_ngo_officers.year_id = ${year_id} AND year_place_ngo_officers.officer_id =${officer_id}
         group by officer_profile_headings.id ORDER BY TYPE,view_sort`)
 
@@ -141,8 +141,8 @@ exports.getNgoOfficerExists = async (req, res) => {
 }
 exports.getAllCountInformation = async (req, res) => {
     try {
-        // const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select id from years order by id DESC LIMIT 1,1)`)
-        const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from Places) as total_places,(select count(*) from Ngos) as total_ngos,(SELECT COUNT(*) from Officers) as total_officer,(SELECT COUNT(*) from Officers where gender = 1) as male_officer,(SELECT COUNT(*) from Officers where gender = 2) as female_officer from population_year_places where year_id = (select MAX(id) from years)`)
+        // const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from places) as total_places,(select count(*) from ngos) as total_ngos,(SELECT COUNT(*) from officers) as total_officer,(SELECT COUNT(*) from officers where gender = 1) as male_officer,(SELECT COUNT(*) from officers where gender = 2) as female_officer from population_year_places where year_id = (select id from years order by id DESC LIMIT 1,1)`)
+        const [results, metadata] = await sequelize.query(`select sum(total_population) as total_population,sum(male) as total_male, SUM(female) as total_female,(select count(*) from places) as total_places,(select count(*) from ngos) as total_ngos,(SELECT COUNT(*) from officers) as total_officer,(SELECT COUNT(*) from officers where gender = 1) as male_officer,(SELECT COUNT(*) from officers where gender = 2) as female_officer from population_year_places where year_id = (select MAX(id) from years)`)
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
@@ -155,7 +155,7 @@ exports.getAllCountInformation = async (req, res) => {
 }
 exports.getNgoPopularOfficer = async (req, res) => {
     try {
-        const [results, metadata] = await sequelize.query(`select Officers.* from year_place_ngo_officers left join Officers on Officers.id = year_place_ngo_officers.officer_id where year_place_ngo_officers.year_id =(select id from years order by id DESC LIMIT 1,1) and rank = 1 and year_place_ngo_officers.place_id = ${req.params.id}`)
+        const [results, metadata] = await sequelize.query(`select officers.* from year_place_ngo_officers left join officers on officers.id = year_place_ngo_officers.officer_id where year_place_ngo_officers.year_id =(select id from years order by id DESC LIMIT 1,1) and rank = 1 and year_place_ngo_officers.place_id = ${req.params.id}`)
 
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
@@ -316,13 +316,13 @@ exports.getkormibyxid = async (req, res) => {
         const condition_name = req.params.condition;
         let query = '';
         if (condition_name === 'place') {
-            query = `Places.id`
+            query = `places.id`
         } else if (condition_name === 'division') {
-            query = `Places.division_id`
+            query = `places.division_id`
         } else if (condition_name === 'district') {
-            query = `Places.district_id`
+            query = `places.district_id`
         }
-        const [results, metadata] = await sequelize.query(`select Places.name,Officers.name as officer_name,Places.id as place_id,Officers.image from Places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = Places.id LEFT JOIN Officers on Officers.id = ypno.officer_id where ${query} = ${id} GROUP BY Places.id`)
+        const [results, metadata] = await sequelize.query(`select places.name,officers.name as officer_name,places.id as place_id,officers.image from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id where ${query} = ${id} GROUP BY places.id`)
         if (results) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
         } else {
@@ -347,10 +347,10 @@ exports.getkormitopbyxid = async (req, res) => {
         } else if (condition_name === 'district') {
             query = ` district_id=${id}`
         }
-        // query = `where year = (SELECT max(year) FROM Ngo_place_info npi) and` + query
+        // query = `where year = (SELECT max(year) FROM ngo_place_info npi) and` + query
         query = `where year = year(curdate()) and` + query
 
-        const [results, metadata] = await sequelize.query(`SELECT * FROM Ngo_place_info ` + query + ` GROUP BY officer_name`);
+        const [results, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info ` + query + ` GROUP BY officer_name`);
 
 
 

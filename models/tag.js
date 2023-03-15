@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING
   }, {
     sequelize,
+    tableName: 'tags',
     modelName: 'Tag',
   });
   Tag.associate = models => {

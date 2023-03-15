@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     permission: DataTypes.BOOLEAN
   }, {
     sequelize,
+    tableName: 'previlege_tables',
     modelName: 'Previlege_table',
   });
   Previlege_table.associate = models => {

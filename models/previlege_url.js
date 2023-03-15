@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     url: DataTypes.TEXT
   }, {
     sequelize,
+    tableName: 'previlege_urls',
     modelName: 'Previlege_url',
   });
   Previlege_url.associate = models => {
