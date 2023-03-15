@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     ordering: DataTypes.INTEGER
   }, {
     sequelize,
+    tableName: 'image_sliders',
     modelName: 'Image_slider',
   });
   Image_slider.associate = models =>{

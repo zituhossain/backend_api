@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     updated_by: DataTypes.INTEGER
   }, {
     sequelize,
+    tableName: 'ngos',
     modelName: 'Ngo',
   });
 

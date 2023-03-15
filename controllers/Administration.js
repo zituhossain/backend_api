@@ -72,6 +72,11 @@ exports.fetch_admin_office_by_place_id = async (req, res) => {
 			include: [
 				{
 					model: Administration_officer,
+					include: [
+						{
+							model: Administration_officer_type,
+						},
+					],
 					where: arr,
 				},
 			],

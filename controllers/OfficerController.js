@@ -31,6 +31,7 @@ exports.getallofficer = async (req, res) => {
 	try {
 		const officer_data = await Officer.findAll();
 		if (officer_data) {
+			console.log("kafikafikafikafikafikafikafikafikafikafi");
 			return apiResponse.successResponseWithData(res, "Data successfully fetched.", officer_data)
 		} else {
 			return apiResponse.ErrorResponse(res, "Officer table is empty.")
@@ -43,7 +44,7 @@ exports.getallofficer = async (req, res) => {
 
 exports.getOfficerInfoById = async (req, res) => {
 	try {
-		const [results, metadata]  = await sequelize.query(`select * from Ngo_place_info where officer_id = '${req.params.officer_id}' and place_id =${req.params.place_id}`
+		const [results, metadata]  = await sequelize.query(`select * from ngo_place_info where officer_id = '${req.params.officer_id}' and place_id =${req.params.place_id}`
 );
 		if (results) {
 			return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
@@ -57,7 +58,7 @@ exports.getOfficerInfoById = async (req, res) => {
 }
 exports.getOfficerHistory = async (req, res) => {
 	try {
-		const [results, metadata]  = await sequelize.query(`SELECT years.bn_name,years.bn_term,Ngos.name as ngo_name,Ngos.logo_name,Places.name as place_name,year_place_ngo_officers.rank,served_population,Places.id as place_id FROM year_place_ngo_officers left JOIN Places on Places.id = year_place_ngo_officers.place_id left join years on years.id = year_place_ngo_officers.year_id LEFT join Ngos on Ngos.id = year_place_ngo_officers.ngo_id WHERE year_place_ngo_officers.officer_id = '${req.params.id}' group by year_id order by years.id desc`
+		const [results, metadata]  = await sequelize.query(`SELECT years.bn_name,years.bn_term,ngos.name as ngo_name,ngos.logo_name,places.name as place_name,year_place_ngo_officers.rank,served_population,places.id as place_id FROM year_place_ngo_officers left JOIN places on places.id = year_place_ngo_officers.place_id left join years on years.id = year_place_ngo_officers.year_id LEFT join ngos on ngos.id = year_place_ngo_officers.ngo_id WHERE year_place_ngo_officers.officer_id = '${req.params.id}' group by year_id order by years.id desc`
 );
 		if (results) {
 			return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
@@ -84,7 +85,7 @@ exports.getOfficerHeadingById = async (req, res) => {
 
 	try {
 		let [results, metadata]  = await sequelize.query(`		
-		select GROUP_CONCAT(DISTINCT(heading) order by view_sort) as heading, GROUP_CONCAT(DISTINCT(officers_heading_descriptions.desc)  order by view_sort) as descc,Profile_types.type,Profile_types.id as profile_type_id,officers_heading_descriptions.officer_id from officer_profile_headings LEFT JOIN officers_heading_descriptions on officers_heading_descriptions.heading_id = officer_profile_headings.id LEFT join Profile_types on Profile_types.id = officer_profile_headings.type LEFT JOIN year_place_ngo_officers on year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.year_id WHERE officers_heading_descriptions.officer_id=${officer_id} and year_place_ngo_officers.place_id = ${place_id} and year_place_ngo_officers.year_id = (select MAX(id) from years) group by Profile_types.id
+		select GROUP_CONCAT(DISTINCT(heading) order by view_sort) as heading, GROUP_CONCAT(DISTINCT(officers_heading_descriptions.desc)  order by view_sort) as descc,profile_types.type,profile_types.id as profile_type_id,officers_heading_descriptions.officer_id from officer_profile_headings LEFT JOIN officers_heading_descriptions on officers_heading_descriptions.heading_id = officer_profile_headings.id LEFT join profile_types on profile_types.id = officer_profile_headings.type LEFT JOIN year_place_ngo_officers on year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.year_id WHERE officers_heading_descriptions.officer_id=${officer_id} and year_place_ngo_officers.place_id = ${place_id} and year_place_ngo_officers.year_id = (select MAX(id) from years) group by profile_types.id
 		`);
 		// console.log("111111111111111",results)
 		if (results) {

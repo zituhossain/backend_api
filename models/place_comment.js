@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     updated_by: DataTypes.INTEGER
   }, {
     sequelize,
+    tableName: 'place_comments',
     modelName: 'Place_comment',
   });
   Place_comment.associate = models => {

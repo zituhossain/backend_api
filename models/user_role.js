@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     permission: DataTypes.STRING
   }, {
     sequelize,
+    tableName: 'user_roles',
     modelName: 'User_role',
   });
 

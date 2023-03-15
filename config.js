@@ -13,9 +13,9 @@ module.exports = {
 	database: {
 		host: 'zvgy.com',
 		port: '3306',
-		user: 'zvgy_ngo',
-		password: '=9&Z9Iw23!-mag',
-		database: 'zvgy_ngo',
+		user: 'zvgy_kafi',
+		password: 'het8Wj3vJSve@2',
+		database: 'zvgy_kafi',
 	},
 
 	pool: {
