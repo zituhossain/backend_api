@@ -593,7 +593,7 @@ exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
 		const place_data = await ngo_jot_add_into_places.findAll({
 			include: [Place, ngo_jots, Division, District],
-			// group:"place_id"
+			group:"place_id"
 		});
 		return apiResponse.successResponseWithData(
 			res,
