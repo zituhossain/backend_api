@@ -768,21 +768,16 @@ exports.fetchallSubPlace = async (req, res) => {
 exports.fetchSubPlaceByPlaceId = async (req, res) => {
 	try {
 		const id = req.params.id;
-		const sub_place_data = await Upazilla.findAll({
+		const sub_place_data = await Sub_place.findAll({
 			include: [
-				// {
-				// 	model: Place,
-				// },
-				// {
-				// 	model: Upazilla,
-				// },
+				{
+					model: Place,
+				},
+				{
+					model: Upazilla,
+				},
 				{
 					model: Union,
-					include: [
-						{
-							model: Sub_place,
-						},
-					],
 				},
 			],
 			where: { place_id: id },
