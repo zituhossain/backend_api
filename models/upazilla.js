@@ -34,6 +34,12 @@ module.exports = (sequelize, DataTypes) => {
 		Upazilla.belongsTo(models.Place, {
 			foreignKey: 'place_id',
 		});
+		Upazilla.hasMany(models.Union, {
+			foreignKey: 'upazilla_id',
+		});
+		Upazilla.hasMany(models.Sub_place, {
+			foreignKey: 'upazilla_id',
+		});
 	};
 	return Upazilla;
 };
