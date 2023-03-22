@@ -668,7 +668,7 @@ exports.categoryAlist = async (req, res) => {
 exports.categoryBlist = async (req, res) => {
 	try {
 		const [results, metadata] =
-			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, 
+			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, places.id as placeid , places.district_id as districtid , places.division_id as divisionid,
         ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
 
 		if (results.length > 0) {
