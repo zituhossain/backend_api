@@ -480,6 +480,7 @@ exports.placeHistoryDivision = async (req, res) => {
 	}
 };
 
+/*
 exports.addNgoServedPercent = async (req, res) => {
 	try {
 		// await ngoServedPercentByPlace.validateAsync({
@@ -493,12 +494,13 @@ exports.addNgoServedPercent = async (req, res) => {
 		for (i = 0; i < ngo_id.length; i++) {
 			await ngo_served_percent_by_palces.destroy({
 				where: {
-					place_id: req.body.place_id,
-					ngo_id: ngo_id[i].Ngo.id,
+					// place_id: req.body.place_id,
+					// ngo_id: ngo_id[i].id,
+					percent: null
 				},
 			});
-			req.body.ngo_id = ngo_id[i].Ngo.id;
-			req.body.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent ?? 0;
+			req.body.ngo_id = ngo_id[i].id;
+			req.body.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent;
 			await ngo_served_percent_by_palces.create(req.body);
 		}
 
@@ -514,6 +516,34 @@ exports.addNgoServedPercent = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+*/
+
+exports.addNgoServedPercent = async (req, res) => {
+	try {
+		let ngo_id = req.body.ngo_id;
+		for (i = 0; i < ngo_id.length; i++) {
+			await ngo_served_percent_by_palces.destroy({
+				where: {
+					percent: null,
+					ngo_id: ngo_id[i].id,
+				},
+			});
+
+			// check if ngo_served_percent_by_palce is defined for this object
+			if (ngo_id[i]?.ngo_served_percent_by_palce) {
+				req.body.ngo_id = ngo_id[i].id;
+				req.body.percent = ngo_id[i].ngo_served_percent_by_palce.percent;
+				await ngo_served_percent_by_palces.create(req.body);
+			}
+		}
+
+		return apiResponse.successResponse(res, 'Data successfully saved.');
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+
 exports.getNgoServedPercent = async (req, res) => {
 	const place_id = req.params.id;
 	try {
