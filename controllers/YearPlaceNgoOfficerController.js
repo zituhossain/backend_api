@@ -351,7 +351,7 @@ exports.getkormitopbyxid = async (req, res) => {
         // query = `where year = (SELECT max(year) FROM ngo_place_info npi) and` + query
         query = `where year = year(curdate()) and` + query
 
-        const [results, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info2 ` + query + ` GROUP BY officer_name`);
+        const [results, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info2 ` + query + ` GROUP BY officer_name ORDER  BY ypno_view_order,officer_id`);
 
         if (results) {
             let final_arr = [];
