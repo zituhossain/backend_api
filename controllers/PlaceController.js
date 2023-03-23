@@ -411,8 +411,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = ' +
-				place_id +
-				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+			place_id +
+			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -522,18 +522,28 @@ exports.addNgoServedPercent = async (req, res) => {
 	try {
 		let ngo_id = req.body.ngo_id;
 		for (i = 0; i < ngo_id.length; i++) {
-			await ngo_served_percent_by_palces.destroy({
+			// find the existing record by ngo_id and place_id
+			let existingRecord = await ngo_served_percent_by_palces.findOne({
 				where: {
-					percent: null,
+					place_id: req.body.place_id,
 					ngo_id: ngo_id[i].id,
 				},
 			});
 
-			// check if ngo_served_percent_by_palce is defined for this object
-			if (ngo_id[i]?.ngo_served_percent_by_palce) {
-				req.body.ngo_id = ngo_id[i].id;
-				req.body.percent = ngo_id[i].ngo_served_percent_by_palce.percent;
-				await ngo_served_percent_by_palces.create(req.body);
+			// if the record exists, update the percent value
+			if (existingRecord) {
+				existingRecord.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent || existingRecord.percent;
+				await existingRecord.save();
+			}
+			// if the record does not exist, create a new record
+			else if (ngo_id[i]?.ngo_served_percent_by_palce) {
+				await ngo_served_percent_by_palces.create({
+					place_id: req.body.place_id,
+					ngo_id: ngo_id[i].id,
+					district_id: req.body.district_id,
+					division_id: req.body.division_id,
+					percent: ngo_id[i].ngo_served_percent_by_palce.percent,
+				});
 			}
 		}
 
@@ -623,7 +633,7 @@ exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
 		const place_data = await ngo_jot_add_into_places.findAll({
 			include: [Place, ngo_jots, Division, District],
-			group:"place_id"
+			group: "place_id"
 		});
 		return apiResponse.successResponseWithData(
 			res,
@@ -698,7 +708,7 @@ exports.categoryAlist = async (req, res) => {
 exports.categoryBlist = async (req, res) => {
 	try {
 		const [results, metadata] =
-			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, places.id as placeid , places.district_id as districtid , places.division_id as divisionid,
+			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, 
         ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
 
 		if (results.length > 0) {

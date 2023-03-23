@@ -34,6 +34,9 @@ module.exports = (sequelize, DataTypes) => {
 		Ngo.belongsTo(models.Place, {
 			foreignKey: 'id',
 		});
+		Ngo.hasMany(models.ngo_served_percent_by_palces, {
+			foreignKey: 'ngo_id',
+		});
 	};
 	return Ngo;
 };
