@@ -114,7 +114,7 @@ exports.finalReportGenerate = async(req,res) => {
     }
 }
 exports.finalReportGenerateDoubleNGO = async(req,res) => {
-    let query = ''
+    let query = ' where categoryb_name IS NOT NULL '
     if(req.body.year_id != ''){
         const get_year = await years.findOne({where:{id:req.body.year_id}})
         if(query.includes('where')){
