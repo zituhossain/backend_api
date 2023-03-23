@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
 			logo_name: DataTypes.TEXT,
 			logo: DataTypes.TEXT,
 			color_code: DataTypes.STRING,
-			view_order: DataTypes.INTEGER,
+			view_order: { type: DataTypes.INTEGER, allowNull: true },
 			created_by: DataTypes.INTEGER,
 			type: DataTypes.ENUM(['regular', 'other']),
 			updated_by: DataTypes.INTEGER,
