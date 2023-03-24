@@ -92,3 +92,20 @@ exports.updatelocalinfluencerbyid = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+
+exports.deleteNgoDetailPointWiseById = async(req,res) => {
+    const ngo_details_info_point_wises_id = req.params.id;
+    try{
+        const ngo_details_info_point_wises_data = await ngo_details_info_point_wise.findAll({where: {id : ngo_details_info_point_wises_id}});
+        if(ngo_details_info_point_wises_data.length > 0){
+            await ngo_details_info_point_wise.destroy({where:{id:ngo_details_info_point_wises_id}})
+            return apiResponse.successResponse(res,"Data deleted successfully.")
+
+        }else{
+            return apiResponse.ErrorResponse(res,"No data found!!!")
+        }
+
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}

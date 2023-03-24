@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     details: DataTypes.STRING,
     place_id: DataTypes.INTEGER,
     createdby: DataTypes.INTEGER,
-    ngo_details_info_id: DataTypes.INTEGER
+    ngo_details_info_id: DataTypes.INTEGER,
+    view_order: { type: DataTypes.INTEGER, allowNull: true },
   }, {
     sequelize,
     modelName: 'ngo_details_info_point_wise',
