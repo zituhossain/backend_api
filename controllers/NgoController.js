@@ -109,6 +109,7 @@ exports.fetchNgoCategorisCount = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+{/*
 exports.fetchall_ngo_by_place = async (req, res) => {
     const place_id = req.params.id;
     try {
@@ -153,6 +154,37 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+*/}
+exports.fetchall_ngo_by_place = async (req, res) => {
+    const place_id = req.params.id;
+    try {
+        const ngo_data = await Ngo.findAll({
+            include: [
+                {
+                    model: ngo_served_percent_by_palces,
+                    where: { place_id: place_id },
+                    required: false,
+                }
+            ]
+        });
+
+        // Create a new array that contains the NGO id, name, and percent
+        const result = [];
+        ngo_data.forEach((ngo) => {
+            const percentData = ngo.ngo_served_percent_by_palces;
+            const percent = percentData && percentData.length > 0 ? percentData[0].percent : null;
+            result.push({ id: ngo.id, name: ngo.name, percent });
+        });
+
+        if (result.length > 0) {
+            return apiResponse.successResponseWithData(res, "Data fetch successful.", result);
+        } else {
+            return apiResponse.ErrorResponse(res, "No data found!!!");
+        }
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message);
     }
 }
 exports.fetchall_year_place_ngo = async (req, res) => {

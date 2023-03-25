@@ -479,7 +479,7 @@ exports.placeHistoryDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
+{/*
 exports.addNgoServedPercent = async (req, res) => {
 	try {
 		// await ngoServedPercentByPlace.validateAsync({
@@ -509,6 +509,52 @@ exports.addNgoServedPercent = async (req, res) => {
 		//     }
 		// });
 		// await ngo_served_percent_by_palces.create(req.body);
+		return apiResponse.successResponse(res, 'Data successfully saved.');
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+*/}
+exports.addNgoServedPercent = async (req, res) => {
+	try {
+		let ngo_id = req.body.ngo_id;
+		for (i = 0; i < ngo_id.length; i++) {
+			// find the existing record by ngo_id and place_id
+			let existingRecord = await ngo_served_percent_by_palces.findOne({
+				where: {
+					place_id: req.body.place_id,
+					ngo_id: ngo_id[i].id,
+				},
+			});
+
+			// if the record exists, update the percent value
+			if (existingRecord) {
+				existingRecord.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent || existingRecord.percent;
+				console.log('--------------kafi');
+				
+				if(existingRecord.percent==0){
+					console.log(existingRecord);
+					await existingRecord.destroy({
+					    where: {
+					    	id: req.body.id
+					    }
+					});
+				}else{
+					await existingRecord.save();
+				}
+			}
+			// if the record does not exist, create a new record
+			else if (ngo_id[i]?.ngo_served_percent_by_palce) {
+				await ngo_served_percent_by_palces.create({
+					place_id: req.body.place_id,
+					ngo_id: ngo_id[i].id,
+					district_id: req.body.district_id,
+					division_id: req.body.division_id,
+					percent: ngo_id[i].ngo_served_percent_by_palce.percent,
+				});
+			}
+		}
+
 		return apiResponse.successResponse(res, 'Data successfully saved.');
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
