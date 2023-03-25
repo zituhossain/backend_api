@@ -376,7 +376,7 @@ exports.finalReportGenerateAdminOfficer = async(req,res) => {
         }
         
     }
-    const [alldata, metadata] = await sequelize.query(`select *,administration_officer_types.name as admin_office_type_name,administration_officer_types.id as admin_office_type_id,administration_offices.name as present_office,administration_officers.name as officer_name,administration_offices.name as office_name from administration_officers left join administration_offices on administration_officers.administration_office_id = administration_offices.id left join districts on administration_officers.district_id = districts.id left join administration_officer_types on administration_offices.id = administration_officer_types.administration_office_id`+query);
+    const [alldata, metadata] = await sequelize.query(`select *,administration_officer_types.name as admin_office_type_name,administration_officer_types.id as admin_office_type_id,administration_offices.name as present_office,administration_officers.name as officer_name,administration_offices.name as office_name from administration_officers left join administration_offices on administration_officers.administration_office_id = administration_offices.id left join districts on administration_officers.district_id = districts.id left join administration_officer_types on administration_officers.designation  = administration_officer_types.id`+query);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
