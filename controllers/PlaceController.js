@@ -328,6 +328,54 @@ exports.addCategoryB = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+// exports.placeDetails = async (req, res) => {
+// 	try {
+// 		const yearRow = await years.findOne({
+// 			order: [['name', 'DESC']],
+// 		});
+
+// 		let year = yearRow.id;
+// 		const place_id = req.params.id;
+// 		const place_data = await Place.findOne({
+// 			where: { id: place_id },
+// 			include: [
+// 				{
+// 					model: ngo_category_b,
+// 					as: 'categoryB',
+// 				},
+// 				{
+// 					model: ngo_served_percent_by_palces,
+// 					as: 'ngoServedPercentByPalce',
+// 					include: [
+// 						{
+// 							model: Ngo,
+// 							as: 'ngo',
+// 						},
+// 					],
+// 				},
+// 				{
+// 					model: year_place_ngo_officer,
+// 					as: 'year_place_ngo_officer',
+// 					where: {
+// 						year_id: year,
+// 						rank: 1,
+// 					},
+// 					required: false,
+// 					include: [Officer, Ngo, years],
+// 				},
+// 			],
+// 		});
+
+// 		return apiResponse.successResponseWithData(
+// 			res,
+// 			'Data successfully fetched.',
+// 			place_data
+// 		);
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.placeDetails = async (req, res) => {
 	try {
 		const yearRow = await years.findOne({
@@ -352,6 +400,7 @@ exports.placeDetails = async (req, res) => {
 							as: 'ngo',
 						},
 					],
+					order: [[{ model: Ngo, as: 'ngo' }, 'view_order', 'ASC']]
 				},
 				{
 					model: year_place_ngo_officer,
@@ -366,6 +415,17 @@ exports.placeDetails = async (req, res) => {
 			],
 		});
 
+		// Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
+		place_data.ngoServedPercentByPalce = place_data.ngoServedPercentByPalce.sort((a, b) => {
+			if (a.ngo.view_order < b.ngo.view_order) {
+			  return -1;
+			}
+			if (a.ngo.view_order > b.ngo.view_order) {
+			  return 1;
+			}
+			return 0;
+		  });
+
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -375,6 +435,10 @@ exports.placeDetails = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+
+
+
 
 exports.placeDetailsAll = async (req, res) => {
 	const d = new Date();
