@@ -479,8 +479,7 @@ exports.placeHistoryDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
-/*
+{/*
 exports.addNgoServedPercent = async (req, res) => {
 	try {
 		// await ngoServedPercentByPlace.validateAsync({
@@ -516,8 +515,7 @@ exports.addNgoServedPercent = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-*/
-
+*/}
 exports.addNgoServedPercent = async (req, res) => {
 	try {
 		let ngo_id = req.body.ngo_id;
@@ -533,7 +531,18 @@ exports.addNgoServedPercent = async (req, res) => {
 			// if the record exists, update the percent value
 			if (existingRecord) {
 				existingRecord.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent || existingRecord.percent;
-				await existingRecord.save();
+				console.log('--------------kafi');
+				
+				if(existingRecord.percent==0){
+					console.log(existingRecord);
+					await existingRecord.destroy({
+					    where: {
+					    	id: req.body.id
+					    }
+					});
+				}else{
+					await existingRecord.save();
+				}
 			}
 			// if the record does not exist, create a new record
 			else if (ngo_id[i]?.ngo_served_percent_by_palce) {
@@ -552,8 +561,6 @@ exports.addNgoServedPercent = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
-
 exports.getNgoServedPercent = async (req, res) => {
 	const place_id = req.params.id;
 	try {

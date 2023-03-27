@@ -109,7 +109,7 @@ exports.fetchNgoCategorisCount = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
-/*
+{/*
 exports.fetchall_ngo_by_place = async (req, res) => {
     const place_id = req.params.id;
     try {
@@ -174,8 +174,7 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
-*/
-
+*/}
 exports.fetchall_ngo_by_place = async (req, res) => {
     const place_id = req.params.id;
     try {
@@ -185,16 +184,26 @@ exports.fetchall_ngo_by_place = async (req, res) => {
                     model: ngo_served_percent_by_palces,
                     where: { place_id: place_id },
                     required: false,
-                }
+                },
+                // {
+                //     model: Place,
+                //     where: { id: place_id },
+                //     required: false,
+                // }
             ]
         });
 
+        const place_data = await Place.findOne({ where: { id: place_id }, raw: true });
+
+
         // Create a new array that contains the NGO id, name, and percent
+
         const result = [];
         ngo_data.forEach((ngo) => {
+        console.log("-----------------------------ngo_data--------------------------",ngo.Place)
             const percentData = ngo.ngo_served_percent_by_palces;
             const percent = percentData && percentData.length > 0 ? percentData[0].percent : null;
-            result.push({ id: ngo.id, name: ngo.name, percent });
+            result.push({ id: ngo.id, name: ngo.name, percent , ngoID : place_data?.ngo_id});
         });
 
         if (result.length > 0) {
@@ -206,8 +215,6 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message);
     }
 }
-
-
 exports.fetchall_year_place_ngo = async (req, res) => {
     try {
         // const ngo_data = await year_place_ngo_officer.findAll({
