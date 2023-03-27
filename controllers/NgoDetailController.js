@@ -38,7 +38,11 @@ exports.getlocalinfluencerbyid = async (req, res) => {
 exports.getngodetailwiseinfobyplaceid = async (req, res) => {
     try {
         const influencer_id = req.params.placeid;
-        const influencer_data = await ngo_details_info.findAll({ include: [{ model: ngo_details_info_point_wise, where: {place_id: influencer_id},required:false }] });
+        const influencer_data = await ngo_details_info.findAll({
+            order:[
+                ['id', 'ASC'],
+               [[ngo_details_info_point_wise, "view_order", "ASC"]]], 
+               include: [{ model: ngo_details_info_point_wise, where: {place_id: influencer_id},required:false }] });
         if (influencer_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
         } else {
