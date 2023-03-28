@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { ngo_details_info_point_wise, Place , ngo_details_info } = require('../models');
+const { ngo_details_info_point_wise, Place, ngo_details_info } = require('../models');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 const checkUserRoleByPlace = require('./globalController');
@@ -9,11 +9,11 @@ exports.fetchalllocalinfluencer = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1];
     let roleByplace = await checkUserRoleByPlace(token)
     let arr = []
-    if(roleByplace.place.length > 0){
-        arr.push({place_id: roleByplace.place})
+    if (roleByplace.place.length > 0) {
+        arr.push({ place_id: roleByplace.place })
     }
     const allNgoDetails = await ngo_details_info_point_wise.findAll({
-        include: [Place , ngo_details_info],
+        include: [Place, ngo_details_info],
         where: arr
     });
     if (allNgoDetails) {
@@ -26,7 +26,7 @@ exports.fetchalllocalinfluencer = async (req, res) => {
 exports.getlocalinfluencerbyid = async (req, res) => {
     try {
         const ngo_details_id = req.params.id;
-        const details_data = await ngo_details_info_point_wise.findOne({ include: [Place , ngo_details_info], where: { id: ngo_details_id } });
+        const details_data = await ngo_details_info_point_wise.findOne({ include: [Place, ngo_details_info], where: { id: ngo_details_id } });
         if (details_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", details_data)
         } else {
@@ -41,7 +41,12 @@ exports.getlocalinfluencerbyid = async (req, res) => {
 exports.getNgoDetailPointWisebyplaceid = async (req, res) => {
     try {
         const placeid = req.params.placeid;
-        const influencer_data = await ngo_details_info_point_wise.findAll({ include: [Place , ngo_details_info ], where: { place_id: placeid } });
+        const influencer_data = await ngo_details_info_point_wise.findAll({ 
+            include: [
+                Place, ngo_details_info
+            ], 
+            where: { place_id: placeid }
+         });
         if (influencer_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
         } else {
@@ -93,19 +98,19 @@ exports.updatelocalinfluencerbyid = async (req, res) => {
     }
 }
 
-exports.deleteNgoDetailPointWiseById = async(req,res) => {
+exports.deleteNgoDetailPointWiseById = async (req, res) => {
     const ngo_details_info_point_wises_id = req.params.id;
-    try{
-        const ngo_details_info_point_wises_data = await ngo_details_info_point_wise.findAll({where: {id : ngo_details_info_point_wises_id}});
-        if(ngo_details_info_point_wises_data.length > 0){
-            await ngo_details_info_point_wise.destroy({where:{id:ngo_details_info_point_wises_id}})
-            return apiResponse.successResponse(res,"Data deleted successfully.")
+    try {
+        const ngo_details_info_point_wises_data = await ngo_details_info_point_wise.findAll({ where: { id: ngo_details_info_point_wises_id } });
+        if (ngo_details_info_point_wises_data.length > 0) {
+            await ngo_details_info_point_wise.destroy({ where: { id: ngo_details_info_point_wises_id } })
+            return apiResponse.successResponse(res, "Data deleted successfully.")
 
-        }else{
-            return apiResponse.ErrorResponse(res,"No data found!!!")
+        } else {
+            return apiResponse.ErrorResponse(res, "No data found!!!")
         }
 
-    }catch(err){
-        return apiResponse.ErrorResponse(res,err.message)
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
     }
 }
