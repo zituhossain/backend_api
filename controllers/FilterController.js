@@ -118,44 +118,38 @@ exports.finalReportGenerateJot = async(req,res) => {
 
 
     if(req.body.division_id !== ''){
-        const get_division = await Division.findOne({where:{id:req.body.division_id}})
-        if(query.includes('where')){
-            query += ` and division_name = '${get_division.name_bg}'`
-        }else{
-            query += ` where division_name = '${get_division.name_bg}'`
-        }
+        // const get_division = await Division.findOne({where:{id:req.body.division_id}})
+        // if(query.includes('where')){
+        //     query += ` and division_id = '${get_division.name_bg}'`
+        // }else{
+        //     query += ` where division_id = '${get_division.name_bg}'`
+        // }
+        query += ` and ngo_jot_add_into_places.division_id = '${req.body.division_id}'`
         
     }
     if(req.body.district_id !==''){
-        const get_district = await District.findOne({where:{id:req.body.district_id}})
-        if(query.includes('where')){
-            query += ` and district_name = '${get_district.name_bg}'`
-        }else{
-            query += ` where district_name = '${get_district.name_bg}'`
-        }
+        // const get_district = await District.findOne({where:{id:req.body.district_id}})
+        // if(query.includes('where')){
+        //     query += ` and district_name = '${get_district.name_bg}'`
+        // }else{
+        //     query += ` where district_name = '${get_district.name_bg}'`
+        // }
+        query += ` and ngo_jot_add_into_places.district_id = '${req.body.district_id}'`
         
     }
     if(req.body.place_id !== ''){
-        const get_place = await Place.findOne({where:{id:req.body.place_id}})
-        if(query.includes('where')){
-            query += ` and place_name = '${get_place.name}'`
-        }else{
-            query += ` where place_name = '${get_place.name}'`
-        }
-        
+        // const get_place = await Place.findOne({where:{id:req.body.place_id}})
+        // if(query.includes('where')){
+        //     query += ` and place_name = '${get_place.name}'`
+        // }else{
+        //     query += ` where place_name = '${get_place.name}'`
+        // }
+        query += ` and ngo_jot_add_into_places.place_id = '${req.body.place_id}'`
     }
-    
-    const [alldata, metadata] = await sequelize.query(`SELECT 
-	places.id,
-    places.name AS place_name,
-    places.area, 
-    SUM(CASE WHEN ngo_jot_id = 1 THEN percent END) AS percent1,
-    SUM(CASE WHEN ngo_jot_id = 2 THEN percent END) AS percent2
-  FROM 
-    ngo_jots jot 
-    LEFT JOIN ngo_jot_add_into_places ON (ngo_jot_add_into_places.ngo_jot_id = jot.id) 
-    INNER JOIN places ON (ngo_jot_add_into_places.place_id = places.id)
-  GROUP BY 
+    console.log('zquery',query);
+    const [alldata, metadata] = await sequelize.query(`SELECT places.id, places.name AS place_name, places.area, SUM(CASE WHEN ngo_jot_id = 1 THEN percent END) AS percent1, SUM(CASE WHEN ngo_jot_id = 2 THEN percent END) AS percent2 FROM ngo_jots jot LEFT JOIN ngo_jot_add_into_places ON (ngo_jot_add_into_places.ngo_jot_id = jot.id) INNER JOIN places ON (ngo_jot_add_into_places.place_id = places.id)
+` + query +
+  `GROUP BY 
   places.id,
     places.name,
     places.area`);
