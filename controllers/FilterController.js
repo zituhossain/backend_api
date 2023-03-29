@@ -116,6 +116,7 @@ exports.finalReportGenerate = async(req,res) => {
 exports.finalReportGenerateJot = async(req,res) => {
     let query = ''
 
+
     if(req.body.division_id !== ''){
         const get_division = await Division.findOne({where:{id:req.body.division_id}})
         if(query.includes('where')){
@@ -144,7 +145,20 @@ exports.finalReportGenerateJot = async(req,res) => {
         
     }
     
-    const [alldata, metadata] = await sequelize.query(`SELECT ngo_jot_add_into_places.*,places.name AS place_name,places.area, jot.name AS jot_name FROM ngo_jots jot LEFT JOIN ngo_jot_add_into_places ON (ngo_jot_add_into_places.ngo_jot_id = jot.id) INNER JOIN places ON (ngo_jot_add_into_places.place_id = places.id)` + query);
+    const [alldata, metadata] = await sequelize.query(`SELECT 
+	places.id,
+    places.name AS place_name,
+    places.area, 
+    SUM(CASE WHEN ngo_jot_id = 1 THEN percent END) AS percent1,
+    SUM(CASE WHEN ngo_jot_id = 2 THEN percent END) AS percent2
+  FROM 
+    ngo_jots jot 
+    LEFT JOIN ngo_jot_add_into_places ON (ngo_jot_add_into_places.ngo_jot_id = jot.id) 
+    INNER JOIN places ON (ngo_jot_add_into_places.place_id = places.id)
+  GROUP BY 
+  places.id,
+    places.name,
+    places.area`);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
