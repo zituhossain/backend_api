@@ -125,24 +125,42 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         //       }],
         //     group:['ngo_id']
         // });
-        const [year_id, metadata] = await sequelize.query(`SELECT max(id) as id FROM years npi`);
-        const ngo_data = await year_place_ngo_officer.findAll({
-            where: {
-                place_id,
-                ngo_id: {
-                    [Op.ne]: null
-                }, year_id: year_id[0].id
-            },
-            include: [{
-                model: Ngo
-            },
-            {
-                model: Place, where: { id: place_id }
-            },
-            {
-                model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
-            }],
-            group: ['ngo_id']
+        // const [year_id, metadata] = await sequelize.query(`SELECT max(id) as id FROM years npi`);
+        // const ngo_data = await year_place_ngo_officer.findAll({
+        //     where: {
+        //         place_id,
+        //         ngo_id: {
+        //             [Op.ne]: null
+        //         }, year_id: year_id[0].id
+        //     },
+        //     include: [{
+        //         model: Ngo
+        //     },
+        //     {
+        //         model: Place, where: { id: place_id }
+        //     },
+        //     {
+        //         model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
+        //     }],
+        //     group: ['ngo_id']
+        // });
+        const ngo_data = await Ngo.findAll({
+            // where: {
+            //     place_id,
+            //     ngo_id: {
+            //         [Op.ne]: null
+            //     }, year_id: year_id[0].id
+            // },
+            // include: [{
+            //     model: Ngo
+            // },
+            // {
+            //     model: Place, where: { id: place_id }
+            // },
+            // {
+            //     model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
+            // }],
+            // group: ['ngo_id']
         });
 
         if (ngo_data.length > 0) {
