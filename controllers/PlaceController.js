@@ -610,24 +610,41 @@ exports.getNgoServedPercent = async (req, res) => {
 //         return apiResponse.ErrorResponse(res, err.message)
 //     }
 // }
+
+/*
 exports.ngoJotAddIntoPlace = async (req, res) => {
 	try {
-		let prev_state = req.body.ngo_jot_id;
-		for (i = 0; i < prev_state.length; i++) {
-			await ngo_jot_add_into_places.destroy({
+		let ngo_jot_id = req.body.ngo_jot_id;
+		for (let i = 0; i < ngo_jot_id.length; i++) {
+			// find the existing record by ngo_id and place_id
+			let existingNgoJot = await ngo_jot_add_into_places.findOne({
 				where: {
 					place_id: req.body.place_id,
-					ngo_jot_id: prev_state[i].id,
-				},
+					ngo_jot_id: ngo_jot_id[i].id
+				}
 			});
+			// if th record exist, update the percent value
+			if (existingNgoJot) {
+				existingNgoJot.percent = ngo_jot_id[i]?.ngo_jot_add_into_place?.percent || existingNgoJot.percent
 
-			req.body.ngo_jot_id = prev_state[i].id;
-			if (prev_state[i]?.percent) {
-				req.body.percent = prev_state[i]?.percent;
-			} else {
-				req.body.percent = 0;
+				if (existingNgoJot.percent == 0) {
+					await existingNgoJot.destroy({
+						where: {
+							id: req.body.id
+						}
+					})
+				} else {
+					await existingNgoJot.save();
+				}
+			} else if (ngo_jot_id[i]?.ngo_jot_add_into_place) {
+				await ngo_jot_add_into_places.create({
+					place_id: req.body.place_id,
+					ngo_jot_id: ngo_jot_id[i].id,
+					district_id: req.body.district_id,
+					division_id: req.body.division_id,
+					percent: ngo_jot_id[i]?.ngo_jot_add_into_place.percent
+				})
 			}
-			await ngo_jot_add_into_places.create(req.body);
 		}
 		// await ngo_jot_add_into_places.create(req.body);
 		return apiResponse.successResponse(res, 'Data successfully saved.');
@@ -635,6 +652,49 @@ exports.ngoJotAddIntoPlace = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+*/
+
+
+exports.ngoJotAddIntoPlace = async (req, res) => {
+	try {
+		let ngo_jot_id = req.body.ngo_jot_id;
+		for (let i = 0; i < ngo_jot_id.length; i++) {
+			// find the existing record by ngo_jot_id and place_id
+			let existingNgoJot = await ngo_jot_add_into_places.findOne({
+				where: {
+					place_id: req.body.place_id,
+					ngo_jot_id: ngo_jot_id[i].id,
+				},
+			});
+			// if the record exists, update the percent value
+			if (existingNgoJot) {
+				existingNgoJot.percent = ngo_jot_id[i]?.ngo_jot_add_into_place?.percent || existingNgoJot.percent;
+				console.log('--------------kafi');
+
+				if (existingNgoJot.percent == 0) {
+					await existingNgoJot.destroy();
+				} else {
+					await existingNgoJot.save();
+				}
+			}
+			// if the record does not exist, create a new record
+			else if (ngo_jot_id[i]?.ngo_jot_add_into_place) {
+				await ngo_jot_add_into_places.create({
+					place_id: req.body.place_id,
+					ngo_jot_id: ngo_jot_id[i].id,
+					district_id: req.body.district_id,
+					division_id: req.body.division_id,
+					percent: ngo_jot_id[i].ngo_jot_add_into_place.percent,
+				});
+			}
+		}
+		return apiResponse.successResponse(res, 'Data successfully saved.');
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+
 exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
 		const place_data = await ngo_jot_add_into_places.findAll({
@@ -650,6 +710,8 @@ exports.allNgoJotAddIntoPlace = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+
 exports.getNgoJotAddIntoPlaceId = async (req, res) => {
 	const place_id = req.params.id;
 	try {

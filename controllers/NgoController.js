@@ -197,6 +197,7 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message);
     }
 }
+
 exports.fetchall_year_place_ngo = async (req, res) => {
     try {
         // const ngo_data = await year_place_ngo_officer.findAll({
