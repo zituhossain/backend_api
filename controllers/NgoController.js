@@ -177,6 +177,7 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 */}
 exports.fetchall_ngo_by_place = async (req, res) => {
     const place_id = req.params.id;
+    //const place_id = 1;
     try {
         const ngo_data = await Ngo.findAll({
             include: [
@@ -194,19 +195,21 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         });
 
         const place_data = await Place.findOne({ where: { id: place_id }, raw: true });
-
+console.log("-----------------------------mm--------------------------")
+console.log(place_data);
 
         // Create a new array that contains the NGO id, name, and percent
 
         const result = [];
         ngo_data.forEach((ngo) => {
-        console.log("-----------------------------ngo_data--------------------------",ngo.Place)
+        console.log("-----------------------------ngo_data--------------------------")
             const percentData = ngo.ngo_served_percent_by_palces;
             const percent = percentData && percentData.length > 0 ? percentData[0].percent : null;
-            result.push({ id: ngo.id, name: ngo.name, percent , ngoID : place_data?.ngo_id});
+            result.push({ id: ngo.id, name: ngo.name, percent ,divisionid: place_data?.division_id,districtid: place_data?.district_id, ngoID : place_data?.ngo_id});
         });
 
         if (result.length > 0) {
+            console.log(result);
             return apiResponse.successResponseWithData(res, "Data fetch successful.", result);
         } else {
             return apiResponse.ErrorResponse(res, "No data found!!!");
