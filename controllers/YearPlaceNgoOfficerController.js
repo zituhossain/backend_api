@@ -256,7 +256,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
     }
 }
 
-
+/*
 exports.updateoveralltitlebyid = async (req, res) => {
     try {
         const condition_id = req.params.id;
@@ -310,6 +310,135 @@ exports.updateoveralltitlebyid = async (req, res) => {
         return apiResponse.ErrorResponse(res, err.message)
     }
 }
+*/
+
+exports.updateoveralltitlebyid = async (req, res) => {
+    try {
+        const condition_id = req.params.id;
+        const condition_data = await year_place_ngo_officer.findOne({
+            where: { id: condition_id },
+        });
+        if (condition_data) {
+            const rank_data = await year_place_ngo_officer.findOne({
+                where: {
+                    place_id: req.body.place_id,
+                    year_id: req.body.year_id,
+                    rank: req.body.rank,
+                },
+                raw: true,
+            });
+            console.log(
+                "------------------createYearPlaceNgoofficer----------------",
+                rank_data
+            );
+            if (!rank_data || req.body.rank !== 1 || rank_data.rank === 1) {
+                if (req.body.place_id) {
+                    const instance = await year_place_ngo_officer.findOne({
+                        where: { id: condition_id },
+                    });
+
+                    // year_place_ngo_officer old value
+                    const oldYearPlaceNgoofficer = { ...instance.dataValues };
+                    instance.set(req.body); //End
+
+                    // year_place_ngo_officer new value
+                    const newYearPlaceNgoofficer = { ...instance.dataValues };
+                    await instance.save(); // End
+
+                    // officers_heading_description old value
+                    const oldOfficersHeadingDescription = await officers_heading_description.findAll({
+                        // attributes: ["desc"],
+                        where: {
+                            officer_id: req.body.officer_id,
+                            year_id: oldYearPlaceNgoofficer.year_id,
+                        },
+                    });
+                    const oldOfficersHeadingDescriptionData = oldOfficersHeadingDescription.map(
+                        (item) => JSON.stringify(item.toJSON())
+                    ); // End
+
+                    await officers_heading_description.destroy({
+                        where: {
+                            officer_id: req.body.officer_id,
+                            year_id: req.body.year_id,
+                        },
+                    });
+                    const headingsList = req.body.headingsList;
+                    const headingsValueList = req.body.headingsValueList;
+                    if (headingsList.length > 0) {
+                        for (const heading of headingsList) {
+                            const heading_value = headingsValueList.find(
+                                (ress) => ress.profile_id === heading.id
+                            );
+                            if (heading_value?.headings_value) {
+                                let get_desc = generateHash(
+                                    heading_value?.headings_value ?? ""
+                                );
+                                const description = {
+                                    officer_id: req.body.officer_id,
+                                    year_id: req.body.year_id,
+                                    heading_id: heading.id,
+                                    desc: get_desc,
+                                };
+                                await officers_heading_description.create(
+                                    description
+                                );
+                            }
+                        }
+                    }
+                    // officers_heading_description new value
+                    const newOfficersHeadingDescription = await officers_heading_description.findAll(
+                        {
+                            // attributes: ["desc"],
+                            where: {
+                                officer_id: req.body.officer_id,
+                                year_id: newYearPlaceNgoofficer.year_id,
+                            },
+                        }
+                    );
+                    const newOfficersHeadingDescriptionData = newOfficersHeadingDescription.map(
+                        (item) => JSON.stringify(item.toJSON())
+                    ); // End
+                    const updatedData = {
+                        officer_id: req.body.officer_id,
+                        year_id: newYearPlaceNgoofficer.year_id,
+                        datetime: Date(),
+                        ip: req.connection.remoteAddress,
+                        oldValues: {
+                            year_place_ngo_officer: oldYearPlaceNgoofficer,
+                            officers_heading_description: oldOfficersHeadingDescriptionData,
+                        },
+                        newValues: {
+                            year_place_ngo_officer: newYearPlaceNgoofficer,
+                            officers_heading_description: newOfficersHeadingDescriptionData,
+                        },
+                        tableName: {
+                            table1: year_place_ngo_officer.getTableName(),
+                            table2: officers_heading_description.getTableName(),
+                        },
+                    };
+                    console.log('=============== LOG ================')
+                    console.log(updatedData);
+                    console.log('=============== LOG ================')
+
+                    return apiResponse.successResponse(res, "Data successfully updated.");
+                } else {
+                    return apiResponse.ErrorResponse(res, "description missing");
+                }
+            } else {
+                return apiResponse.ErrorResponse(
+                    res,
+                    "Same Year Same Place Same Rank Failed"
+                );
+            }
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found");
+        }
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message);
+    }
+}
+
 
 exports.getkormibyxid = async (req, res) => {
     try {
