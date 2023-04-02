@@ -9,6 +9,7 @@ router.get('/places-by-distict-id/:id', FilterController.placesByDistricId);
 router.get('/all_places', FilterController.placesByDistricId);
 router.post('/finalReportGenerate',FilterController.finalReportGenerate);
 router.post('/finalReportGenerateJot',FilterController.finalReportGenerateJot);
+router.post('/finalReportGenerate_possibility_jot',FilterController.finalReportGeneratePossibilityJot);
 router.post('/finalReportGenerate_double',FilterController.finalReportGenerateDoubleNGO);
 router.post('/finalReportGenerateOfficerProfile',FilterController.finalReportGenerateOfficerProfileNGO);
 router.post('/finalReportGenerateAdminOfficer',FilterController.finalReportGenerateAdminOfficer);
