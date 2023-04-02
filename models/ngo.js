@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 			created_by: DataTypes.INTEGER,
 			type: DataTypes.ENUM(['regular', 'other']),
 			updated_by: DataTypes.INTEGER,
+			ngo_jots_id: DataTypes.INTEGER,
 		},
 		{
 			sequelize,
