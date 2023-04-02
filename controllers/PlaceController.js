@@ -438,7 +438,7 @@ exports.placeDetails = async (req, res) => {
 							as: 'ngo',
 						},
 					],
-					order: [[{ model: Ngo, as: 'ngo' }, 'view_order', 'ASC']]
+					order: [[{ model: Ngo, as: 'ngo' }, 'view_order', 'ASC']],
 				},
 				{
 					model: year_place_ngo_officer,
@@ -454,15 +454,15 @@ exports.placeDetails = async (req, res) => {
 		});
 
 		// Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
-		place_data.ngoServedPercentByPalce = place_data.ngoServedPercentByPalce.sort((a, b) => {
-			if (a.ngo.view_order < b.ngo.view_order) {
-			  return -1;
-			}
-			if (a.ngo.view_order > b.ngo.view_order) {
-			  return 1;
-			}
-			return 0;
-		  });
+		// place_data.ngoServedPercentByPalce = place_data.ngoServedPercentByPalce.sort((a, b) => {
+		// 	if (a.ngo.view_order < b.ngo.view_order) {
+		// 	  return -1;
+		// 	}
+		// 	if (a.ngo.view_order > b.ngo.view_order) {
+		// 	  return 1;
+		// 	}
+		// 	return 0;
+		//   });
 
 		return apiResponse.successResponseWithData(
 			res,
@@ -473,10 +473,6 @@ exports.placeDetails = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
-
-
-
 
 exports.placeDetailsAll = async (req, res) => {
 	const d = new Date();
@@ -513,8 +509,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = ' +
-			place_id +
-			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+				place_id +
+				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -581,7 +577,8 @@ exports.placeHistoryDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-{/*
+{
+	/*
 exports.addNgoServedPercent = async (req, res) => {
 	try {
 		// await ngoServedPercentByPlace.validateAsync({
@@ -617,7 +614,8 @@ exports.addNgoServedPercent = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-*/}
+*/
+}
 exports.addNgoServedPercent = async (req, res) => {
 	try {
 		let ngo_id = req.body.ngo_id;
@@ -632,17 +630,23 @@ exports.addNgoServedPercent = async (req, res) => {
 
 			// if the record exists, update the percent value
 			if (existingRecord) {
-				existingRecord.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent || existingRecord.percent;
+				existingRecord.percent =
+					ngo_id[i]?.ngo_served_percent_by_palce?.percent ||
+					existingRecord.percent;
 				console.log('--------------kafi');
-				
-				if(existingRecord.percent==0 || existingRecord.percent==null || existingRecord.percent==''){
+
+				if (
+					existingRecord.percent == 0 ||
+					existingRecord.percent == null ||
+					existingRecord.percent == ''
+				) {
 					console.log(existingRecord);
 					await existingRecord.destroy({
-					    where: {
-					    	id: req.body.id
-					    }
+						where: {
+							id: req.body.id,
+						},
 					});
-				}else{
+				} else {
 					await existingRecord.save();
 				}
 			}
@@ -742,7 +746,7 @@ exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
 		const place_data = await ngo_jot_add_into_places.findAll({
 			include: [Place, ngo_jots, Division, District],
-			group: "place_id"
+			group: 'place_id',
 		});
 		return apiResponse.successResponseWithData(
 			res,
@@ -812,7 +816,9 @@ from
 		);
 
 		if (results.length > 0) {
-			{console.log(results)}
+			{
+				console.log(results);
+			}
 			return apiResponse.successResponseWithData(
 				res,
 				'Data fetch successfull.',
@@ -848,7 +854,7 @@ exports.categoryBlist = async (req, res) => {
 
 exports.categoryBlistID = async (req, res) => {
 	try {
-		const id = req.params.id
+		const id = req.params.id;
 		const [results, metadata] =
 			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name,Places.id as placeid , Places.district_id as districtid , Places.division_id as divisionid,
         ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.id =${id}`);
