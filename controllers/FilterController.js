@@ -115,44 +115,72 @@ exports.finalReportGenerate = async(req,res) => {
 }
 exports.finalReportGenerateJot = async(req,res) => {
     let query = ''
-
+    if(req.body.year_id !== ''){
+        const get_year = await years.findOne({where:{id:req.body.year_id}})
+        if(query.includes('where')){
+            query += ` and year = '${get_year.name}'`
+        }else{
+            query += ` where year = '${get_year.name}'`
+        }
+        
+    }
 
     if(req.body.division_id !== ''){
-        // const get_division = await Division.findOne({where:{id:req.body.division_id}})
-        // if(query.includes('where')){
-        //     query += ` and division_id = '${get_division.name_bg}'`
-        // }else{
-        //     query += ` where division_id = '${get_division.name_bg}'`
-        // }
-        query += ` and ngo_jot_add_into_places.division_id = '${req.body.division_id}'`
+        const get_division = await Division.findOne({where:{id:req.body.division_id}})
+        if(query.includes('where')){
+            query += ` and division_name = '${get_division.name_bg}'`
+        }else{
+            query += ` where division_name = '${get_division.name_bg}'`
+        }
         
     }
     if(req.body.district_id !==''){
-        // const get_district = await District.findOne({where:{id:req.body.district_id}})
-        // if(query.includes('where')){
-        //     query += ` and district_name = '${get_district.name_bg}'`
-        // }else{
-        //     query += ` where district_name = '${get_district.name_bg}'`
-        // }
-        query += ` and ngo_jot_add_into_places.district_id = '${req.body.district_id}'`
+        const get_district = await District.findOne({where:{id:req.body.district_id}})
+        if(query.includes('where')){
+            query += ` and district_name = '${get_district.name_bg}'`
+        }else{
+            query += ` where district_name = '${get_district.name_bg}'`
+        }
         
     }
     if(req.body.place_id !== ''){
-        // const get_place = await Place.findOne({where:{id:req.body.place_id}})
-        // if(query.includes('where')){
-        //     query += ` and place_name = '${get_place.name}'`
-        // }else{
-        //     query += ` where place_name = '${get_place.name}'`
-        // }
-        query += ` and ngo_jot_add_into_places.place_id = '${req.body.place_id}'`
+        const get_place = await Place.findOne({where:{id:req.body.place_id}})
+        if(query.includes('where')){
+            query += ` and place_name = '${get_place.name}'`
+        }else{
+            query += ` where place_name = '${get_place.name}'`
+        }
+        
     }
-    console.log('zquery',query);
-    const [alldata, metadata] = await sequelize.query(`SELECT places.id, places.name AS place_name, places.area, SUM(CASE WHEN ngo_jot_id = 1 THEN percent END) AS percent1, SUM(CASE WHEN ngo_jot_id = 2 THEN percent END) AS percent2 FROM ngo_jots jot LEFT JOIN ngo_jot_add_into_places ON (ngo_jot_add_into_places.ngo_jot_id = jot.id) INNER JOIN places ON (ngo_jot_add_into_places.place_id = places.id)
-` + query +
-  `GROUP BY 
-  places.id,
-    places.name,
-    places.area`);
+    let custome_query = '';
+    if(req.body.ngo_id === ''){ 
+        custome_query = `,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = 1 and year_place_ngo_officers.status=1 limit 1) as ngo_officer_one`
+    }else{
+        custome_query = `,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id} and year_place_ngo_officers.status=1 limit 1) as ngo_officer_one`
+    } 
+    if(req.body.ngo_id !== ''){        
+        const get_ngo = await Ngo.findOne({where:{id:req.body.ngo_id}})
+        if(query.includes('where')){
+            // query += ` and ngo_name = '${get_ngo.name}'`
+        }else{
+            query += ` where ngo_name = '${get_ngo.name}'`
+        }
+        if(req.body.ngo_id2 !== ''){
+            const get_ngo2 = await Ngo.findOne({where:{id:req.body.ngo_id2}})
+            query += ` or ngo_name = '${get_ngo2.name}'`
+        }        
+    }
+    if(req.body.category && req.body.category !== '' && req.body.category !== null){
+        
+        if(query.includes('where')){
+            query += ` and categoryb_id = '${req.body.category}'`
+        }else{
+            query += ` where categoryb_id = '${req.body.category}'`
+        }       
+    }
+    // const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
+    console.log('custome_query',custome_query);
+    const [alldata, metadata] = await sequelize.query(`SELECT ngo_place_info.*,(select name from ngo_jots limit 1) jot1,(select ngo_name from ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = ngo_place_info.place_id AND ngos.ngo_jots_id = (select id from ngo_jots limit 1) limit 1) as ngo_officer ${custome_query} FROM ngo_place_info` + query + ` GROUP BY place_id`);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
@@ -201,6 +229,126 @@ exports.finalReportGenerateDoubleNGO = async(req,res) => {
         
     }
     const [alldata, metadata] = await sequelize.query(`SELECT ngo_place_info.*,(select ngo_name from ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select ngo_name from ngo_place_info npi where ngo_id = 2 limit 1) as ngo_name3,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id}) as ngo_officer_one, (select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id2}) as ngo_officer_two,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = ngo_place_info.place_id limit 1) as ngo_officer FROM ngo_place_info` + query + ` GROUP BY place_id`);
+    if(alldata.length > 0){
+        return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
+    }else{
+        return apiResponse.ErrorResponse(res,"No data found")
+    }
+}
+exports.finalReportGeneratePossibilityJot = async(req,res) => {
+    let query = ' where categoryb_name IS NOT NULL '
+    if(req.body.year_id != ''){
+        const get_year = await years.findOne({where:{id:req.body.year_id}})
+        if(query.includes('where')){
+            query += ` and year = '${get_year.name}'`
+        }else{
+            query += ` where year = '${get_year.name}'`
+        }
+        
+    }
+
+    if(req.body.division_id != ''){
+        const get_division = await Division.findOne({where:{id:req.body.division_id}})
+        if(query.includes('where')){
+            query += ` and division_name = '${get_division.name_bg}'`
+        }else{
+            query += ` where division_name = '${get_division.name_bg}'`
+        }
+        
+    }
+    if(req.body.district_id != ''){
+        const get_district = await District.findOne({where:{id:req.body.district_id}})
+        if(query.includes('where')){
+            query += ` and district_name = '${get_district.name_bg}'`
+        }else{
+            query += ` where district_name = '${get_district.name_bg}'`
+        }
+        
+    }
+    if(req.body.place_id != ''){
+        const get_place = await Place.findOne({where:{id:req.body.place_id}})
+        if(query.includes('where')){
+            query += ` and place_name = '${get_place.name}'`
+        }else{
+            query += ` where place_name = '${get_place.name}'`
+        }
+        
+    }
+    const [alldata, metadata] = await sequelize.query(`SELECT
+    ngo_place_info.*,(select name from ngo_jots limit 1) jot1,(select name from ngo_jots limit 1,1) jot2,
+    (
+    SELECT
+        ngo_name
+    FROM
+        ngo_place_info npi
+    WHERE
+        ngo_id = 1
+    LIMIT 1
+) AS ngo_name2,(
+    SELECT
+        ngo_name
+    FROM
+        ngo_place_info npi
+    WHERE
+        ngo_id = 2
+    LIMIT 1
+) AS ngo_name3,(
+    SELECT
+        officers.name
+    FROM
+        year_place_ngo_officers
+    LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
+    LEFT JOIN years ON years.id = year_place_ngo_officers.year_id
+    LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id
+    WHERE
+        years.name =(
+    SELECT
+        MAX(NAME)
+    FROM
+        years
+    ) AND year_place_ngo_officers.place_id = ngo_place_info.place_id AND ngos.ngo_jots_id = (select id from ngo_jots limit 1) limit 1
+) AS ngo_officer_one,
+(
+    SELECT
+        officers.name
+    FROM
+        year_place_ngo_officers
+    LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
+    LEFT JOIN years ON years.id = year_place_ngo_officers.year_id
+    LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id
+    WHERE
+        years.name =(
+    SELECT
+        MAX(NAME)
+    FROM
+        years
+    ) AND year_place_ngo_officers.place_id = ngo_place_info.place_id AND ngos.ngo_jots_id = (select id from ngo_jots limit 1,1) limit 1
+) AS ngo_officer_two,
+(
+    SELECT
+        officers.name
+    FROM
+        year_place_ngo_officers
+    LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
+    LEFT JOIN years ON years.id = year_place_ngo_officers.year_id
+    WHERE
+        years.name =(
+        SELECT
+            years.name
+        FROM
+            years
+        ORDER BY
+            id
+        DESC
+    LIMIT 1,
+    1
+    ) AND year_place_ngo_officers.place_id = ngo_place_info.place_id
+LIMIT 1
+) AS ngo_officer
+FROM
+    ngo_place_info ${query}
+GROUP BY
+    place_id`);
     if(alldata.length > 0){
         return apiResponse.successResponseWithData(res,"all_data fetch successfully.",alldata)
     }else{
