@@ -444,9 +444,10 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     // Insert the Data in MongoDB
                     const log = new UpdatedData(updatedData);
 
-                    log.save((err) => {
+                    await log.save((err) => {
                         if (err) {
                             console.error(err);
+                            return;
                         } else {
                             console.log('Data successfully inserted into MongoDB');
                         }

@@ -9,7 +9,7 @@ module.exports = {
 	},
 	// base_dir:'/Users/md.mahidulislam/Desktop/Full Stack/Office/GitHub/NGO/justtest/',
 	base_dir: __dirname + '/',
-	mongo_db_url: 'mongodb://localhost:27017/zvgy_ngo',
+	mongo_db_url: 'mongodb://127.0.0.1:27017/zvgy_ngo',
 	database: {
 		host: 'zvgy.com',
 		port: '3306',
