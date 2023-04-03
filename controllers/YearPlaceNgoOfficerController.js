@@ -2,6 +2,12 @@ const apiResponse = require('../helpers/apiResponse');
 const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading, NgoServed } = require('../models');
 const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
+const IP = require('ip');
+const UpdatedData = require('../models/mongo_log');
+const jwt = require('jsonwebtoken');
+const secret = process.env.JWT_SECRET;
+
+
 
 
 exports.deleteYearPlaceNgoofficer = async (req, res) => {
@@ -312,9 +318,19 @@ exports.updateoveralltitlebyid = async (req, res) => {
 }
 */
 
+// Mongo Connection Start
+
+// Mongo Connection End
+
+
+
+
 exports.updateoveralltitlebyid = async (req, res) => {
     try {
         const condition_id = req.params.id;
+        const token = req.headers.authorization.split(' ')[1];
+        const decodedToken = jwt.verify(token, secret);
+        const userId = decodedToken._id;
         const condition_data = await year_place_ngo_officer.findOne({
             where: { id: condition_id },
         });
@@ -399,11 +415,14 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     const newOfficersHeadingDescriptionData = newOfficersHeadingDescription.map(
                         (item) => JSON.stringify(item.toJSON())
                     ); // End
+                    // Updated Data in this API
                     const updatedData = {
+                        user_id: userId,
                         officer_id: req.body.officer_id,
                         year_id: newYearPlaceNgoofficer.year_id,
                         datetime: Date(),
-                        ip: req.connection.remoteAddress,
+                        ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
+                        localMachineIP: IP.address(),
                         oldValues: {
                             year_place_ngo_officer: oldYearPlaceNgoofficer,
                             officers_heading_description: oldOfficersHeadingDescriptionData,
@@ -419,7 +438,20 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     };
                     console.log('=============== LOG ================')
                     console.log(updatedData);
+                    console.log('=============>', userId);
                     console.log('=============== LOG ================')
+
+                    // Insert the Data in MongoDB
+                    const log = new UpdatedData(updatedData);
+
+                    log.save((err) => {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log('Data successfully inserted into MongoDB');
+                        }
+                    });
+
 
                     return apiResponse.successResponse(res, "Data successfully updated.");
                 } else {
