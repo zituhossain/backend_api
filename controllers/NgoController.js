@@ -3,7 +3,7 @@ const { Ngo, year_place_ngo_officer, Officer, ngo_categories, Place, ngo_categor
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
-// var Sequelize = require('sequelize');
+var Sequelize = require('sequelize');
 
 exports.create_ngo = async (req, res) => {
     try {
@@ -186,12 +186,17 @@ exports.fetchall_ngo_by_place = async (req, res) => {
                     where: { place_id: place_id },
                     required: false,
                 },
+                
                 // {
                 //     model: Place,
                 //     where: { id: place_id },
                 //     required: false,
                 // }
-            ]
+            ],
+            order: [
+              Sequelize.fn("isnull", Sequelize.col("view_order")),
+              ['view_order', 'ASC']
+            ],
         });
 
         const place_data = await Place.findOne({ where: { id: place_id }, raw: true });
