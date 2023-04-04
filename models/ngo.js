@@ -2,13 +2,7 @@
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
 	class Ngo extends Model {
-		/**
-		 * Helper method for defining associations.
-		 * This method is not a part of Sequelize lifecycle.
-		 * The `models/index` file will call this method automatically.
-		 */
 		static associate(models) {
-			// define association here
 		}
 	}
 	Ngo.init(
@@ -18,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
 			logo_name: DataTypes.TEXT,
 			logo: DataTypes.TEXT,
 			color_code: DataTypes.STRING,
-			view_order: { type: DataTypes.INTEGER, allowNull: true },
+			view_order: { type: DataTypes.INTEGER, allowNull: true},
 			created_by: DataTypes.INTEGER,
 			type: DataTypes.ENUM(['regular', 'other']),
 			updated_by: DataTypes.INTEGER,
@@ -26,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		{
 			sequelize,
-			tableName: 'ngos',
 			modelName: 'Ngo',
+			tableName: 'ngos',
 		}
 	);
 

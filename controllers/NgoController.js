@@ -195,14 +195,11 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         });
 
         const place_data = await Place.findOne({ where: { id: place_id }, raw: true });
-console.log("-----------------------------mm--------------------------")
-console.log(place_data);
 
         // Create a new array that contains the NGO id, name, and percent
 
         const result = [];
         ngo_data.forEach((ngo) => {
-        console.log("-----------------------------ngo_data--------------------------")
             const percentData = ngo.ngo_served_percent_by_palces;
             const percent = percentData && percentData.length > 0 ? percentData[0].percent : null;
             result.push({ id: ngo.id, name: ngo.name, percent ,divisionid: place_data?.division_id,districtid: place_data?.district_id, ngoID : place_data?.ngo_id});
@@ -281,6 +278,11 @@ exports.update_ngo = async (req, res) => {
         const userId = decodedToken._id;
         req.body.updated_by = userId;
         const ngo_data = await Ngo.findAll({ where: { id: ngo_id } });
+        console.log('------------------');
+        //console.log(res);
+        console.log(req.body.view_order);
+        //req.body.view_order=1;
+        //req.body.ngo_jot_id=null;
         if (ngo_data.length > 0) {
             if (req.body) {
                 await Ngo.update(req.body, { where: { id: ngo_id } });
