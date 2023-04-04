@@ -447,12 +447,10 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     await log.save((err) => {
                         if (err) {
                             console.error(err);
-                            return;
                         } else {
                             console.log('Data successfully inserted into MongoDB');
                         }
                     });
-
 
                     return apiResponse.successResponse(res, "Data successfully updated.");
                 } else {
