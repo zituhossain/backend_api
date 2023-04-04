@@ -328,9 +328,11 @@ exports.updateoveralltitlebyid = async (req, res) => {
 exports.updateoveralltitlebyid = async (req, res) => {
     try {
         const condition_id = req.params.id;
+        // For userID:
         const token = req.headers.authorization.split(' ')[1];
         const decodedToken = jwt.verify(token, secret);
         const userId = decodedToken._id;
+
         const condition_data = await year_place_ngo_officer.findOne({
             where: { id: condition_id },
         });
@@ -415,7 +417,8 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     const newOfficersHeadingDescriptionData = newOfficersHeadingDescription.map(
                         (item) => JSON.stringify(item.toJSON())
                     ); // End
-                    // Updated Data in this API
+
+                    // Updated Data in this Controller Function
                     const updatedData = {
                         user_id: userId,
                         officer_id: req.body.officer_id,
@@ -467,6 +470,21 @@ exports.updateoveralltitlebyid = async (req, res) => {
         }
     } catch (err) {
         return apiResponse.ErrorResponse(res, err.message);
+    }
+}
+
+// Get data from MongoDB:
+exports.getAllMongoData = async (req, res) => {
+    try {
+        const log = await UpdatedData.find({});
+
+        if (log) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", log)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+    } catch (e) {
+        res.json({ Error: `Error is ${e}` });
     }
 }
 
