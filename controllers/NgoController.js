@@ -269,8 +269,8 @@ exports.update_ngo = async (req, res) => {
     try {
         const filePath = `uploads/logo/${req.file.filename}`;
         req.body.logo = filePath;
+        
     } catch (err) {
-
     }
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -278,9 +278,12 @@ exports.update_ngo = async (req, res) => {
         const userId = decodedToken._id;
         req.body.updated_by = userId;
         const ngo_data = await Ngo.findAll({ where: { id: ngo_id } });
-        console.log('------------------');
-        //console.log(res);
-        console.log(req.body.view_order);
+        if(req.body.view_order==''){
+            req.body.view_order=null;
+        }
+        if(req.body.ngo_jots_id==''){
+            req.body.ngo_jots_id=null;
+        }
         //req.body.view_order=1;
         //req.body.ngo_jot_id=null;
         if (ngo_data.length > 0) {
