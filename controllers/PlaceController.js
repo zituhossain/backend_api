@@ -454,15 +454,19 @@ exports.placeDetails = async (req, res) => {
 		});
 
 		// Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
-		// place_data.ngoServedPercentByPalce = place_data.ngoServedPercentByPalce.sort((a, b) => {
-		// 	if (a.ngo.view_order < b.ngo.view_order) {
-		// 	  return -1;
-		// 	}
-		// 	if (a.ngo.view_order > b.ngo.view_order) {
-		// 	  return 1;
-		// 	}
-		// 	return 0;
-		//   });
+		if (place_data?.ngoServedPercentByPalce) {
+			place_data.ngoServedPercentByPalce = place_data?.ngoServedPercentByPalce.sort((a, b) => {
+				if (a.ngo?.view_order < b.ngo?.view_order) {
+					return -1;
+				}
+				else if (a.ngo?.view_order > b.ngo?.view_order) {
+					return 1;
+				} else {
+
+					return;
+				}
+			});
+		}
 
 		return apiResponse.successResponseWithData(
 			res,
@@ -509,8 +513,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = ' +
-				place_id +
-				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+			place_id +
+			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
