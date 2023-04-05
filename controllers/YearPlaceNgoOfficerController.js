@@ -324,7 +324,6 @@ exports.updateoveralltitlebyid = async (req, res) => {
 
 
 
-<<<<<<< Updated upstream
 exports.updateoveralltitlebyid = async (req, res) => {
     try {
         const condition_id = req.params.id;
@@ -333,15 +332,6 @@ exports.updateoveralltitlebyid = async (req, res) => {
         const decodedToken = jwt.verify(token, secret);
         const userId = decodedToken._id;
 
-=======
-
-exports.updateoveralltitlebyid = async (req, res) => {
-    try {
-        const condition_id = req.params.id;
-        const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, secret);
-        const userId = decodedToken._id;
->>>>>>> Stashed changes
         const condition_data = await year_place_ngo_officer.findOne({
             where: { id: condition_id },
         });
@@ -426,12 +416,8 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     const newOfficersHeadingDescriptionData = newOfficersHeadingDescription.map(
                         (item) => JSON.stringify(item.toJSON())
                     ); // End
-<<<<<<< Updated upstream
 
                     // Updated Data in this Controller Function
-=======
-                    // Updated Data in this API
->>>>>>> Stashed changes
                     const updatedData = {
                         user_id: userId,
                         officer_id: req.body.officer_id,
@@ -460,11 +446,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     // Insert the Data in MongoDB
                     const log = new UpdatedData(updatedData);
 
-<<<<<<< Updated upstream
                     await log.save((err) => {
-=======
-                    log.save((err) => {
->>>>>>> Stashed changes
                         if (err) {
                             console.error(err);
                         } else {
@@ -472,10 +454,6 @@ exports.updateoveralltitlebyid = async (req, res) => {
                         }
                     });
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
                     return apiResponse.successResponse(res, "Data successfully updated.");
                 } else {
                     return apiResponse.ErrorResponse(res, "description missing");
