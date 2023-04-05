@@ -1,9 +1,9 @@
 {
 	"development": {
-		"username": "zvgy_kafi",
-		"password": "het8Wj3vJSve@2",
+		"username": "root",
+		"password": "12345678",
 		"database": "zvgy_kafi",
-		"host": "zvgy.com",
+		"host": "127.0.0.1",
 		"dialect": "mysql"
 	},
 	"test": {

@@ -324,7 +324,6 @@ exports.updateoveralltitlebyid = async (req, res) => {
 
 
 
-
 exports.updateoveralltitlebyid = async (req, res) => {
     try {
         const condition_id = req.params.id;
@@ -474,7 +473,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
 }
 
 // Get data from MongoDB:
-exports.getAllMongoData = async (req, res) => {
+exports.getAllUpdatedDataLogMongo = async (req, res) => {
     try {
         const log = await UpdatedData.find({});
 

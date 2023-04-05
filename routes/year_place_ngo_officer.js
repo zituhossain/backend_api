@@ -17,7 +17,7 @@ router.get('/get_all_counter_info', YearPlaceNgoOfficerController.getAllCountInf
 router.post('/create_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.createYearPlaceNgoofficer);
 router.post('/update_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.updateoveralltitlebyid);
 router.get('/get_ngo_popular_officer/:id',auth, YearPlaceNgoOfficerController.getNgoPopularOfficer);
-router.get('/get_all_data_from_mongo', auth, YearPlaceNgoOfficerController.getAllMongoData);
+router.get('/get_all_updated_data_log_from_mongo', auth, YearPlaceNgoOfficerController.getAllUpdatedDataLogMongo);
 
 
 module.exports = router;
