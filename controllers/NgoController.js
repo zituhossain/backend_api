@@ -211,7 +211,7 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         });
 
         if (result.length > 0) {
-            console.log(result);
+            //console.log(result);
             return apiResponse.successResponseWithData(res, "Data fetch successful.", result);
         } else {
             return apiResponse.ErrorResponse(res, "No data found!!!");

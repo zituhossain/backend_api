@@ -277,8 +277,6 @@ GROUP BY
   places.id`
 		);
 		if (results) {
-			console.log('-------------------kafi----------------');
-			console.log(results);
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',
@@ -438,7 +436,10 @@ exports.placeDetails = async (req, res) => {
 							as: 'ngo',
 						},
 					],
-					order: [[{ model: Ngo, as: 'ngo' }, 'view_order', 'ASC']],
+					order: [
+						Sequelize.fn("isnull", Sequelize.col("view_orders")),
+				    ['ngo', 'view_order', 'ASC'],
+				  ],
 				},
 				{
 					model: year_place_ngo_officer,
@@ -453,21 +454,35 @@ exports.placeDetails = async (req, res) => {
 			],
 		});
 
-		// Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
+
+
+		//Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
 		if (place_data?.ngoServedPercentByPalce) {
 			place_data.ngoServedPercentByPalce = place_data?.ngoServedPercentByPalce.sort((a, b) => {
-				if (a.ngo?.view_order < b.ngo?.view_order) {
+				if (a.ngo?.view_order < b.ngo?.view_order && a.ngo?.view_order !== null && b.ngo?.view_order !== null) {
+					// console.log('if');
+					// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+					// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
 					return -1;
 				}
-				else if (a.ngo?.view_order > b.ngo?.view_order) {
+				else if (a.ngo?.view_order > b.ngo?.view_order  && a.ngo?.view_order !== null && b.ngo?.view_order !== null) {
+					// console.log('else if');
+					// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+					// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
 					return 1;
 				} else {
-
-					return;
+					// console.log('else');
+					// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+					// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+					if(a.ngo?.view_order == null)
+					return 1;
+					if(b.ngo?.view_order == null)
+					return -1;
 				}
 			});
 		}
-
+// console.log('----------jkafdf------------------------------');
+// console.log(place_data.ngoServedPercentByPalce);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -637,14 +652,12 @@ exports.addNgoServedPercent = async (req, res) => {
 				existingRecord.percent =
 					ngo_id[i]?.ngo_served_percent_by_palce?.percent ||
 					existingRecord.percent;
-				console.log('--------------kafi');
 
 				if (
 					existingRecord.percent == 0 ||
 					existingRecord.percent == null ||
 					existingRecord.percent == ''
 				) {
-					console.log(existingRecord);
 					await existingRecord.destroy({
 						where: {
 							id: req.body.id,
@@ -821,7 +834,7 @@ from
 
 		if (results.length > 0) {
 			{
-				console.log(results);
+				//console.log(results);
 			}
 			return apiResponse.successResponseWithData(
 				res,
