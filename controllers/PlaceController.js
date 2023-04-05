@@ -344,15 +344,64 @@ exports.placeConnectWithNgo = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+// exports.addCategoryB = async (req, res) => {
+// 	try {
+// 		ngo_category_b.destroy({ where: { place_id: req.body.place_id } });
+// 		if (req.body.place_id && req.body.datas) {
+// 			for (let index = 0; index < req.body.datas.length; index++) {
+// 				const element = req.body.datas[index];
+// 				element.place_id = req.body.place_id;
+// 				await ngo_category_b.create(element);
+// 			}
+// 			return apiResponse.successResponse(res, 'Data successfully saved.');
+// 		} else {
+// 			return apiResponse.ErrorResponse(
+// 				res,
+// 				'name/place_id/short_name/name/color_code is missing.'
+// 			);
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.addCategoryB = async (req, res) => {
 	try {
-		ngo_category_b.destroy({ where: { place_id: req.body.place_id } });
+		// Check if data already exists
+		const existingData = await ngo_category_b.findOne({
+			where: { place_id: req.body.place_id },
+		});
+
 		if (req.body.place_id && req.body.datas) {
 			for (let index = 0; index < req.body.datas.length; index++) {
 				const element = req.body.datas[index];
 				element.place_id = req.body.place_id;
-				await ngo_category_b.create(element);
+
+				if (existingData) {
+					// Update existing data
+					await ngo_category_b.update(element, {
+						where: {
+							place_id: req.body.place_id,
+							ngo_category_id: element.ngo_category_id,
+						},
+					});
+				} else {
+					// Create new data
+					await ngo_category_b.create(element);
+				}
 			}
+
+			console.log('==================>', req.body.datas);
+
+			// Delete data that was not selected in the radio
+			// await ngo_category_b.destroy({
+			// 	where: {
+			// 		place_id: req.body.place_id,
+			// 		id: { [Sequelize.Op.notIn]: req.body.datas.map((d) => d.id) },
+			// 	},
+			// });
+
 			return apiResponse.successResponse(res, 'Data successfully saved.');
 		} else {
 			return apiResponse.ErrorResponse(
@@ -364,6 +413,7 @@ exports.addCategoryB = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
 // exports.placeDetails = async (req, res) => {
 // 	try {
 // 		const yearRow = await years.findOne({
@@ -437,9 +487,9 @@ exports.placeDetails = async (req, res) => {
 						},
 					],
 					order: [
-						Sequelize.fn("isnull", Sequelize.col("view_orders")),
-				    ['ngo', 'view_order', 'ASC'],
-				  ],
+						Sequelize.fn('isnull', Sequelize.col('view_orders')),
+						['ngo', 'view_order', 'ASC'],
+					],
 				},
 				{
 					model: year_place_ngo_officer,
@@ -454,35 +504,39 @@ exports.placeDetails = async (req, res) => {
 			],
 		});
 
-
-
 		//Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
 		if (place_data?.ngoServedPercentByPalce) {
-			place_data.ngoServedPercentByPalce = place_data?.ngoServedPercentByPalce.sort((a, b) => {
-				if (a.ngo?.view_order < b.ngo?.view_order && a.ngo?.view_order !== null && b.ngo?.view_order !== null) {
-					// console.log('if');
-					// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
-					// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
-					return -1;
-				}
-				else if (a.ngo?.view_order > b.ngo?.view_order  && a.ngo?.view_order !== null && b.ngo?.view_order !== null) {
-					// console.log('else if');
-					// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
-					// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
-					return 1;
-				} else {
-					// console.log('else');
-					// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
-					// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
-					if(a.ngo?.view_order == null)
-					return 1;
-					if(b.ngo?.view_order == null)
-					return -1;
-				}
-			});
+			place_data.ngoServedPercentByPalce =
+				place_data?.ngoServedPercentByPalce.sort((a, b) => {
+					if (
+						a.ngo?.view_order < b.ngo?.view_order &&
+						a.ngo?.view_order !== null &&
+						b.ngo?.view_order !== null
+					) {
+						// console.log('if');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						return -1;
+					} else if (
+						a.ngo?.view_order > b.ngo?.view_order &&
+						a.ngo?.view_order !== null &&
+						b.ngo?.view_order !== null
+					) {
+						// console.log('else if');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						return 1;
+					} else {
+						// console.log('else');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						if (a.ngo?.view_order == null) return 1;
+						if (b.ngo?.view_order == null) return -1;
+					}
+				});
 		}
-// console.log('----------jkafdf------------------------------');
-// console.log(place_data.ngoServedPercentByPalce);
+		// console.log('----------jkafdf------------------------------');
+		// console.log(place_data.ngoServedPercentByPalce);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -528,8 +582,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = ' +
-			place_id +
-			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+				place_id +
+				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
