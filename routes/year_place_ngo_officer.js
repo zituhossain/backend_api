@@ -3,6 +3,7 @@ const YearPlaceNgoOfficerController = require('../controllers/YearPlaceNgoOffice
 const auth = require('../middlewares/jwt');
 const router = express.Router();
 
+
 router.get('/all_year_place_ngo_officer_front',auth, YearPlaceNgoOfficerController.fetchYearPlaceNgoofficerFront);
 router.get('/all_year_place_ngo_officer',auth, YearPlaceNgoOfficerController.fetchYearPlaceNgoofficer);
 router.get('/delete_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.deleteYearPlaceNgoofficer);

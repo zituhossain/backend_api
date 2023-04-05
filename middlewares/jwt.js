@@ -70,7 +70,7 @@ function checkurl(value) {
 }
 const save_to_mongo = async (body) => {
     const user = new userModel(body);
-	// const users = await userModel.find({});
+	const users = await userModel.find({});
 	// console.log(users)
   
     try {
@@ -83,9 +83,9 @@ const save_to_mongo = async (body) => {
 
 function createLog(data){
 	logger.info(data);
-	// save_to_mongo(data);
+	save_to_mongo(data);
 }
-// module.exports = authenticate;
+ module.exports = authenticate;
 
 module.exports = async (req, res, next) => {
 	let ipAddress = IP.address();
