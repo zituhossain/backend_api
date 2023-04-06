@@ -1,10 +1,12 @@
 const apiResponse = require('../helpers/apiResponse');
-const { years, year_place_ngo_officer, officers_heading_description, Place, Officer, Ngo, sequelize, Profile_type, officer_profile_heading, NgoServed } = require('../models');
+const { years, year_place_ngo_officer, officers_heading_description, Place, User, Officer, Ngo, sequelize, Profile_type, officer_profile_heading, NgoServed } = require('../models');
 const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
 const IP = require('ip');
 const UpdatedData = require('../models/mongo_log');
 const jwt = require('jsonwebtoken');
+const { model } = require('mongoose');
+const { date } = require('joi');
 const secret = process.env.JWT_SECRET;
 
 
@@ -477,10 +479,39 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
     try {
         const log = await UpdatedData.find({});
 
-        if (log) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", log)
+        // Find user name
+        const userID = log.map(data => data.user_id);
+        const userData = await User.findAll({
+            attributes: ["id", "username"]
+        });
+
+        const usernames = userID.map(id => {
+            const user = userData.find(data => data.id == id);
+            return user ? user.username : null;
+        });
+
+        // Find officer name
+        const officerID = log.map(data => data.officer_id);
+        const officerData = await Officer.findAll({
+            attributes: ["id", "name"]
+        });
+
+        const officerName = officerID.map(id => {
+            const officer = officerData.find(data => data.id == id);
+            return officer ? officer.name : null;
+        })
+
+        // Step 2: Combine the data as per your requirements
+        const combinedData = {
+            usernames,
+            officerName
+        };
+
+        // Step 3: Return the combined data in the API response
+        if (combinedData) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", combinedData);
         } else {
-            return apiResponse.ErrorResponse(res, "No matching query found")
+            return apiResponse.ErrorResponse(res, "No matching query found");
         }
     } catch (e) {
         res.json({ Error: `Error is ${e}` });
