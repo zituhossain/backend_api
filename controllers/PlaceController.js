@@ -710,7 +710,7 @@ exports.addNgoServedPercent = async (req, res) => {
 				if (
 					existingRecord.percent == 0 ||
 					existingRecord.percent == null ||
-					existingRecord.percent == ''
+					existingRecord.percent === ''
 				) {
 					await existingRecord.destroy({
 						where: {
@@ -788,31 +788,83 @@ exports.getNgoServedPercent = async (req, res) => {
 //         return apiResponse.ErrorResponse(res, err.message)
 //     }
 // }
+
+// exports.ngoJotAddIntoPlace = async (req, res) => {
+// 	try {
+// 		let prev_state = req.body.ngo_jot_id;
+// 		for (i = 0; i < prev_state.length; i++) {
+// 			await ngo_jot_add_into_places.destroy({
+// 				where: {
+// 					place_id: req.body.place_id,
+// 					ngo_jot_id: prev_state[i].id,
+// 				},
+// 			});
+
+// 			req.body.ngo_jot_id = prev_state[i].id;
+// 			if (prev_state[i]?.percent) {
+// 				req.body.percent = prev_state[i]?.percent;
+// 			} else {
+// 				req.body.percent = 0;
+// 			}
+// 			await ngo_jot_add_into_places.create(req.body);
+// 		}
+// 		// await ngo_jot_add_into_places.create(req.body);
+// 		return apiResponse.successResponse(res, 'Data successfully saved.');
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.ngoJotAddIntoPlace = async (req, res) => {
 	try {
 		let prev_state = req.body.ngo_jot_id;
 		for (i = 0; i < prev_state.length; i++) {
-			await ngo_jot_add_into_places.destroy({
+			// find the existing record by ngo_id and place_id
+			let existingRecord = await ngo_jot_add_into_places.findOne({
 				where: {
 					place_id: req.body.place_id,
 					ngo_jot_id: prev_state[i].id,
 				},
 			});
 
-			req.body.ngo_jot_id = prev_state[i].id;
-			if (prev_state[i]?.percent) {
-				req.body.percent = prev_state[i]?.percent;
-			} else {
-				req.body.percent = 0;
+			// if the record exists, update the percent value
+			if (existingRecord) {
+				existingRecord.percent =
+					prev_state[i]?.percent || existingRecord.percent;
+
+				if (
+					existingRecord.percent == 0 ||
+					existingRecord.percent == null ||
+					existingRecord.percent === ''
+				) {
+					await existingRecord.destroy({
+						where: {
+							id: req.body.id,
+						},
+					});
+				} else {
+					await existingRecord.save();
+				}
 			}
-			await ngo_jot_add_into_places.create(req.body);
+			// if the record does not exist, create a new record
+			else {
+				await ngo_jot_add_into_places.create({
+					place_id: req.body.place_id,
+					ngo_jot_id: prev_state[i].id,
+					district_id: req.body.district_id,
+					division_id: req.body.division_id,
+					percent: prev_state[i].percent,
+				});
+			}
 		}
+
 		// await ngo_jot_add_into_places.create(req.body);
 		return apiResponse.successResponse(res, 'Data successfully saved.');
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
 exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
 		const place_data = await ngo_jot_add_into_places.findAll({
