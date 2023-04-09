@@ -366,14 +366,14 @@ exports.updateoveralltitlebyid = async (req, res) => {
 
                     // officers_heading_description old value
                     const oldOfficersHeadingDescription = await officers_heading_description.findAll({
-                        // attributes: ["desc"],
+                        attributes: ['heading_id', "desc"],
                         where: {
                             officer_id: req.body.officer_id,
                             year_id: oldYearPlaceNgoofficer.year_id,
                         },
                     });
                     const oldOfficersHeadingDescriptionData = oldOfficersHeadingDescription.map(
-                        (item) => JSON.stringify(item.toJSON())
+                        (item) => ({ ...item.dataValues })
                     ); // End
 
                     await officers_heading_description.destroy({
@@ -408,7 +408,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     // officers_heading_description new value
                     const newOfficersHeadingDescription = await officers_heading_description.findAll(
                         {
-                            // attributes: ["desc"],
+                            attributes: ['heading_id', "desc"],
                             where: {
                                 officer_id: req.body.officer_id,
                                 year_id: newYearPlaceNgoofficer.year_id,
@@ -416,7 +416,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
                         }
                     );
                     const newOfficersHeadingDescriptionData = newOfficersHeadingDescription.map(
-                        (item) => JSON.stringify(item.toJSON())
+                        (item) => ({ ...item.dataValues })
                     ); // End
 
                     // Updated Data in this Controller Function
@@ -442,7 +442,6 @@ exports.updateoveralltitlebyid = async (req, res) => {
                     };
                     console.log('=============== LOG ================')
                     console.log(updatedData);
-                    console.log('=============>', userId);
                     console.log('=============== LOG ================')
 
                     // Insert the Data in MongoDB
@@ -475,6 +474,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
 }
 
 // Get data from MongoDB:
+/*
 exports.getAllUpdatedDataLogMongo = async (req, res) => {
     try {
         const log = await UpdatedData.find({});
@@ -517,6 +517,102 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
         res.json({ Error: `Error is ${e}` });
     }
 }
+*/
+
+exports.getAllUpdatedDataLogMongo = async (req, res) => {
+	try {
+		const log = await UpdatedData.find({});
+
+		// Find user name
+		const userData = await User.findAll({
+			attributes: ['id', 'username'],
+		});
+
+		// Find officer name
+		const officerData = await Officer.findAll({
+			attributes: ['id', 'name'],
+		});
+
+        // Find year name
+        const yearData = await years.findAll({
+            attributes: ['id', 'name'],
+        })
+
+        // Find Place name
+        const placeData = await Place.findAll({
+            attributes: ['id', 'name']
+        })
+
+        // Find Ngo name
+        const ngoData = await Ngo.findAll({
+            attributes: ['id', 'name']
+        })
+
+        // Find Heading name
+        const headingData = await officer_profile_heading.findAll({
+            attributes: ['id', 'heading']
+        })
+
+		// Combine the data into an object
+		const combinedData = log.map((data) => ({
+				username: userData.find((user) => user.id == data.user_id)?.username ?? null,
+				officerName: officerData.find((officer) => officer.id == data.officer_id)?.name ?? null,
+                yearName: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+                ip: data.ip,
+                dataTime: data.datetime,
+                table: {
+                    table1: data.tableName.table1,
+                    table2: data.tableName.table2
+                },
+                oldValues: {
+                    year_place_ngo_officers: {
+                        placeName: placeData.find((place) => place.id == data.oldValues.year_place_ngo_officer.place_id)?.name ?? null,
+                        yearName: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+                        ngoName: ngoData.find((nog) => nog.id == data.oldValues.year_place_ngo_officer.ngo_id)?.name ?? null,
+                        officerName: officerData.find((officer) => officer.id == data.oldValues.year_place_ngo_officer.officer_id)?.name ?? null,
+                        served_population: data.oldValues.year_place_ngo_officer.served_population,
+                        percent_served: data.oldValues.year_place_ngo_officer.percent_served,
+                        rank: data.oldValues.year_place_ngo_officer.rank,
+                        view_order: data.oldValues.year_place_ngo_officer.view_order,
+                        designation: data.oldValues.year_place_ngo_officer.designation,
+                        status: data.oldValues.year_place_ngo_officer.status
+                    },
+                    officers_heading_description: data.oldValues.officers_heading_description.map((item) => ({
+                        heading: headingData.find((heading) => heading.id == item.heading_id)?.heading ?? null,
+                        description: decryptHash(item.desc)
+                    }))
+                },
+                newValues: {
+                    year_place_ngo_officers: {
+                        placeName: placeData.find((place) => place.id == data.newValues.year_place_ngo_officer.place_id)?.name ?? null,
+                        yearName: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+                        ngoName: ngoData.find((nog) => nog.id == data.newValues.year_place_ngo_officer.ngo_id)?.name ?? null,
+                        officerName: officerData.find((officer) => officer.id == data.newValues.year_place_ngo_officer.officer_id)?.name ?? null,
+                        served_population: data.newValues.year_place_ngo_officer.served_population,
+                        percent_served: data.newValues.year_place_ngo_officer.percent_served,
+                        rank: data.newValues.year_place_ngo_officer.rank,
+                        view_order: data.newValues.year_place_ngo_officer.view_order,
+                        designation: data.newValues.year_place_ngo_officer.designation,
+                        status: data.newValues.year_place_ngo_officer.status
+                    },
+                    officers_heading_description: data.newValues.officers_heading_description.map((item) => ({
+                        heading: headingData.find((heading) => heading.id == item.heading_id)?.heading ?? null,
+                        description: decryptHash(item.desc)
+                    }))
+                }
+			}))
+
+		// Return the combined data in the API response
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			combinedData
+		);
+	} catch (e) {
+		res.json({ Error: `Error is ${e}` });
+	}
+};
+
 
 
 exports.getkormibyxid = async (req, res) => {

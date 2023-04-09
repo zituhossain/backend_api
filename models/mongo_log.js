@@ -9,11 +9,11 @@ const updatedDataSchema = new mongoose.Schema({
   localMachineIP: String,
   oldValues: {
     year_place_ngo_officer: Object,
-    officers_heading_description: [String],
+    officers_heading_description: Object,
   },
   newValues: {
     year_place_ngo_officer: Object,
-    officers_heading_description: [String],
+    officers_heading_description: Object,
   },
   tableName: {
     table1: String,
