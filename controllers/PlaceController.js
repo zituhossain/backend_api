@@ -256,7 +256,25 @@ exports.getPlacesByDivision = async (req, res) => {
 	try {
 		const id = req.params.id;
 		const [results, metadata] = await sequelize.query(
-			`select places.name,officers.name as officer_name,places.id as place_id,officers.image,officers.id as officer_id,ngos.name as ngo_name,places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id left join ngos on ngos.id = ypno.ngo_id left join ngos place_ngo on  place_ngo.id = places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = places.id AND ngo_category_bs.status="colorActive" left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where places.division_id = ${id} GROUP BY places.id`
+			//`select places.name,places.ngo_id,officers.name as officer_name,places.id as place_id,officers.image,officers.id as officer_id,ngos.name as ngo_name,places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id left join ngos on ngos.id = ypno.ngo_id left join ngos place_ngo on  place_ngo.id = places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = places.id AND ngo_category_bs.status="colorActive" left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where places.division_id = ${id} GROUP BY places.id`
+			`select 
+  places.id as place_id,
+  places.name as place_name,
+  places.ngo_id as place_ngo_id,
+  places.area as place_area,
+  ngos.name as ngo_name,
+  ngo_categories.color_code as categoryb_color, 
+  ngo_categories.short_name as categoryb_name 
+from 
+  places
+  LEFT JOIN ngos on ngos.id = places.ngo_id
+  LEFT JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
+  AND ngo_category_bs.status = "colorActive" 
+  LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id 
+where 
+  places.division_id = ${id} 
+GROUP BY 
+  places.id`
 		);
 		if (results) {
 			return apiResponse.successResponseWithData(
@@ -276,7 +294,25 @@ exports.getPlacesByDistrict = async (req, res) => {
 	try {
 		const id = req.params.id;
 		const [results, metadata] = await sequelize.query(
-			`select places.name,officers.name as officer_name,places.id as place_id,officers.image,officers.id as officer_id,ngos.name as ngo_name,places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id left join ngos on ngos.id = ypno.ngo_id left join ngos place_ngo on  place_ngo.id = places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = places.id left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where places.district_id = ${id} GROUP BY places.id`
+			//`select places.name,places.ngo_id,officers.name as officer_name,places.id as place_id,officers.image,officers.id as officer_id,ngos.name as ngo_name,places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id left join ngos on ngos.id = ypno.ngo_id left join ngos place_ngo on  place_ngo.id = places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = places.id left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where places.district_id = ${id} GROUP BY places.id`
+			`select 
+  places.id as place_id,
+  places.name as place_name,
+  places.ngo_id as place_ngo_id,
+  places.area as place_area,
+  ngos.name as ngo_name,
+  ngo_categories.color_code as categoryb_color, 
+  ngo_categories.short_name as categoryb_name 
+from 
+  places
+  LEFT JOIN ngos on ngos.id = places.ngo_id
+  LEFT JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
+  AND ngo_category_bs.status = "colorActive" 
+  LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id 
+where 
+  places.district_id = ${id} 
+GROUP BY 
+  places.id`
 		);
 		if (results) {
 			return apiResponse.successResponseWithData(
@@ -308,15 +344,64 @@ exports.placeConnectWithNgo = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+// exports.addCategoryB = async (req, res) => {
+// 	try {
+// 		ngo_category_b.destroy({ where: { place_id: req.body.place_id } });
+// 		if (req.body.place_id && req.body.datas) {
+// 			for (let index = 0; index < req.body.datas.length; index++) {
+// 				const element = req.body.datas[index];
+// 				element.place_id = req.body.place_id;
+// 				await ngo_category_b.create(element);
+// 			}
+// 			return apiResponse.successResponse(res, 'Data successfully saved.');
+// 		} else {
+// 			return apiResponse.ErrorResponse(
+// 				res,
+// 				'name/place_id/short_name/name/color_code is missing.'
+// 			);
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.addCategoryB = async (req, res) => {
 	try {
-		ngo_category_b.destroy({ where: { place_id: req.body.place_id } });
+		// Check if data already exists
+		const existingData = await ngo_category_b.findOne({
+			where: { place_id: req.body.place_id },
+		});
+
 		if (req.body.place_id && req.body.datas) {
 			for (let index = 0; index < req.body.datas.length; index++) {
 				const element = req.body.datas[index];
 				element.place_id = req.body.place_id;
-				await ngo_category_b.create(element);
+
+				if (existingData) {
+					// Update existing data
+					await ngo_category_b.update(element, {
+						where: {
+							place_id: req.body.place_id,
+							ngo_category_id: element.ngo_category_id,
+						},
+					});
+				} else {
+					// Create new data
+					await ngo_category_b.create(element);
+				}
 			}
+
+			console.log('==================>', req.body.datas);
+
+			// Delete data that was not selected in the radio
+			// await ngo_category_b.destroy({
+			// 	where: {
+			// 		place_id: req.body.place_id,
+			// 		id: { [Sequelize.Op.notIn]: req.body.datas.map((d) => d.id) },
+			// 	},
+			// });
+
 			return apiResponse.successResponse(res, 'Data successfully saved.');
 		} else {
 			return apiResponse.ErrorResponse(
@@ -328,6 +413,55 @@ exports.addCategoryB = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+// exports.placeDetails = async (req, res) => {
+// 	try {
+// 		const yearRow = await years.findOne({
+// 			order: [['name', 'DESC']],
+// 		});
+
+// 		let year = yearRow.id;
+// 		const place_id = req.params.id;
+// 		const place_data = await Place.findOne({
+// 			where: { id: place_id },
+// 			include: [
+// 				{
+// 					model: ngo_category_b,
+// 					as: 'categoryB',
+// 				},
+// 				{
+// 					model: ngo_served_percent_by_palces,
+// 					as: 'ngoServedPercentByPalce',
+// 					include: [
+// 						{
+// 							model: Ngo,
+// 							as: 'ngo',
+// 						},
+// 					],
+// 				},
+// 				{
+// 					model: year_place_ngo_officer,
+// 					as: 'year_place_ngo_officer',
+// 					where: {
+// 						year_id: year,
+// 						rank: 1,
+// 					},
+// 					required: false,
+// 					include: [Officer, Ngo, years],
+// 				},
+// 			],
+// 		});
+
+// 		return apiResponse.successResponseWithData(
+// 			res,
+// 			'Data successfully fetched.',
+// 			place_data
+// 		);
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.placeDetails = async (req, res) => {
 	try {
 		const yearRow = await years.findOne({
@@ -352,6 +486,10 @@ exports.placeDetails = async (req, res) => {
 							as: 'ngo',
 						},
 					],
+					order: [
+						Sequelize.fn('isnull', Sequelize.col('view_orders')),
+						['ngo', 'view_order', 'ASC'],
+					],
 				},
 				{
 					model: year_place_ngo_officer,
@@ -366,6 +504,39 @@ exports.placeDetails = async (req, res) => {
 			],
 		});
 
+		//Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
+		if (place_data?.ngoServedPercentByPalce) {
+			place_data.ngoServedPercentByPalce =
+				place_data?.ngoServedPercentByPalce.sort((a, b) => {
+					if (
+						a.ngo?.view_order < b.ngo?.view_order &&
+						a.ngo?.view_order !== null &&
+						b.ngo?.view_order !== null
+					) {
+						// console.log('if');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						return -1;
+					} else if (
+						a.ngo?.view_order > b.ngo?.view_order &&
+						a.ngo?.view_order !== null &&
+						b.ngo?.view_order !== null
+					) {
+						// console.log('else if');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						return 1;
+					} else {
+						// console.log('else');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						if (a.ngo?.view_order == null) return 1;
+						if (b.ngo?.view_order == null) return -1;
+					}
+				});
+		}
+		// console.log('----------jkafdf------------------------------');
+		// console.log(place_data.ngoServedPercentByPalce);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -479,7 +650,8 @@ exports.placeHistoryDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-{/*
+{
+	/*
 exports.addNgoServedPercent = async (req, res) => {
 	try {
 		// await ngoServedPercentByPlace.validateAsync({
@@ -493,12 +665,13 @@ exports.addNgoServedPercent = async (req, res) => {
 		for (i = 0; i < ngo_id.length; i++) {
 			await ngo_served_percent_by_palces.destroy({
 				where: {
-					place_id: req.body.place_id,
-					ngo_id: ngo_id[i].Ngo.id,
+					// place_id: req.body.place_id,
+					// ngo_id: ngo_id[i].id,
+					percent: null
 				},
 			});
-			req.body.ngo_id = ngo_id[i].Ngo.id;
-			req.body.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent ?? 0;
+			req.body.ngo_id = ngo_id[i].id;
+			req.body.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent;
 			await ngo_served_percent_by_palces.create(req.body);
 		}
 
@@ -514,7 +687,8 @@ exports.addNgoServedPercent = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-*/}
+*/
+}
 exports.addNgoServedPercent = async (req, res) => {
 	try {
 		let ngo_id = req.body.ngo_id;
@@ -529,17 +703,21 @@ exports.addNgoServedPercent = async (req, res) => {
 
 			// if the record exists, update the percent value
 			if (existingRecord) {
-				existingRecord.percent = ngo_id[i]?.ngo_served_percent_by_palce?.percent || existingRecord.percent;
-				console.log('--------------kafi');
-				
-				if(existingRecord.percent==0){
-					console.log(existingRecord);
+				existingRecord.percent =
+					ngo_id[i]?.ngo_served_percent_by_palce?.percent ||
+					existingRecord.percent;
+
+				if (
+					existingRecord.percent == 0 ||
+					existingRecord.percent == null ||
+					existingRecord.percent === ''
+				) {
 					await existingRecord.destroy({
-					    where: {
-					    	id: req.body.id
-					    }
+						where: {
+							id: req.body.id,
+						},
 					});
-				}else{
+				} else {
 					await existingRecord.save();
 				}
 			}
@@ -611,13 +789,38 @@ exports.getNgoServedPercent = async (req, res) => {
 //     }
 // }
 
-/*
+// exports.ngoJotAddIntoPlace = async (req, res) => {
+// 	try {
+// 		let prev_state = req.body.ngo_jot_id;
+// 		for (i = 0; i < prev_state.length; i++) {
+// 			await ngo_jot_add_into_places.destroy({
+// 				where: {
+// 					place_id: req.body.place_id,
+// 					ngo_jot_id: prev_state[i].id,
+// 				},
+// 			});
+
+// 			req.body.ngo_jot_id = prev_state[i].id;
+// 			if (prev_state[i]?.percent) {
+// 				req.body.percent = prev_state[i]?.percent;
+// 			} else {
+// 				req.body.percent = 0;
+// 			}
+// 			await ngo_jot_add_into_places.create(req.body);
+// 		}
+// 		// await ngo_jot_add_into_places.create(req.body);
+// 		return apiResponse.successResponse(res, 'Data successfully saved.');
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.ngoJotAddIntoPlace = async (req, res) => {
 	try {
-		let ngo_jot_id = req.body.ngo_jot_id;
-		for (let i = 0; i < ngo_jot_id.length; i++) {
+		let prev_state = req.body.ngo_jot_id;
+		for (i = 0; i < prev_state.length; i++) {
 			// find the existing record by ngo_id and place_id
-			let existingNgoJot = await ngo_jot_add_into_places.findOne({
+			let existingRecord = await ngo_jot_add_into_places.findOne({
 				where: {
 					place_id: req.body.place_id,
 					ngo_jot_id: ngo_jot_id[i].id
@@ -627,79 +830,49 @@ exports.ngoJotAddIntoPlace = async (req, res) => {
 			if (existingNgoJot) {
 				existingNgoJot.percent = ngo_jot_id[i]?.ngo_jot_add_into_place?.percent || existingNgoJot.percent
 
-				if (existingNgoJot.percent == 0) {
-					await existingNgoJot.destroy({
+			// if the record exists, update the percent value
+			if (existingRecord) {
+				existingRecord.percent =
+					prev_state[i]?.percent || existingRecord.percent;
+
+				if (
+					existingRecord.percent == 0 ||
+					existingRecord.percent == null ||
+					existingRecord.percent === ''
+				) {
+					await existingRecord.destroy({
 						where: {
-							id: req.body.id
-						}
-					})
+							id: req.body.id,
+						},
+					});
 				} else {
-					await existingNgoJot.save();
+					await existingRecord.save();
 				}
-			} else if (ngo_jot_id[i]?.ngo_jot_add_into_place) {
+			}
+			// if the record does not exist, create a new record
+			else {
 				await ngo_jot_add_into_places.create({
 					place_id: req.body.place_id,
-					ngo_jot_id: ngo_jot_id[i].id,
+					ngo_jot_id: prev_state[i].id,
 					district_id: req.body.district_id,
 					division_id: req.body.division_id,
-					percent: ngo_jot_id[i]?.ngo_jot_add_into_place.percent
-				})
+					percent: prev_state[i].percent,
+				});
 			}
 		}
+
 		// await ngo_jot_add_into_places.create(req.body);
 		return apiResponse.successResponse(res, 'Data successfully saved.');
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-*/
-
-
-exports.ngoJotAddIntoPlace = async (req, res) => {
-	try {
-		let ngo_jot_id = req.body.ngo_jot_id;
-		for (let i = 0; i < ngo_jot_id.length; i++) {
-			// find the existing record by ngo_jot_id and place_id
-			let existingNgoJot = await ngo_jot_add_into_places.findOne({
-				where: {
-					place_id: req.body.place_id,
-					ngo_jot_id: ngo_jot_id[i].id,
-				},
-			});
-			// if the record exists, update the percent value
-			if (existingNgoJot) {
-				existingNgoJot.percent = ngo_jot_id[i]?.ngo_jot_add_into_place?.percent || existingNgoJot.percent;
-				console.log('--------------kafi');
-
-				if (existingNgoJot.percent == 0) {
-					await existingNgoJot.destroy();
-				} else {
-					await existingNgoJot.save();
-				}
-			}
-			// if the record does not exist, create a new record
-			else if (ngo_jot_id[i]?.ngo_jot_add_into_place) {
-				await ngo_jot_add_into_places.create({
-					place_id: req.body.place_id,
-					ngo_jot_id: ngo_jot_id[i].id,
-					district_id: req.body.district_id,
-					division_id: req.body.division_id,
-					percent: ngo_jot_id[i].ngo_jot_add_into_place.percent,
-				});
-			}
-		}
-		return apiResponse.successResponse(res, 'Data successfully saved.');
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
 
 exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
 		const place_data = await ngo_jot_add_into_places.findAll({
 			include: [Place, ngo_jots, Division, District],
-			group:"place_id"
+			group: 'place_id',
 		});
 		return apiResponse.successResponseWithData(
 			res,
@@ -756,10 +929,24 @@ exports.ngoJotDeleteById = async (req, res) => {
 exports.categoryAlist = async (req, res) => {
 	try {
 		const [results, metadata] = await sequelize.query(
-			`select ngos.id as id , places.name as name, ngos.name as ngoname, ngos.color_code as color_code, ngos.short_name as short_name  from ngos INNER JOIN places on ngos.id = places.ngo_id`
+			//`select ngos.id as id , places.name as name, ngos.name as ngoname, ngos.color_code as color_code, ngos.short_name as short_name  from ngos INNER JOIN places on ngos.id = places.ngo_id`
+			`select 
+  ngos.id as id, 
+  places.name as name,
+  places.district_id as districtid,
+  places.division_id as divsionid,
+  ngos.name as ngoname, 
+  ngos.color_code as color_code, 
+  ngos.short_name as short_name 
+from 
+  ngos 
+  INNER JOIN places on ngos.id = places.ngo_id`
 		);
 
 		if (results.length > 0) {
+			{
+				//console.log(results);
+			}
 			return apiResponse.successResponseWithData(
 				res,
 				'Data fetch successfull.',
@@ -795,7 +982,7 @@ exports.categoryBlist = async (req, res) => {
 
 exports.categoryBlistID = async (req, res) => {
 	try {
-		const id = req.params.id
+		const id = req.params.id;
 		const [results, metadata] =
 			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name,Places.id as placeid , Places.district_id as districtid , Places.division_id as divisionid,
         ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.id =${id}`);

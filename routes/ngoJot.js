@@ -10,5 +10,5 @@ router.put('/update/:id', NgoJotController.update);
 router.get('/get_details/:id', NgoJotController.get_details);
 router.get('/get_details', NgoJotController.get_detailsAll);
 router.delete('/delete/:id', NgoJotController.delete);
-router.get('/get_ngojot_list_by_place/:id', NgoJotController.fetchall_ngojot_by_place);
+router.get('/get_detailsbyplaceid/:id', NgoJotController.get_detailsAllbyplaceid);
 module.exports = router;

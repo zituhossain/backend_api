@@ -1,25 +1,19 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class ngo_details_info_point_wise extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
     }
   }
-  ngo_details_info_point_wise.init({
+  ngo_details_info_point_wise.init(
+  {
     details: DataTypes.STRING,
     place_id: DataTypes.INTEGER,
     createdby: DataTypes.INTEGER,
     ngo_details_info_id: DataTypes.INTEGER,
     view_order: { type: DataTypes.INTEGER, allowNull: true },
-  }, {
+  },
+  {
     sequelize,
     modelName: 'ngo_details_info_point_wise',
   });

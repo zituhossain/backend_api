@@ -1,5 +1,5 @@
 const {Op} = require('sequelize');
-const {ngo_jots } = require("../models");
+const {ngo_jots, ngo_jot_add_into_places } = require("../models");
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
@@ -54,14 +54,30 @@ exports.get_detailsAll = async(req,res)=>{
     }
 }
 
-exports.delete = async(req,res)=>{
+exports.get_detailsAllbyplaceid = async (req, res) => {
+    try {
+        const placeid = req.params.id
+        const data = await ngo_jots.findAll();
+        const percent = await ngo_jot_add_into_places.findAll({where: {place_id: placeid} })
+        var result = {
+            data: data,
+            percent: percent
+        }
+        return apiResponse.successResponseWithData(res, "Data successfully fetched.", result)
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
+exports.delete = async (req, res) => {
     const id = req.params.id;
-    try{
-         const data = await ngo_jots.destroy({ where: { id } });
-         return apiResponse.successResponse(res, "Data successfully deleted.")
-        
-    }catch(err){
-        return apiResponse.ErrorResponse(res,err.message)
+    try {
+        const data = await ngo_jots.destroy({ where: { id } });
+        return apiResponse.successResponse(res, "Data successfully deleted.")
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
     }
 }
 

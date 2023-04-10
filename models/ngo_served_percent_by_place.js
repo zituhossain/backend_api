@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ngo_served_percent_by_palces',
+    tableName: 'ngo_served_percent_by_palces',
   });
   NgoServed.associate = models => {
     NgoServed.belongsTo(models.Division, {

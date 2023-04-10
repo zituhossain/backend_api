@@ -3,7 +3,7 @@ const { Ngo, year_place_ngo_officer, Officer, ngo_categories, Place, ngo_categor
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
-// var Sequelize = require('sequelize');
+var Sequelize = require('sequelize');
 
 exports.create_ngo = async (req, res) => {
     try {
@@ -125,24 +125,42 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         //       }],
         //     group:['ngo_id']
         // });
-        const [year_id, metadata] = await sequelize.query(`SELECT max(id) as id FROM years npi`);
-        const ngo_data = await year_place_ngo_officer.findAll({
-            where: {
-                place_id,
-                ngo_id: {
-                    [Op.ne]: null
-                }, year_id: year_id[0].id
-            },
-            include: [{
-                model: Ngo
-            },
-            {
-                model: Place, where: { id: place_id }
-            },
-            {
-                model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
-            }],
-            group: ['ngo_id']
+        // const [year_id, metadata] = await sequelize.query(`SELECT max(id) as id FROM years npi`);
+        // const ngo_data = await year_place_ngo_officer.findAll({
+        //     where: {
+        //         place_id,
+        //         ngo_id: {
+        //             [Op.ne]: null
+        //         }, year_id: year_id[0].id
+        //     },
+        //     include: [{
+        //         model: Ngo
+        //     },
+        //     {
+        //         model: Place, where: { id: place_id }
+        //     },
+        //     {
+        //         model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
+        //     }],
+        //     group: ['ngo_id']
+        // });
+        const ngo_data = await Ngo.findAll({
+            // where: {
+            //     place_id,
+            //     ngo_id: {
+            //         [Op.ne]: null
+            //     }, year_id: year_id[0].id
+            // },
+            // include: [{
+            //     model: Ngo
+            // },
+            // {
+            //     model: Place, where: { id: place_id }
+            // },
+            // {
+            //     model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
+            // }],
+            // group: ['ngo_id']
         });
 
         if (ngo_data.length > 0) {
@@ -159,6 +177,7 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 */}
 exports.fetchall_ngo_by_place = async (req, res) => {
     const place_id = req.params.id;
+    //const place_id = 1;
     try {
         const ngo_data = await Ngo.findAll({
             include: [
@@ -167,28 +186,32 @@ exports.fetchall_ngo_by_place = async (req, res) => {
                     where: { place_id: place_id },
                     required: false,
                 },
+                
                 // {
                 //     model: Place,
                 //     where: { id: place_id },
                 //     required: false,
                 // }
-            ]
+            ],
+            order: [
+              Sequelize.fn("isnull", Sequelize.col("view_order")),
+              ['view_order', 'ASC']
+            ],
         });
 
         const place_data = await Place.findOne({ where: { id: place_id }, raw: true });
-
 
         // Create a new array that contains the NGO id, name, and percent
 
         const result = [];
         ngo_data.forEach((ngo) => {
-        console.log("-----------------------------ngo_data--------------------------",ngo.Place)
             const percentData = ngo.ngo_served_percent_by_palces;
             const percent = percentData && percentData.length > 0 ? percentData[0].percent : null;
-            result.push({ id: ngo.id, name: ngo.name, percent , ngoID : place_data?.ngo_id});
+            result.push({ id: ngo.id, name: ngo.name, percent ,divisionid: place_data?.division_id,districtid: place_data?.district_id, ngoID : place_data?.ngo_id});
         });
 
         if (result.length > 0) {
+            //console.log(result);
             return apiResponse.successResponseWithData(res, "Data fetch successful.", result);
         } else {
             return apiResponse.ErrorResponse(res, "No data found!!!");
@@ -252,8 +275,8 @@ exports.update_ngo = async (req, res) => {
     try {
         const filePath = `uploads/logo/${req.file.filename}`;
         req.body.logo = filePath;
+        
     } catch (err) {
-
     }
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -261,6 +284,14 @@ exports.update_ngo = async (req, res) => {
         const userId = decodedToken._id;
         req.body.updated_by = userId;
         const ngo_data = await Ngo.findAll({ where: { id: ngo_id } });
+        if(req.body.view_order==''){
+            req.body.view_order=null;
+        }
+        if(req.body.ngo_jots_id==''){
+            req.body.ngo_jots_id=null;
+        }
+        //req.body.view_order=1;
+        //req.body.ngo_jot_id=null;
         if (ngo_data.length > 0) {
             if (req.body) {
                 await Ngo.update(req.body, { where: { id: ngo_id } });

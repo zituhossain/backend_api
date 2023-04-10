@@ -22,4 +22,3 @@ router.get('/get_all_updated_data_log_from_mongo', auth, YearPlaceNgoOfficerCont
 
 
 module.exports = router;
-

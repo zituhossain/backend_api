@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 	Sub_place.init(
 		{
 			name: DataTypes.STRING,
-			area: DataTypes.STRING,
+			comments: DataTypes.STRING,
 			place_id: DataTypes.INTEGER,
 			assigned_officer: DataTypes.STRING,
 			officer_phone: DataTypes.STRING,
