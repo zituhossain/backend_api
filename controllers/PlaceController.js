@@ -582,8 +582,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = ' +
-				place_id +
-				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+			place_id +
+			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -823,12 +823,9 @@ exports.ngoJotAddIntoPlace = async (req, res) => {
 			let existingRecord = await ngo_jot_add_into_places.findOne({
 				where: {
 					place_id: req.body.place_id,
-					ngo_jot_id: ngo_jot_id[i].id
-				}
+					ngo_jot_id: prev_state[i].id,
+				},
 			});
-			// if th record exist, update the percent value
-			if (existingNgoJot) {
-				existingNgoJot.percent = ngo_jot_id[i]?.ngo_jot_add_into_place?.percent || existingNgoJot.percent
 
 			// if the record exists, update the percent value
 			if (existingRecord) {
@@ -868,69 +865,69 @@ exports.ngoJotAddIntoPlace = async (req, res) => {
 	}
 };
 
-exports.allNgoJotAddIntoPlace = async (req, res) => {
-	try {
-		const place_data = await ngo_jot_add_into_places.findAll({
-			include: [Place, ngo_jots, Division, District],
-			group: 'place_id',
-		});
-		return apiResponse.successResponseWithData(
-			res,
-			'Data successfully fetched.',
-			place_data
-		);
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	exports.allNgoJotAddIntoPlace = async (req, res) => {
+		try {
+			const place_data = await ngo_jot_add_into_places.findAll({
+				include: [Place, ngo_jots, Division, District],
+				group: 'place_id',
+			});
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				place_data
+			);
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
 
 
-exports.getNgoJotAddIntoPlaceId = async (req, res) => {
-	const place_id = req.params.id;
-	try {
-		const place_data = await ngo_jot_add_into_places.findAll({
-			include: [Place, ngo_jots, Division, District],
-			where: { place_id },
-		});
-		return apiResponse.successResponseWithData(
-			res,
-			'Data successfully fetched.',
-			place_data
-		);
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-exports.getNgoJotById = async (req, res) => {
-	const id = req.params.id;
-	try {
-		const place_data = await ngo_jot_add_into_places.findByPk(id, {
-			include: [Place, ngo_jots, Division, District],
-		});
-		return apiResponse.successResponseWithData(
-			res,
-			'Data successfully fetched.',
-			place_data
-		);
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-exports.ngoJotDeleteById = async (req, res) => {
-	const id = req.params.id;
-	try {
-		await ngo_jot_add_into_places.destroy({ where: { id } });
-		return apiResponse.successResponse(res, 'Data successfully deleted.');
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	exports.getNgoJotAddIntoPlaceId = async (req, res) => {
+		const place_id = req.params.id;
+		try {
+			const place_data = await ngo_jot_add_into_places.findAll({
+				include: [Place, ngo_jots, Division, District],
+				where: { place_id },
+			});
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				place_data
+			);
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+	exports.getNgoJotById = async (req, res) => {
+		const id = req.params.id;
+		try {
+			const place_data = await ngo_jot_add_into_places.findByPk(id, {
+				include: [Place, ngo_jots, Division, District],
+			});
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				place_data
+			);
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+	exports.ngoJotDeleteById = async (req, res) => {
+		const id = req.params.id;
+		try {
+			await ngo_jot_add_into_places.destroy({ where: { id } });
+			return apiResponse.successResponse(res, 'Data successfully deleted.');
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
 
-exports.categoryAlist = async (req, res) => {
-	try {
-		const [results, metadata] = await sequelize.query(
-			//`select ngos.id as id , places.name as name, ngos.name as ngoname, ngos.color_code as color_code, ngos.short_name as short_name  from ngos INNER JOIN places on ngos.id = places.ngo_id`
-			`select 
+	exports.categoryAlist = async (req, res) => {
+		try {
+			const [results, metadata] = await sequelize.query(
+				//`select ngos.id as id , places.name as name, ngos.name as ngoname, ngos.color_code as color_code, ngos.short_name as short_name  from ngos INNER JOIN places on ngos.id = places.ngo_id`
+				`select 
   ngos.id as id, 
   places.name as name,
   places.district_id as districtid,
@@ -941,461 +938,461 @@ exports.categoryAlist = async (req, res) => {
 from 
   ngos 
   INNER JOIN places on ngos.id = places.ngo_id`
-		);
-
-		if (results.length > 0) {
-			{
-				//console.log(results);
-			}
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				results
 			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
 
-exports.categoryBlist = async (req, res) => {
-	try {
-		const [results, metadata] =
-			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, places.id as placeid , places.district_id as districtid , places.division_id as divisionid,
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
-
-		if (results.length > 0) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				results
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-exports.categoryBlistID = async (req, res) => {
-	try {
-		const id = req.params.id;
-		const [results, metadata] =
-			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name,Places.id as placeid , Places.district_id as districtid , Places.division_id as divisionid,
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.id =${id}`);
-
-		if (results.length > 0) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				results
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-exports.categoryBColor = async (req, res) => {
-	try {
-		const [results, metadata] =
-			await sequelize.query(`select places.id as id , ngo_categories.name as categoryname , places.name as name, 
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from places INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
-
-		if (results.length > 0) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				results
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-// Sub Place Controller
-exports.createSubPlace = async (req, res) => {
-	try {
-		if (
-			req.body.name &&
-			// req.body.area &&
-			req.body.place_id
-			// req.body.assigned_officer &&
-			// req.body.officer_phone &&
-			// req.body.population &&
-			// req.body.type
-		) {
-			const if_place_exists = await Sub_place.findOne({
-				where: { name: req.body.name },
-			});
-			if (if_place_exists) {
-				return apiResponse.ErrorResponse(
+			if (results.length > 0) {
+				{
+					//console.log(results);
+				}
+				return apiResponse.successResponseWithData(
 					res,
-					'Place already found in database.'
+					'Data fetch successfull.',
+					results
 				);
 			} else {
-				await Sub_place.create(req.body);
-				return apiResponse.successResponse(res, 'Data successfully saved.');
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
 			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'name/area is missing.');
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-exports.fetchallSubPlace = async (req, res) => {
-	try {
-		const sub_place_data = await Sub_place.findAll({
-			include: [
-				{
-					model: Place,
-				},
-				{
-					model: Upazilla,
-				},
-				{
-					model: Union,
-				},
-			],
-		});
-		if (sub_place_data) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				sub_place_data
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
+	exports.categoryBlist = async (req, res) => {
+		try {
+			const [results, metadata] =
+				await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, places.id as placeid , places.district_id as districtid , places.division_id as divisionid,
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
+
+			if (results.length > 0) {
+				return apiResponse.successResponseWithData(
+					res,
+					'Data fetch successfull.',
+					results
+				);
+			} else {
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-exports.fetchSubPlaceByPlaceId = async (req, res) => {
-	try {
-		const id = req.params.id;
-		const sub_place_data = await Upazilla.findAll({
-			include: [
-				// {
-				// 	model: Place,
-				// },
-				// {
-				// 	model: Upazilla,
-				// },
-				{
-					model: Union,
-					include: [
-						{
-							model: Sub_place,
-						},
-					],
-				},
-			],
-			where: { place_id: id },
-		});
-		if (sub_place_data) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				sub_place_data
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
+	exports.categoryBlistID = async (req, res) => {
+		try {
+			const id = req.params.id;
+			const [results, metadata] =
+				await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , Places.name as name,Places.id as placeid , Places.district_id as districtid , Places.division_id as divisionid,
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN Places on ngo_category_bs.place_id = Places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.id =${id}`);
+
+			if (results.length > 0) {
+				return apiResponse.successResponseWithData(
+					res,
+					'Data fetch successfull.',
+					results
+				);
+			} else {
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-exports.updateSubPlace = async (req, res) => {
-	try {
-		const sub_place_id = req.params.id;
-		const sub_place_data = await Sub_place.findOne({
-			where: { id: sub_place_id },
-		});
-		if (sub_place_data) {
+	exports.categoryBColor = async (req, res) => {
+		try {
+			const [results, metadata] =
+				await sequelize.query(`select places.id as id , ngo_categories.name as categoryname , places.name as name, 
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from places INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
+
+			if (results.length > 0) {
+				return apiResponse.successResponseWithData(
+					res,
+					'Data fetch successfull.',
+					results
+				);
+			} else {
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+
+	// Sub Place Controller
+	exports.createSubPlace = async (req, res) => {
+		try {
 			if (
 				req.body.name &&
 				// req.body.area &&
-				req.body.place_id &&
+				req.body.place_id
 				// req.body.assigned_officer &&
 				// req.body.officer_phone &&
 				// req.body.population &&
 				// req.body.type
-				req.body.name !== ''
 			) {
-				await Sub_place.update(req.body, {
-					where: { id: sub_place_id },
+				const if_place_exists = await Sub_place.findOne({
+					where: { name: req.body.name },
 				});
-				return apiResponse.successResponse(res, 'data successfully updated!!!');
+				if (if_place_exists) {
+					return apiResponse.ErrorResponse(
+						res,
+						'Place already found in database.'
+					);
+				} else {
+					await Sub_place.create(req.body);
+					return apiResponse.successResponse(res, 'Data successfully saved.');
+				}
 			} else {
-				return apiResponse.ErrorResponse(res, 'name is missing.');
+				return apiResponse.ErrorResponse(res, 'name/area is missing.');
 			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-exports.deleteSubPlace = async (req, res) => {
-	try {
-		const sub_place_id = req.params.id;
-		const sub_place_data = await Sub_place.findOne({
-			where: { id: sub_place_id },
-		});
-		if (sub_place_data) {
-			await Sub_place.destroy({
+	exports.fetchallSubPlace = async (req, res) => {
+		try {
+			const sub_place_data = await Sub_place.findAll({
+				include: [
+					{
+						model: Place,
+					},
+					{
+						model: Upazilla,
+					},
+					{
+						model: Union,
+					},
+				],
+			});
+			if (sub_place_data) {
+				return apiResponse.successResponseWithData(
+					res,
+					'Data fetch successfull.',
+					sub_place_data
+				);
+			} else {
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+
+	exports.fetchSubPlaceByPlaceId = async (req, res) => {
+		try {
+			const id = req.params.id;
+			const sub_place_data = await Upazilla.findAll({
+				include: [
+					// {
+					// 	model: Place,
+					// },
+					// {
+					// 	model: Upazilla,
+					// },
+					{
+						model: Union,
+						include: [
+							{
+								model: Sub_place,
+							},
+						],
+					},
+				],
+				where: { place_id: id },
+			});
+			if (sub_place_data) {
+				return apiResponse.successResponseWithData(
+					res,
+					'Data fetch successfull.',
+					sub_place_data
+				);
+			} else {
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+
+	exports.updateSubPlace = async (req, res) => {
+		try {
+			const sub_place_id = req.params.id;
+			const sub_place_data = await Sub_place.findOne({
 				where: { id: sub_place_id },
 			});
-			return apiResponse.successResponse(res, 'Data successfully deleted.');
-		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
+			if (sub_place_data) {
+				if (
+					req.body.name &&
+					// req.body.area &&
+					req.body.place_id &&
+					// req.body.assigned_officer &&
+					// req.body.officer_phone &&
+					// req.body.population &&
+					// req.body.type
+					req.body.name !== ''
+				) {
+					await Sub_place.update(req.body, {
+						where: { id: sub_place_id },
+					});
+					return apiResponse.successResponse(res, 'data successfully updated!!!');
+				} else {
+					return apiResponse.ErrorResponse(res, 'name is missing.');
+				}
+			} else {
+				return apiResponse.ErrorResponse(res, 'No matching query found');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-// Upazila Controller
-exports.createUpazila = async (req, res) => {
-	try {
-		if (req.body.name && req.body.place_id) {
-			const if_upazila_exists = await Upazilla.findOne({
-				where: { name: req.body.name },
+	exports.deleteSubPlace = async (req, res) => {
+		try {
+			const sub_place_id = req.params.id;
+			const sub_place_data = await Sub_place.findOne({
+				where: { id: sub_place_id },
 			});
-			if (if_upazila_exists) {
-				return apiResponse.ErrorResponse(
+			if (sub_place_data) {
+				await Sub_place.destroy({
+					where: { id: sub_place_id },
+				});
+				return apiResponse.successResponse(res, 'Data successfully deleted.');
+			} else {
+				return apiResponse.ErrorResponse(res, 'No matching query found');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+
+	// Upazila Controller
+	exports.createUpazila = async (req, res) => {
+		try {
+			if (req.body.name && req.body.place_id) {
+				const if_upazila_exists = await Upazilla.findOne({
+					where: { name: req.body.name },
+				});
+				if (if_upazila_exists) {
+					return apiResponse.ErrorResponse(
+						res,
+						'Upazilla already found in database.'
+					);
+				} else {
+					await Upazilla.create(req.body);
+					return apiResponse.successResponse(res, 'Data successfully saved.');
+				}
+			} else {
+				return apiResponse.ErrorResponse(res, 'name/place is missing.');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+
+	exports.fetchallUpazila = async (req, res) => {
+		try {
+			const upazilla_data = await Upazilla.findAll({
+				include: [
+					{
+						model: Place,
+					},
+				],
+			});
+			if (upazilla_data) {
+				return apiResponse.successResponseWithData(
 					res,
-					'Upazilla already found in database.'
+					'Data fetch successfull.',
+					upazilla_data
 				);
 			} else {
-				await Upazilla.create(req.body);
-				return apiResponse.successResponse(res, 'Data successfully saved.');
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
 			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'name/place is missing.');
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-exports.fetchallUpazila = async (req, res) => {
-	try {
-		const upazilla_data = await Upazilla.findAll({
-			include: [
-				{
-					model: Place,
-				},
-			],
-		});
-		if (upazilla_data) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				upazilla_data
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-exports.fetchallUpazilaByPlaceId = async (req, res) => {
-	try {
-		const id = req.params.id;
-		const upazilla_data = await Upazilla.findAll({
-			include: [
-				{
-					model: Place,
-				},
-			],
-			where: { place_id: id },
-		});
-		if (upazilla_data) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				upazilla_data
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-exports.updateUpazila = async (req, res) => {
-	try {
-		const upazilla_id = req.params.id;
-		const upazilla_data = await Upazilla.findOne({
-			where: { id: upazilla_id },
-		});
-		if (upazilla_data) {
-			if (req.body.name && req.body.place_id && req.body.name !== '') {
-				await Upazilla.update(req.body, {
-					where: { id: upazilla_id },
-				});
-				return apiResponse.successResponse(res, 'data successfully updated!!!');
+	exports.fetchallUpazilaByPlaceId = async (req, res) => {
+		try {
+			const id = req.params.id;
+			const upazilla_data = await Upazilla.findAll({
+				include: [
+					{
+						model: Place,
+					},
+				],
+				where: { place_id: id },
+			});
+			if (upazilla_data) {
+				return apiResponse.successResponseWithData(
+					res,
+					'Data fetch successfull.',
+					upazilla_data
+				);
 			} else {
-				return apiResponse.ErrorResponse(res, 'name is missing.');
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
 			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-exports.deleteUpazila = async (req, res) => {
-	try {
-		const upazilla_id = req.params.id;
-		const upazilla_data = await Upazilla.findOne({
-			where: { id: upazilla_id },
-		});
-		if (upazilla_data) {
-			await Upazilla.destroy({
+	exports.updateUpazila = async (req, res) => {
+		try {
+			const upazilla_id = req.params.id;
+			const upazilla_data = await Upazilla.findOne({
 				where: { id: upazilla_id },
 			});
-			return apiResponse.successResponse(res, 'Data successfully deleted.');
-		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
+			if (upazilla_data) {
+				if (req.body.name && req.body.place_id && req.body.name !== '') {
+					await Upazilla.update(req.body, {
+						where: { id: upazilla_id },
+					});
+					return apiResponse.successResponse(res, 'data successfully updated!!!');
+				} else {
+					return apiResponse.ErrorResponse(res, 'name is missing.');
+				}
+			} else {
+				return apiResponse.ErrorResponse(res, 'No matching query found');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-// Union Controller
-exports.createUnion = async (req, res) => {
-	try {
-		if (req.body.name && req.body.upazilla_id) {
-			const if_union_exists = await Union.findOne({
-				where: { name: req.body.name },
+	exports.deleteUpazila = async (req, res) => {
+		try {
+			const upazilla_id = req.params.id;
+			const upazilla_data = await Upazilla.findOne({
+				where: { id: upazilla_id },
 			});
-			if (if_union_exists) {
-				return apiResponse.ErrorResponse(
+			if (upazilla_data) {
+				await Upazilla.destroy({
+					where: { id: upazilla_id },
+				});
+				return apiResponse.successResponse(res, 'Data successfully deleted.');
+			} else {
+				return apiResponse.ErrorResponse(res, 'No matching query found');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+
+	// Union Controller
+	exports.createUnion = async (req, res) => {
+		try {
+			if (req.body.name && req.body.upazilla_id) {
+				const if_union_exists = await Union.findOne({
+					where: { name: req.body.name },
+				});
+				if (if_union_exists) {
+					return apiResponse.ErrorResponse(
+						res,
+						'Union already found in database.'
+					);
+				} else {
+					await Union.create(req.body);
+					return apiResponse.successResponse(res, 'Data successfully saved.');
+				}
+			} else {
+				return apiResponse.ErrorResponse(res, 'name/upazilla is missing.');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
+
+	exports.fetchallUnion = async (req, res) => {
+		try {
+			const union_data = await Union.findAll({
+				include: [
+					{
+						model: Upazilla,
+					},
+				],
+			});
+			if (union_data) {
+				return apiResponse.successResponseWithData(
 					res,
-					'Union already found in database.'
+					'Data fetch successfull.',
+					union_data
 				);
 			} else {
-				await Union.create(req.body);
-				return apiResponse.successResponse(res, 'Data successfully saved.');
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
 			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'name/upazilla is missing.');
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-exports.fetchallUnion = async (req, res) => {
-	try {
-		const union_data = await Union.findAll({
-			include: [
-				{
-					model: Upazilla,
-				},
-			],
-		});
-		if (union_data) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				union_data
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-exports.fetchallUnionByUpazilaId = async (req, res) => {
-	try {
-		const id = req.params.id;
-		const union_data = await Union.findAll({
-			include: [
-				{
-					model: Upazilla,
-				},
-			],
-			where: { upazilla_id: id },
-		});
-		if (union_data) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				union_data
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No data found!!!');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-exports.updateUnion = async (req, res) => {
-	try {
-		const union_id = req.params.id;
-		const union_data = await Union.findOne({
-			where: { id: union_id },
-		});
-		if (union_data) {
-			if (req.body.name && req.body.upazilla_id && req.body.name !== '') {
-				await Union.update(req.body, {
-					where: { id: union_id },
-				});
-				return apiResponse.successResponse(res, 'data successfully updated!!!');
+	exports.fetchallUnionByUpazilaId = async (req, res) => {
+		try {
+			const id = req.params.id;
+			const union_data = await Union.findAll({
+				include: [
+					{
+						model: Upazilla,
+					},
+				],
+				where: { upazilla_id: id },
+			});
+			if (union_data) {
+				return apiResponse.successResponseWithData(
+					res,
+					'Data fetch successfull.',
+					union_data
+				);
 			} else {
-				return apiResponse.ErrorResponse(res, 'name is missing.');
+				return apiResponse.ErrorResponse(res, 'No data found!!!');
 			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
 
-exports.deleteUnion = async (req, res) => {
-	try {
-		const union_id = req.params.id;
-		const union_data = await Union.findOne({
-			where: { id: union_id },
-		});
-		if (union_data) {
-			await Union.destroy({
+	exports.updateUnion = async (req, res) => {
+		try {
+			const union_id = req.params.id;
+			const union_data = await Union.findOne({
 				where: { id: union_id },
 			});
-			return apiResponse.successResponse(res, 'Data successfully deleted.');
-		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
+			if (union_data) {
+				if (req.body.name && req.body.upazilla_id && req.body.name !== '') {
+					await Union.update(req.body, {
+						where: { id: union_id },
+					});
+					return apiResponse.successResponse(res, 'data successfully updated!!!');
+				} else {
+					return apiResponse.ErrorResponse(res, 'name is missing.');
+				}
+			} else {
+				return apiResponse.ErrorResponse(res, 'No matching query found');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
 		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+	};
+
+	exports.deleteUnion = async (req, res) => {
+		try {
+			const union_id = req.params.id;
+			const union_data = await Union.findOne({
+				where: { id: union_id },
+			});
+			if (union_data) {
+				await Union.destroy({
+					where: { id: union_id },
+				});
+				return apiResponse.successResponse(res, 'Data successfully deleted.');
+			} else {
+				return apiResponse.ErrorResponse(res, 'No matching query found');
+			}
+		} catch (err) {
+			return apiResponse.ErrorResponse(res, err.message);
+		}
+	};
 // select sum(pyp.total_population) as tota_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female from population_year_places pyp left join places on places.id = pyp.place_id where district_id = 1 group by pyp.place_id
 
 // SELECT year_id,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id left join places on places.id=ypno.place_id where places.district_id = 1 group by ypno.year_id,ypno.place_id order by ypno.year_id desc

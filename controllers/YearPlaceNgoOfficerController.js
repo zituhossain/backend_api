@@ -545,7 +545,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
                         user_id: userId,
                         officer_id: req.body.officer_id,
                         year_id: newYearPlaceNgoofficer.year_id,
-                        datetime: Date(),
+                        datetime: new Date(),
                         ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
                         localMachineIP: IP.address(),
                         oldValues: {
@@ -677,8 +677,8 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 		// Combine the data into an object
 		const combinedData = log.map((data) => ({
 				username: userData.find((user) => user.id == data.user_id)?.username ?? null,
-				officerName: officerData.find((officer) => officer.id == data.officer_id)?.name ?? null,
-                yearName: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+				officer: officerData.find((officer) => officer.id == data.officer_id)?.name ?? null,
+                year: yearData.find((year) => year.id == data.year_id)?.name ?? null,
                 ip: data.ip,
                 dataTime: data.datetime,
                 table: {
@@ -687,10 +687,10 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
                 },
                 oldValues: {
                     year_place_ngo_officers: {
-                        placeName: placeData.find((place) => place.id == data.oldValues.year_place_ngo_officer.place_id)?.name ?? null,
-                        yearName: yearData.find((year) => year.id == data.year_id)?.name ?? null,
-                        ngoName: ngoData.find((nog) => nog.id == data.oldValues.year_place_ngo_officer.ngo_id)?.name ?? null,
-                        officerName: officerData.find((officer) => officer.id == data.oldValues.year_place_ngo_officer.officer_id)?.name ?? null,
+                        place: placeData.find((place) => place.id == data.oldValues.year_place_ngo_officer.place_id)?.name ?? null,
+                        year: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+                        ngo: ngoData.find((nog) => nog.id == data.oldValues.year_place_ngo_officer.ngo_id)?.name ?? null,
+                        officer: officerData.find((officer) => officer.id == data.oldValues.year_place_ngo_officer.officer_id)?.name ?? null,
                         served_population: data.oldValues.year_place_ngo_officer.served_population,
                         percent_served: data.oldValues.year_place_ngo_officer.percent_served,
                         rank: data.oldValues.year_place_ngo_officer.rank,
@@ -705,10 +705,10 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
                 },
                 newValues: {
                     year_place_ngo_officers: {
-                        placeName: placeData.find((place) => place.id == data.newValues.year_place_ngo_officer.place_id)?.name ?? null,
-                        yearName: yearData.find((year) => year.id == data.year_id)?.name ?? null,
-                        ngoName: ngoData.find((nog) => nog.id == data.newValues.year_place_ngo_officer.ngo_id)?.name ?? null,
-                        officerName: officerData.find((officer) => officer.id == data.newValues.year_place_ngo_officer.officer_id)?.name ?? null,
+                        place: placeData.find((place) => place.id == data.newValues.year_place_ngo_officer.place_id)?.name ?? null,
+                        year: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+                        ngo: ngoData.find((nog) => nog.id == data.newValues.year_place_ngo_officer.ngo_id)?.name ?? null,
+                        officer: officerData.find((officer) => officer.id == data.newValues.year_place_ngo_officer.officer_id)?.name ?? null,
                         served_population: data.newValues.year_place_ngo_officer.served_population,
                         percent_served: data.newValues.year_place_ngo_officer.percent_served,
                         rank: data.newValues.year_place_ngo_officer.rank,
