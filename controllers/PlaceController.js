@@ -395,12 +395,12 @@ exports.addCategoryB = async (req, res) => {
 			console.log('==================>', req.body.datas);
 
 			// Delete data that was not selected in the radio
-			await ngo_category_b.destroy({
-				where: {
-					place_id: req.body.place_id,
-					id: { [Sequelize.Op.notIn]: req.body.datas.map((d) => d.id) },
-				},
-			});
+			// await ngo_category_b.destroy({
+			// 	where: {
+			// 		place_id: req.body.place_id,
+			// 		id: { [Sequelize.Op.notIn]: req.body.datas.map((d) => d.id) },
+			// 	},
+			// });
 
 			return apiResponse.successResponse(res, 'Data successfully saved.');
 		} else {
@@ -582,8 +582,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = ' +
-			place_id +
-			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+				place_id +
+				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
