@@ -23,6 +23,8 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			name: DataTypes.STRING,
 			upazilla_id: DataTypes.INTEGER,
+			comment: DataTypes.STRING,
+			population: DataTypes.INTEGER,
 		},
 		{
 			sequelize,
