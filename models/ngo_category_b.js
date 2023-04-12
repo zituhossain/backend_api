@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Ngo.init({
     
     ngo_category_id:DataTypes.INTEGER,
+    ngo_category_type_id: DataTypes.INTEGER,
     ngo_value:DataTypes.STRING,
     created_by: DataTypes.INTEGER,
     place_id: DataTypes.INTEGER,
@@ -31,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
       as:"category",
       targetKey: 'id',
       foreignKey: 'ngo_category_id',
+    });
+    Ngo.belongsTo(models.ngo_categories, {
+      as:"type",
+      targetKey: 'id',
+      foreignKey: 'ngo_category_type_id',
     });
     
   }
