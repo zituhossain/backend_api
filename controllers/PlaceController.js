@@ -395,12 +395,12 @@ exports.addCategoryB = async (req, res) => {
 			console.log('==================>', req.body.datas);
 
 			// Delete data that was not selected in the radio
-			// await ngo_category_b.destroy({
-			// 	where: {
-			// 		place_id: req.body.place_id,
-			// 		id: { [Sequelize.Op.notIn]: req.body.datas.map((d) => d.id) },
-			// 	},
-			// });
+			await ngo_category_b.destroy({
+				where: {
+					place_id: req.body.place_id,
+					id: { [Sequelize.Op.notIn]: req.body.datas.map((d) => d.id) },
+				},
+			});
 
 			return apiResponse.successResponse(res, 'Data successfully saved.');
 		} else {
