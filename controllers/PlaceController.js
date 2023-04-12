@@ -366,11 +366,14 @@ exports.placeConnectWithNgo = async (req, res) => {
 // 	}
 // };
 
+/*
 exports.addCategoryB = async (req, res) => {
 	try {
 		// Check if data already exists
 		const existingData = await ngo_category_b.findOne({
-			where: { place_id: req.body.place_id },
+			where: { 
+				place_id: req.body.place_id
+			},
 		});
 
 		if (req.body.place_id && req.body.datas) {
@@ -394,14 +397,7 @@ exports.addCategoryB = async (req, res) => {
 
 			console.log('==================>', req.body.datas);
 
-			// Delete data that was not selected in the radio
-			// await ngo_category_b.destroy({
-			// 	where: {
-			// 		place_id: req.body.place_id,
-			// 		id: { [Sequelize.Op.notIn]: req.body.datas.map((d) => d.id) },
-			// 	},
-			// });
-
+			
 			return apiResponse.successResponse(res, 'Data successfully saved.');
 		} else {
 			return apiResponse.ErrorResponse(
@@ -413,6 +409,61 @@ exports.addCategoryB = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+*/
+
+exports.addCategoryB = async (req, res) => {
+	try {
+		// Check if data already exists
+		const existingData = await ngo_category_b.findOne({
+			where: {
+				place_id: req.body.place_id,
+			},
+		});
+
+		if (req.body.place_id && req.body.datas) {
+			// Define allowed ngo_category_id values
+			const allowedNgoCategoryIds = req.body.ngo_category_id || [];
+
+			for (let index = 0; index < req.body.datas.length; index++) {
+				const element = req.body.datas[index];
+
+				// Insert or update record only if ngo_category_id is allowed
+				if (element && allowedNgoCategoryIds.includes(element.ngo_category_id)) {
+					element.place_id = req.body.place_id;
+
+					if (existingData) {
+						// Update existing data
+						await ngo_category_b.update(element, {
+							where: {
+								place_id: req.body.place_id,
+								ngo_category_id: element.ngo_category_id,
+							},
+						});
+					} else {
+						// Create new data
+						await ngo_category_b.create(element);
+					}
+				}
+			}
+
+			console.log('==================>', req.body.datas);
+
+			return apiResponse.successResponse(res, 'Data successfully saved.');
+		} else {
+			return apiResponse.ErrorResponse(
+				res,
+				'place_id or ngo_category_id is missing.'
+			);
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+
+
+
+
 
 // exports.placeDetails = async (req, res) => {
 // 	try {
@@ -582,8 +633,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = ' +
-				place_id +
-				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+			place_id +
+			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -738,6 +789,67 @@ exports.addNgoServedPercent = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+
+exports.createCategoryB = async (req, res) => {
+	try {
+		if (
+			req.body.place_id &&
+			req.body.ngo_category_id &&
+			req.body.ngo_category_type_id
+		) {
+			const existData = await ngo_category_b.findOne({
+				where: { place_id: req.body.place_id }
+			})
+
+			if (existData) {
+				return apiResponse.ErrorResponse(
+					res,
+					'ngo_category_b already found in database.'
+				);
+			} else {
+				await ngo_category_b.create(req.body);
+				return apiResponse.successResponse(res, 'Data successfully saved.');
+			}
+		} else {
+			return apiResponse.ErrorResponse(
+				res,
+				'ngo_category_b missing.'
+			);
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
+
+exports.updateCategoryB = async (req, res) => {
+	try {
+		if (
+			req.body.place_id &&
+			req.body.ngo_category_id &&
+			req.body.ngo_category_type_id
+		) {
+			const existData = await ngo_category_b.findOne({
+				where: { place_id: req.body.place_id }
+			})
+
+			if (existData) {
+				await ngo_category_b.update(req.body, { where: { place_id: req.body.place_id } });
+				return apiResponse.successResponse(res, 'Data successfully updated.');
+			} else {
+				return apiResponse.ErrorResponse(res, 'No matching data found.');
+			}
+		} else {
+			return apiResponse.ErrorResponse(
+				res,
+				'ngo_category_b missing.'
+			);
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
+
 exports.getNgoServedPercent = async (req, res) => {
 	const place_id = req.params.id;
 	try {
