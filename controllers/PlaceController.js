@@ -791,12 +791,10 @@ exports.addNgoServedPercent = async (req, res) => {
 };
 
 
-exports.createCategoryB = async (req, res) => {
+exports.createPlaceCategoryType = async (req, res) => {
 	try {
 		if (
-			req.body.place_id &&
-			req.body.ngo_category_id &&
-			req.body.ngo_category_type_id
+			req.body.place_id
 		) {
 			const existData = await ngo_category_b.findOne({
 				where: { place_id: req.body.place_id }
@@ -822,12 +820,10 @@ exports.createCategoryB = async (req, res) => {
 	}
 }
 
-exports.updateCategoryB = async (req, res) => {
+exports.updatePlaceCategoryType = async (req, res) => {
 	try {
 		if (
-			req.body.place_id &&
-			req.body.ngo_category_id &&
-			req.body.ngo_category_type_id
+			req.body.place_id
 		) {
 			const existData = await ngo_category_b.findOne({
 				where: { place_id: req.body.place_id }
