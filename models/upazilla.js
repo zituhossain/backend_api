@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
 			name: DataTypes.STRING,
 			place_id: DataTypes.INTEGER,
 			comment: DataTypes.STRING,
-			population: DataTypes.INTEGER,
+			population: { type: DataTypes.INTEGER, allowNull: true },
 		},
 		{
 			sequelize,
