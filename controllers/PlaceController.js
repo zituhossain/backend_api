@@ -428,7 +428,10 @@ exports.addCategoryB = async (req, res) => {
 				const element = req.body.datas[index];
 
 				// Insert or update record only if ngo_category_id is allowed
-				if (element && allowedNgoCategoryIds.includes(element.ngo_category_id)) {
+				if (
+					element &&
+					allowedNgoCategoryIds.includes(element.ngo_category_id)
+				) {
 					element.place_id = req.body.place_id;
 
 					if (existingData) {
@@ -459,11 +462,6 @@ exports.addCategoryB = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
-
-
-
-
 
 // exports.placeDetails = async (req, res) => {
 // 	try {
@@ -633,8 +631,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id  where ypno.place_id = ' +
-			place_id +
-			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+				place_id +
+				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -790,15 +788,12 @@ exports.addNgoServedPercent = async (req, res) => {
 	}
 };
 
-
 exports.createPlaceCategoryType = async (req, res) => {
 	try {
-		if (
-			req.body.place_id
-		) {
+		if (req.body.place_id) {
 			const existData = await ngo_category_b.findOne({
-				where: { place_id: req.body.place_id }
-			})
+				where: { place_id: req.body.place_id },
+			});
 
 			if (existData) {
 				return apiResponse.ErrorResponse(
@@ -810,41 +805,55 @@ exports.createPlaceCategoryType = async (req, res) => {
 				return apiResponse.successResponse(res, 'Data successfully saved.');
 			}
 		} else {
-			return apiResponse.ErrorResponse(
-				res,
-				'ngo_category_b missing.'
-			);
+			return apiResponse.ErrorResponse(res, 'ngo_category_b missing.');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 exports.updatePlaceCategoryType = async (req, res) => {
 	try {
-		if (
-			req.body.place_id
-		) {
+		if (req.body.place_id) {
 			const existData = await ngo_category_b.findOne({
-				where: { place_id: req.body.place_id }
-			})
+				where: { place_id: req.body.place_id },
+			});
 
 			if (existData) {
-				await ngo_category_b.update(req.body, { where: { place_id: req.body.place_id } });
+				await ngo_category_b.update(req.body, {
+					where: { place_id: req.body.place_id },
+				});
 				return apiResponse.successResponse(res, 'Data successfully updated.');
 			} else {
 				return apiResponse.ErrorResponse(res, 'No matching data found.');
 			}
 		} else {
-			return apiResponse.ErrorResponse(
-				res,
-				'ngo_category_b missing.'
-			);
+			return apiResponse.ErrorResponse(res, 'ngo_category_b missing.');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
+
+exports.getPlaceCategoryType = async (req, res) => {
+	try {
+		const [results, metadata] = await sequelize.query(
+			`SELECT ngo_category_bs.id as id, (SELECT name FROM ngo_categories WHERE type=1 AND id=ngo_category_bs.ngo_category_id) as categoryname, (SELECT name FROM ngo_categories WHERE type=0 AND id=ngo_category_bs.ngo_category_type_id) as typename, places.name as place_name, places.id as placeid, places.district_id as districtid, places.division_id as divisionid FROM ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id;`
+		);
+
+		if (results.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				results
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
 
 exports.getNgoServedPercent = async (req, res) => {
 	const place_id = req.params.id;

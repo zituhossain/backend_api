@@ -14,8 +14,15 @@ router.get('/divisionmap/:id', auth, PlaceController.getDivisionmap);
 
 router.post('/place_connect_with_ngo', PlaceController.placeConnectWithNgo);
 router.post('/add_category_b', PlaceController.addCategoryB);
-router.post('/create_place_category_type', PlaceController.createPlaceCategoryType);
-router.put('/update_place_category_type/:id', PlaceController.updatePlaceCategoryType);
+router.post(
+	'/create_place_category_type',
+	PlaceController.createPlaceCategoryType
+);
+router.put(
+	'/update_place_category_type/:id',
+	PlaceController.updatePlaceCategoryType
+);
+router.get('/get_place_category_type', PlaceController.getPlaceCategoryType);
 router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/place_details', PlaceController.placeDetailsAll);
 

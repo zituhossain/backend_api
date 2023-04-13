@@ -38,6 +38,7 @@ router.get(
 	'/get_ngo_categoris_by_place/:id',
 	NgoController.fetchNgoCategorisByPlace
 );
+// router.get('/get_ngo_type_by_place/:id', NgoController.fetchNgoTypeByPlace);
 router.get('/delete_by_id/:id', auth, NgoController.delete_by_id);
 router.get('/ngoCounter', auth, NgoController.NgoCounter);
 
