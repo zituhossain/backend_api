@@ -4,6 +4,7 @@ const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require("../helpers/apiResponse")
 var Sequelize = require('sequelize');
+const { where } = require('../models/mongo_models');
 
 exports.create_ngo = async (req, res) => {
     try {
@@ -82,7 +83,23 @@ exports.fetchOtherNgo = async (req, res) => {
 }
 exports.fetchNgoCategoris = async (req, res) => {
     try {
-        const ngo_data = await ngo_categories.findAll({ attributes: { exclude: ['createdAt', 'updatedAt'] }, });
+        const ngo_data = await ngo_categories.findAll({ attributes: { exclude: ['createdAt', 'updatedAt'] }, where: { type: 1 } });
+        if (ngo_data.length > 0) {
+
+            return apiResponse.successResponseWithData(res, "Data fetch successfull.", ngo_data)
+
+        } else {
+            return apiResponse.ErrorResponse(res, "No data found!!!")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
+exports.fetchNgoType = async (req, res) => {
+    try {
+        const ngo_data = await ngo_categories.findAll({ attributes: { exclude: ['createdAt', 'updatedAt'] }, where: { type: 0 } });
         if (ngo_data.length > 0) {
 
             return apiResponse.successResponseWithData(res, "Data fetch successfull.", ngo_data)
@@ -186,7 +203,7 @@ exports.fetchall_ngo_by_place = async (req, res) => {
                     where: { place_id: place_id },
                     required: false,
                 },
-                
+
                 // {
                 //     model: Place,
                 //     where: { id: place_id },
@@ -194,8 +211,8 @@ exports.fetchall_ngo_by_place = async (req, res) => {
                 // }
             ],
             order: [
-              Sequelize.fn("isnull", Sequelize.col("view_order")),
-              ['view_order', 'ASC']
+                Sequelize.fn("isnull", Sequelize.col("view_order")),
+                ['view_order', 'ASC']
             ],
         });
 
@@ -207,7 +224,7 @@ exports.fetchall_ngo_by_place = async (req, res) => {
         ngo_data.forEach((ngo) => {
             const percentData = ngo.ngo_served_percent_by_palces;
             const percent = percentData && percentData.length > 0 ? percentData[0].percent : null;
-            result.push({ id: ngo.id, name: ngo.name, percent ,divisionid: place_data?.division_id,districtid: place_data?.district_id, ngoID : place_data?.ngo_id});
+            result.push({ id: ngo.id, name: ngo.name, percent, divisionid: place_data?.division_id, districtid: place_data?.district_id, ngoID: place_data?.ngo_id });
         });
 
         if (result.length > 0) {
@@ -275,7 +292,7 @@ exports.update_ngo = async (req, res) => {
     try {
         const filePath = `uploads/logo/${req.file.filename}`;
         req.body.logo = filePath;
-        
+
     } catch (err) {
     }
     try {
@@ -284,11 +301,11 @@ exports.update_ngo = async (req, res) => {
         const userId = decodedToken._id;
         req.body.updated_by = userId;
         const ngo_data = await Ngo.findAll({ where: { id: ngo_id } });
-        if(req.body.view_order==''){
-            req.body.view_order=null;
+        if (req.body.view_order == '') {
+            req.body.view_order = null;
         }
-        if(req.body.ngo_jots_id==''){
-            req.body.ngo_jots_id=null;
+        if (req.body.ngo_jots_id == '') {
+            req.body.ngo_jots_id = null;
         }
         //req.body.view_order=1;
         //req.body.ngo_jot_id=null;
