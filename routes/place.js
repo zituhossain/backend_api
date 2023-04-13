@@ -22,7 +22,10 @@ router.put(
 	'/update_place_category_type/:id',
 	PlaceController.updatePlaceCategoryType
 );
-router.get('/get_place_category_type', PlaceController.getPlaceCategoryType);
+router.delete(
+	'/delete_place_category_type/:id',
+	PlaceController.deletePlaceCategoryType
+);
 router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/place_details', PlaceController.placeDetailsAll);
 
