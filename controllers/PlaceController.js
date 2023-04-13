@@ -844,6 +844,25 @@ exports.updatePlaceCategoryType = async (req, res) => {
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
+};
+
+exports.deletePlaceCategoryType = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const existData = await ngo_category_b.findOne({
+			where: { id: id },
+		});
+		if (existData) {
+			await ngo_category_b.destroy({
+				where: { id: id },
+			});
+			return apiResponse.successResponse(res, 'Data successfully deleted.');
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
 }
 
 exports.getNgoServedPercent = async (req, res) => {
