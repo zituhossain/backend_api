@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
 			place_id: DataTypes.INTEGER,
 			assigned_officer: DataTypes.STRING,
 			officer_phone: DataTypes.STRING,
-			population: DataTypes.STRING,
+			population: { type: DataTypes.INTEGER, allowNull: true },
 			type: DataTypes.STRING,
 		},
 		{
