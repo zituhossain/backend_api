@@ -16,11 +16,11 @@ module.exports = (sequelize, DataTypes) => {
   population_year_place.init({
     year_id: DataTypes.INTEGER,
     place_id: DataTypes.INTEGER,
-    total_population: DataTypes.BIGINT,
-    served_population: DataTypes.BIGINT,
-    male: DataTypes.BIGINT,
-    female: DataTypes.BIGINT,
-    minority: DataTypes.BIGINT
+    total_population: { type: DataTypes.INTEGER, allowNull: true },
+    served_population: { type: DataTypes.INTEGER, allowNull: true },
+    male: { type: DataTypes.INTEGER, allowNull: true },
+    female: { type: DataTypes.INTEGER, allowNull: true },
+    minority: { type: DataTypes.INTEGER, allowNull: true },
   }, {
     sequelize,
     modelName: 'population_year_place',
