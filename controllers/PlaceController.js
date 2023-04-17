@@ -287,8 +287,6 @@ GROUP BY
   places.id`
 		);
 		if (results) {
-			console.log("---------------------------------------kafi");
-			console.log(results);
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',
@@ -308,10 +306,10 @@ exports.getPlacesByDistrict = async (req, res) => {
 		const [results, metadata] = await sequelize.query(
 			//`select places.name,places.ngo_id,officers.name as officer_name,places.id as place_id,officers.image,officers.id as officer_id,ngos.name as ngo_name,places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id left join ngos on ngos.id = ypno.ngo_id left join ngos place_ngo on  place_ngo.id = places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = places.id left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where places.district_id = ${id} GROUP BY places.id`
 			`select 
-  places.id as place_id,
-  places.name as place_name,
-  places.ngo_id as place_ngo_id,
-  places.area as place_area,
+  places.id as place_id, 
+  places.name as place_name, 
+  places.ngo_id as place_ngo_id, 
+  places.area as place_area, 
   ngos.name as ngo_name,
   ngo_categories.color_code as categoryb_color, 
   ngo_categories.short_name as categoryb_name,
@@ -332,6 +330,7 @@ GROUP BY
   places.id`
 		);
 		if (results) {
+			console.log(results);
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',
@@ -1152,8 +1151,20 @@ exports.categoryBlistID = async (req, res) => {
 exports.categoryBColor = async (req, res) => {
 	try {
 		const [results, metadata] =
-			await sequelize.query(`select places.id as id , ngo_categories.name as categoryname , places.name as name, 
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from places INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
+			await sequelize.query(`
+				select 
+			  places.id as id, 
+			  ngo_categories.name as categoryname, 
+			  places.name as name, 
+			  ngo_categories.short_name as categoryShortName, 
+			  ngo_categories.color_code as color_code 
+			from 
+			  places 
+			  INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
+			  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id 
+			where 
+			  ngo_category_bs.status = "colorActive"
+			`);
 
 		if (results.length > 0) {
 			return apiResponse.successResponseWithData(
