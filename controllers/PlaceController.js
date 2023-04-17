@@ -15,6 +15,7 @@ const {
 	ngo_jots,
 	Division,
 	District,
+	ngo_categories,
 	ngo_category_b,
 	ngo_served_percent_by_palces,
 	ngo_jot_add_into_places,
@@ -252,6 +253,10 @@ exports.getDistrictByDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+// Select a.ID, a.Name, b.ID as Boss, b.Name as BossName
+// from Employees A
+// left join Employees B
+// on a.Boss = b.ID
 exports.getPlacesByDivision = async (req, res) => {
 	try {
 		const id = req.params.id;
@@ -264,19 +269,26 @@ exports.getPlacesByDivision = async (req, res) => {
   places.area as place_area,
   ngos.name as ngo_name,
   ngo_categories.color_code as categoryb_color, 
-  ngo_categories.short_name as categoryb_name 
+  ngo_categories.short_name as categoryb_name, 
+  ngo_categories.type as categoryb_type,
+  cat_type.type as type_type,
+  cat_type.short_name as type_short_name,
+  cat_type.name as type_name  
 from 
   places
   LEFT JOIN ngos on ngos.id = places.ngo_id
   LEFT JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
   AND ngo_category_bs.status = "colorActive" 
   LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id 
+  LEFT JOIN ngo_categories cat_type on ngo_category_bs.ngo_category_type_id = cat_type.id 
 where 
   places.division_id = ${id} 
 GROUP BY 
   places.id`
 		);
 		if (results) {
+			console.log("---------------------------------------kafi");
+			console.log(results);
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',
@@ -302,13 +314,18 @@ exports.getPlacesByDistrict = async (req, res) => {
   places.area as place_area,
   ngos.name as ngo_name,
   ngo_categories.color_code as categoryb_color, 
-  ngo_categories.short_name as categoryb_name 
+  ngo_categories.short_name as categoryb_name,
+  ngo_categories.type as categoryb_type,
+  cat_type.type as type_type,
+  cat_type.short_name as type_short_name,
+  cat_type.name as type_name  
 from 
   places
   LEFT JOIN ngos on ngos.id = places.ngo_id
   LEFT JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
   AND ngo_category_bs.status = "colorActive" 
   LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id 
+  LEFT JOIN ngo_categories cat_type on ngo_category_bs.ngo_category_type_id = cat_type.id 
 where 
   places.district_id = ${id} 
 GROUP BY 
