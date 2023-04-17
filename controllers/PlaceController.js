@@ -647,8 +647,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.bn_name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list, GROUP_CONCAT(ypno.served_population) population_list, GROUP_CONCAT(ypno.rank) rank_list, GROUP_CONCAT(officers.name) as officer_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id LEFT JOIN officers ON ypno.officer_id = officers.id  where ypno.place_id = ' +
-			place_id +
-			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+				place_id +
+				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -854,7 +854,7 @@ exports.updatePlaceCategoryType = async (req, res) => {
 exports.getPlaceCategoryType = async (req, res) => {
 	try {
 		const [results, metadata] = await sequelize.query(
-			`SELECT ngo_category_bs.id as id, (SELECT name FROM ngo_categories WHERE type=1 AND id=ngo_category_bs.ngo_category_id) as categoryname, (SELECT name FROM ngo_categories WHERE type=0 AND id=ngo_category_bs.ngo_category_type_id) as typename, places.name as place_name, places.id as placeid, places.district_id as districtid, places.division_id as divisionid FROM ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id;`
+			`SELECT ngo_category_bs.id as id, (SELECT name FROM ngo_categories WHERE type=1 AND id=ngo_category_bs.ngo_category_id) as categoryname, (SELECT name FROM ngo_categories WHERE type=0 AND id=ngo_category_bs.ngo_category_type_id) as typename, places.name as place_name, places.id as placeid, places.district_id as districtid, places.division_id as divisionid FROM ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id LEFT JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id;`
 		);
 
 		if (results.length > 0) {
@@ -1150,8 +1150,7 @@ exports.categoryBlistID = async (req, res) => {
 
 exports.categoryBColor = async (req, res) => {
 	try {
-		const [results, metadata] =
-			await sequelize.query(`
+		const [results, metadata] = await sequelize.query(`
 				select 
 			  places.id as id, 
 			  ngo_categories.name as categoryname, 
