@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     male: { type: DataTypes.INTEGER, allowNull: true },
     female: { type: DataTypes.INTEGER, allowNull: true },
     minority: { type: DataTypes.INTEGER, allowNull: true },
+    minority1: { type: DataTypes.INTEGER, allowNull: true },
+    minority2: { type: DataTypes.INTEGER, allowNull: true },
   }, {
     sequelize,
     modelName: 'population_year_place',
