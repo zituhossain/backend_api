@@ -84,6 +84,7 @@ exports.fetchYearPlaceNgoofficerFront = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	const allOverallTitle = await Profile_type.findAll({
 		include: [officer_profile_heading],
+		order: [['sort', 'ASC']],
 		required: false,
 	});
 	if (allOverallTitle) {
@@ -498,8 +499,8 @@ exports.getkormitopbyxid = async (req, res) => {
 
 		const [results, metadata] = await sequelize.query(
 			`SELECT * FROM ngo_place_info2 ` +
-				query +
-				` GROUP BY officer_name ORDER  BY ypno_view_order,officer_id`
+			query +
+			` GROUP BY officer_name ORDER  BY ypno_view_order,officer_id`
 		);
 
 		if (results) {
