@@ -19,6 +19,7 @@ router.post('/create_year_place_ngo_officer',auth, YearPlaceNgoOfficerController
 router.post('/update_year_place_ngo_officer/:id',auth, YearPlaceNgoOfficerController.updateoveralltitlebyid);
 router.get('/get_ngo_popular_officer/:id',auth, YearPlaceNgoOfficerController.getNgoPopularOfficer);
 router.get('/get_all_updated_data_log_from_mongo', auth, YearPlaceNgoOfficerController.getAllUpdatedDataLogMongo);
+router.get('/get_updated_data_log_from_mongo/:id', auth, YearPlaceNgoOfficerController.getUpdatedDataLogMongoByid);
 
 
 module.exports = router;

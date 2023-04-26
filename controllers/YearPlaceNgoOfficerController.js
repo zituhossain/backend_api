@@ -640,6 +640,102 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 }
 */
 
+exports.getUpdatedDataLogMongoByid = async (req, res) => {
+	try {
+		const log = await UpdatedData.findById(req.params.id);
+
+		// Find user name
+		const userData = await User.findAll({
+			attributes: ['id', 'username'],
+		});
+
+		// Find officer name
+		const officerData = await Officer.findAll({
+			attributes: ['id', 'name'],
+		});
+
+        // Find year name
+        const yearData = await years.findAll({
+            attributes: ['id', 'bn_name'],
+        })
+
+        // Find Place name
+        const placeData = await Place.findAll({
+            attributes: ['id', 'name']
+        })
+
+        // Find Ngo name
+        const ngoData = await Ngo.findAll({
+            attributes: ['id', 'name']
+        })
+
+        // Find Heading name
+        const headingData = await officer_profile_heading.findAll({
+            attributes: ['id', 'heading']
+        })
+
+		// Combine the data into an object
+		const combinedData = {
+			id: log._id,
+			username: userData.find((user) => user.id == log.user_id)?.username ?? null,
+			officer: officerData.find((officer) => officer.id == log.officer_id)?.name ?? null,
+			year: yearData.find((year) => year.id == log.year_id)?.bn_name ?? null,
+			ip: log.ip,
+			dataTime: log.datetime,
+			table: {
+				table1: log.tableName.table1,
+				table2: log.tableName.table2
+			},
+			oldValues: {
+				year_place_ngo_officers: {
+					place: placeData.find((place) => place.id == log.oldValues.year_place_ngo_officer.place_id)?.name ?? null,
+					year: yearData.find((year) => year.id == log.year_id)?.bn_name ?? null,
+					ngo: ngoData.find((nog) => nog.id == log.oldValues.year_place_ngo_officer.ngo_id)?.name ?? null,
+					officer: officerData.find((officer) => officer.id == log.oldValues.year_place_ngo_officer.officer_id)?.name ?? null,
+					served_population: log.oldValues.year_place_ngo_officer.served_population,
+					percent_served: log.oldValues.year_place_ngo_officer.percent_served,
+					rank: log.oldValues.year_place_ngo_officer.rank,
+					view_order: log.oldValues.year_place_ngo_officer.view_order,
+					designation: log.oldValues.year_place_ngo_officer.designation,
+					status: log.oldValues.year_place_ngo_officer.status
+				},
+				officers_heading_description: log.oldValues.officers_heading_description.map((item) => ({
+					heading: headingData.find((heading) => heading.id == item.heading_id)?.heading ?? null,
+					description: decryptHash(item.desc)
+				}))
+			},
+			newValues: {
+				year_place_ngo_officers: {
+					place: placeData.find((place) => place.id == log.newValues.year_place_ngo_officer.place_id)?.name ?? null,
+					year: yearData.find((year) => year.id == log.year_id)?.bn_name ?? null,
+					ngo: ngoData.find((nog) => nog.id == log.newValues.year_place_ngo_officer.ngo_id)?.name ?? null,
+					officer: officerData.find((officer) => officer.id == log.newValues.year_place_ngo_officer.officer_id)?.name ?? null,
+					served_population: log.newValues.year_place_ngo_officer.served_population,
+					percent_served: log.newValues.year_place_ngo_officer.percent_served,
+					rank: log.newValues.year_place_ngo_officer.rank,
+					view_order: log.newValues.year_place_ngo_officer.view_order,
+					designation: log.newValues.year_place_ngo_officer.designation,
+					status: log.newValues.year_place_ngo_officer.status
+				},
+				officers_heading_description: log.newValues.officers_heading_description.map((item) => ({
+					heading: headingData.find((heading) => heading.id == item.heading_id)?.heading ?? null,
+					description: decryptHash(item.desc)
+				}))
+			},
+		}
+
+		// Return the combined data in the API response
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			combinedData
+		);
+	} catch (e) {
+		res.json({ Error: `Error is ${e}` });
+	}
+};
+
+
 exports.getAllUpdatedDataLogMongo = async (req, res) => {
 	try {
 		const log = await UpdatedData.find({});
@@ -656,7 +752,7 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 
         // Find year name
         const yearData = await years.findAll({
-            attributes: ['id', 'name'],
+            attributes: ['id', 'bn_name'],
         })
 
         // Find Place name
@@ -676,9 +772,10 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 
 		// Combine the data into an object
 		const combinedData = log.map((data) => ({
+				id: data._id,
 				username: userData.find((user) => user.id == data.user_id)?.username ?? null,
 				officer: officerData.find((officer) => officer.id == data.officer_id)?.name ?? null,
-                year: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+                year: yearData.find((year) => year.id == data.year_id)?.bn_name ?? null,
                 ip: data.ip,
                 dataTime: data.datetime,
                 table: {
@@ -688,7 +785,7 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
                 oldValues: {
                     year_place_ngo_officers: {
                         place: placeData.find((place) => place.id == data.oldValues.year_place_ngo_officer.place_id)?.name ?? null,
-                        year: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+                        year: yearData.find((year) => year.id == data.year_id)?.bn_name ?? null,
                         ngo: ngoData.find((nog) => nog.id == data.oldValues.year_place_ngo_officer.ngo_id)?.name ?? null,
                         officer: officerData.find((officer) => officer.id == data.oldValues.year_place_ngo_officer.officer_id)?.name ?? null,
                         served_population: data.oldValues.year_place_ngo_officer.served_population,
@@ -706,7 +803,7 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
                 newValues: {
                     year_place_ngo_officers: {
                         place: placeData.find((place) => place.id == data.newValues.year_place_ngo_officer.place_id)?.name ?? null,
-                        year: yearData.find((year) => year.id == data.year_id)?.name ?? null,
+                        year: yearData.find((year) => year.id == data.year_id)?.bn_name ?? null,
                         ngo: ngoData.find((nog) => nog.id == data.newValues.year_place_ngo_officer.ngo_id)?.name ?? null,
                         officer: officerData.find((officer) => officer.id == data.newValues.year_place_ngo_officer.officer_id)?.name ?? null,
                         served_population: data.newValues.year_place_ngo_officer.served_population,
@@ -733,7 +830,6 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 		res.json({ Error: `Error is ${e}` });
 	}
 };
-
 
 
 exports.getkormibyxid = async (req, res) => {
