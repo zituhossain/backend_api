@@ -15,6 +15,7 @@ const {
 	ngo_jots,
 	Division,
 	District,
+	ngo_categories,
 	ngo_category_b,
 	ngo_served_percent_by_palces,
 	ngo_jot_add_into_places,
@@ -252,6 +253,10 @@ exports.getDistrictByDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+// Select a.ID, a.Name, b.ID as Boss, b.Name as BossName
+// from Employees A
+// left join Employees B
+// on a.Boss = b.ID
 exports.getPlacesByDivision = async (req, res) => {
 	try {
 		const id = req.params.id;
@@ -264,13 +269,18 @@ exports.getPlacesByDivision = async (req, res) => {
   places.area as place_area,
   ngos.name as ngo_name,
   ngo_categories.color_code as categoryb_color, 
-  ngo_categories.short_name as categoryb_name 
+  ngo_categories.short_name as categoryb_name, 
+  ngo_categories.type as categoryb_type,
+  cat_type.type as type_type,
+  cat_type.short_name as type_short_name,
+  cat_type.name as type_name  
 from 
   places
   LEFT JOIN ngos on ngos.id = places.ngo_id
   LEFT JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
   AND ngo_category_bs.status = "colorActive" 
   LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id 
+  LEFT JOIN ngo_categories cat_type on ngo_category_bs.ngo_category_type_id = cat_type.id 
 where 
   places.division_id = ${id} 
 GROUP BY 
@@ -296,25 +306,31 @@ exports.getPlacesByDistrict = async (req, res) => {
 		const [results, metadata] = await sequelize.query(
 			//`select places.name,places.ngo_id,officers.name as officer_name,places.id as place_id,officers.image,officers.id as officer_id,ngos.name as ngo_name,places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id left join ngos on ngos.id = ypno.ngo_id left join ngos place_ngo on  place_ngo.id = places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = places.id left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where places.district_id = ${id} GROUP BY places.id`
 			`select 
-  places.id as place_id,
-  places.name as place_name,
-  places.ngo_id as place_ngo_id,
-  places.area as place_area,
+  places.id as place_id, 
+  places.name as place_name, 
+  places.ngo_id as place_ngo_id, 
+  places.area as place_area, 
   ngos.name as ngo_name,
   ngo_categories.color_code as categoryb_color, 
-  ngo_categories.short_name as categoryb_name 
+  ngo_categories.short_name as categoryb_name,
+  ngo_categories.type as categoryb_type,
+  cat_type.type as type_type,
+  cat_type.short_name as type_short_name,
+  cat_type.name as type_name  
 from 
   places
   LEFT JOIN ngos on ngos.id = places.ngo_id
   LEFT JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
   AND ngo_category_bs.status = "colorActive" 
   LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id 
+  LEFT JOIN ngo_categories cat_type on ngo_category_bs.ngo_category_type_id = cat_type.id 
 where 
   places.district_id = ${id} 
 GROUP BY 
   places.id`
 		);
 		if (results) {
+			console.log(results);
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',
@@ -428,7 +444,10 @@ exports.addCategoryB = async (req, res) => {
 				const element = req.body.datas[index];
 
 				// Insert or update record only if ngo_category_id is allowed
-				if (element && allowedNgoCategoryIds.includes(element.ngo_category_id)) {
+				if (
+					element &&
+					allowedNgoCategoryIds.includes(element.ngo_category_id)
+				) {
 					element.place_id = req.body.place_id;
 
 					if (existingData) {
@@ -459,11 +478,6 @@ exports.addCategoryB = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
-
-
-
-
 
 // exports.placeDetails = async (req, res) => {
 // 	try {
@@ -633,8 +647,8 @@ exports.placeHistory = async (req, res) => {
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			'SELECT years.bn_name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list, GROUP_CONCAT(ypno.served_population) population_list, GROUP_CONCAT(ypno.rank) rank_list, GROUP_CONCAT(officers.name) as officer_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id LEFT JOIN officers ON ypno.officer_id = officers.id  where ypno.place_id = ' +
-			place_id +
-			' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+				place_id +
+				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -790,15 +804,12 @@ exports.addNgoServedPercent = async (req, res) => {
 	}
 };
 
-
 exports.createPlaceCategoryType = async (req, res) => {
 	try {
-		if (
-			req.body.place_id
-		) {
+		if (req.body.place_id) {
 			const existData = await ngo_category_b.findOne({
-				where: { place_id: req.body.place_id }
-			})
+				where: { place_id: req.body.place_id },
+			});
 
 			if (existData) {
 				return apiResponse.ErrorResponse(
@@ -810,36 +821,50 @@ exports.createPlaceCategoryType = async (req, res) => {
 				return apiResponse.successResponse(res, 'Data successfully saved.');
 			}
 		} else {
-			return apiResponse.ErrorResponse(
-				res,
-				'ngo_category_b missing.'
-			);
+			return apiResponse.ErrorResponse(res, 'ngo_category_b missing.');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 exports.updatePlaceCategoryType = async (req, res) => {
 	try {
-		if (
-			req.body.place_id
-		) {
+		if (req.body.place_id) {
 			const existData = await ngo_category_b.findOne({
-				where: { place_id: req.body.place_id }
-			})
+				where: { place_id: req.body.place_id },
+			});
 
 			if (existData) {
-				await ngo_category_b.update(req.body, { where: { place_id: req.body.place_id } });
+				await ngo_category_b.update(req.body, {
+					where: { place_id: req.body.place_id },
+				});
 				return apiResponse.successResponse(res, 'Data successfully updated.');
 			} else {
 				return apiResponse.ErrorResponse(res, 'No matching data found.');
 			}
 		} else {
-			return apiResponse.ErrorResponse(
+			return apiResponse.ErrorResponse(res, 'ngo_category_b missing.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.getPlaceCategoryType = async (req, res) => {
+	try {
+		const [results, metadata] = await sequelize.query(
+			`SELECT ngo_category_bs.id as id, (SELECT name FROM ngo_categories WHERE type=1 AND id=ngo_category_bs.ngo_category_id) as categoryname, (SELECT name FROM ngo_categories WHERE type=0 AND id=ngo_category_bs.ngo_category_type_id) as typename, places.name as place_name, places.id as placeid, places.district_id as districtid, places.division_id as divisionid FROM ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id LEFT JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id;`
+		);
+
+		if (results.length > 0) {
+			return apiResponse.successResponseWithData(
 				res,
-				'ngo_category_b missing.'
+				'Data fetch successfull.',
+				results
 			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
@@ -863,7 +888,7 @@ exports.deletePlaceCategoryType = async (req, res) => {
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 exports.getNgoServedPercent = async (req, res) => {
 	const place_id = req.params.id;
@@ -1125,11 +1150,22 @@ from
 		}
 	};
 
-	exports.categoryBColor = async (req, res) => {
-		try {
-			const [results, metadata] =
-				await sequelize.query(`select places.id as id , ngo_categories.name as categoryname , places.name as name, 
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from places INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
+exports.categoryBColor = async (req, res) => {
+	try {
+		const [results, metadata] = await sequelize.query(`
+				select 
+			  places.id as id, 
+			  ngo_categories.name as categoryname, 
+			  places.name as name, 
+			  ngo_categories.short_name as categoryShortName, 
+			  ngo_categories.color_code as color_code 
+			from 
+			  places 
+			  INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
+			  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id 
+			where 
+			  ngo_category_bs.status = "colorActive"
+			`);
 
 			if (results.length > 0) {
 				return apiResponse.successResponseWithData(

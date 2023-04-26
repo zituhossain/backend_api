@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
 			administration_office_id: DataTypes.INTEGER,
 			district_id: DataTypes.INTEGER,
 			division_id: DataTypes.INTEGER,
+			ngo_id: DataTypes.INTEGER,
 			office_id: DataTypes.STRING,
 			ordering: DataTypes.INTEGER,
 			name: DataTypes.STRING,
@@ -66,6 +67,10 @@ module.exports = (sequelize, DataTypes) => {
 		});
 		Administration_officer.belongsTo(models.Place, {
 			foreignKey: 'place_id',
+		});
+		Administration_officer.belongsTo(models.Ngo, {
+			targetKey: 'id',
+			foreignKey: 'ngo_id',
 		});
 		Administration_officer.belongsTo(models.Administration_officer_type, {
 			targetKey: 'id',

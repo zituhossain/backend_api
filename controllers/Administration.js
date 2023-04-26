@@ -6,6 +6,7 @@ const {
 	Tag,
 	Place,
 	Administration_officer,
+	Ngo,
 	District,
 	Division,
 } = require('../models');
@@ -75,6 +76,9 @@ exports.fetch_admin_office_by_place_id = async (req, res) => {
 					include: [
 						{
 							model: Administration_officer_type,
+						},
+						{
+							model: Ngo,
 						},
 					],
 					where: arr,
@@ -569,6 +573,9 @@ exports.getadministration_officer = async (req, res) => {
 					// 		model: Administration_officer_type,
 					// 	},
 					// ],
+				},
+				{
+					model: Ngo,
 				},
 			],
 			// include: [Administration_office, Division, District, Place , Administration_officer_type],

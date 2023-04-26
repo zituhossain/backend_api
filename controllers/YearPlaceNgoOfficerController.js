@@ -226,7 +226,7 @@ exports.getNgoPopularOfficer = async (req, res) => {
 exports.getNgoFinalOfficer = async (req, res) => {
 	try {
 		const [results, metadata] = await sequelize.query(
-			`select officers.*, ngos.name as ngoname, year_place_ngo_officers.ngo_id, year_place_ngo_officers.status AS status from officers left join year_place_ngo_officers on officers.id = year_place_ngo_officers.officer_id left join ngos on year_place_ngo_officers.ngo_id = ngos.id where year_place_ngo_officers.ngo_id=6 and year_place_ngo_officers.place_id = ${req.params.id} GROUP by year_place_ngo_officers.status`
+			`select officers.*, ngos.name as ngoname, year_place_ngo_officers.ngo_id, year_place_ngo_officers.place_id, year_place_ngo_officers.status AS status from officers left join year_place_ngo_officers on officers.id = year_place_ngo_officers.officer_id left join ngos on year_place_ngo_officers.ngo_id = ngos.id LEFT JOIN places ON year_place_ngo_officers.place_id = places.id where year_place_ngo_officers.ngo_id=6 and year_place_ngo_officers.place_id = ${req.params.id} GROUP by year_place_ngo_officers.status;`
 		);
 
 		if (results) {
