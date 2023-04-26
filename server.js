@@ -58,6 +58,9 @@ sequelize.authenticate()
 
 const app = express();
 
+// var env = process.env.NODE_ENV || 'development';
+// loadConfigFile(env + '.json', doStuff);
+console.log(process.env.NODE_ENV);
 //don't show the log when it is development
 if (process.env.NODE_ENV !== 'development') {
 	app.use(logger('dev'));
@@ -106,3 +109,4 @@ app.listen(port, () => {
 	cronJobInit.start();
 	console.log('Server started on :', `http://localhost:${port}`);
 });
+

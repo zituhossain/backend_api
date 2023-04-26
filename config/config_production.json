@@ -1,23 +1,9 @@
 {
-  "development": {
-    "username": "zvgy_ngo",
-    "password": "zvgy_ngo@@##",
-    "database": "zvgy_ngo",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  }, 
-  "test": {
-    "username": "zvgy_ngo",
-    "password": "zvgy_ngo@@##",
-    "database": "zvgy_ngo",
-    "host": "zvgy.com",
-    "dialect": "mysql"
-  },
   "production": {
-    "username": "zvgy_ngo",
-    "password": "zvgy_ngo@@##",
-    "database": "zvgy_ngo",
-    "host": "zvgy.com",
+    "username": "root",
+    "password": "",
+    "database": "latest_db",
+    "host": "127.0.0.1",
     "dialect": "mysql"
   }
 }

@@ -15,7 +15,7 @@ exports.createofficer = async (req, res) => {
 			} else {
 				req.body.status = 'active';
 				// await Officer.create(req.body)
-				await Officer.create({ name: req.body.name.trim(),father_name: req.body.father_name, email: req.body.email, phone: req.body.phone, address: req.body.address,nid:req.body.nid,nid:req.body.nid,educational_qualification: req.body.educational_qualification,financial_activities:req.body.financial_activities,gender:req.body.gender,status:req.body.status })
+				await Officer.create({ name: req.body.name.trim(),father_name: req.body.father_name, email: req.body.email, phone: req.body.phone, phone2: req.body.phone2, address: req.body.address,nid:req.body.nid,nid:req.body.nid,educational_qualification: req.body.educational_qualification,financial_activities:req.body.financial_activities,gender:req.body.gender,status:req.body.status })
 				return apiResponse.successResponse(res, "Data successfully saved.")
 			}
 
@@ -32,7 +32,6 @@ exports.getallofficer = async (req, res) => {
 	try {
 		const officer_data = await Officer.findAll();
 		if (officer_data) {
-			console.log("kafikafikafikafikafikafikafikafikafikafi");
 			return apiResponse.successResponseWithData(res, "Data successfully fetched.", officer_data)
 		} else {
 			return apiResponse.ErrorResponse(res, "Officer table is empty.")
@@ -178,7 +177,7 @@ exports.updateofficerbyid = async (req, res) => {
 		if (officer_data) {
 			if (req.body.name) {
 				if (req.body.image === 'null') {
-					await Officer.update({ name: req.body.name.trim(),father_name: req.body.father_name, email: req.body.email, phone: req.body.phone, address: req.body.address,nid:req.body.nid,nid:req.body.nid,educational_qualification: req.body.educational_qualification,financial_activities:req.body.financial_activities,gender:req.body.gender,status:req.body.status }, { where: { id: officer_id } });
+					await Officer.update({ name: req.body.name.trim(),father_name: req.body.father_name, email: req.body.email, phone: req.body.phone, phone2: req.body.phone2, address: req.body.address,nid:req.body.nid,nid:req.body.nid,educational_qualification: req.body.educational_qualification,financial_activities:req.body.financial_activities,gender:req.body.gender,status:req.body.status }, { where: { id: officer_id } });
 				} else {
 					await Officer.update(req.body, { where: { id: officer_id } });
 				}
