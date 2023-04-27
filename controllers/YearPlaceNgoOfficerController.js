@@ -84,7 +84,11 @@ exports.fetchYearPlaceNgoofficerFront = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	const allOverallTitle = await Profile_type.findAll({
 		include: [officer_profile_heading],
-		order: [['sort', 'ASC']],
+		order: [
+			['sort', 'ASC'],
+			['id', 'ASC'],
+			[{ model: officer_profile_heading }, 'view_sort', 'ASC'],
+		],
 		required: false,
 	});
 	if (allOverallTitle) {
@@ -137,7 +141,7 @@ exports.getNgoOfficerHeadings = async (req, res) => {
         AND year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id
         LEFT JOIN places ON places.id = year_place_ngo_officers.place_id
         WHERE year_place_ngo_officers.year_id = ${year_id} AND year_place_ngo_officers.officer_id =${officer_id}
-        group by officer_profile_headings.id ORDER BY TYPE,view_sort`);
+        group by officer_profile_headings.id ORDER BY TYPE,view_sort ASC`);
 
 		if (results) {
 			let final_arr = [];
@@ -499,8 +503,8 @@ exports.getkormitopbyxid = async (req, res) => {
 
 		const [results, metadata] = await sequelize.query(
 			`SELECT * FROM ngo_place_info2 ` +
-			query +
-			` GROUP BY officer_name ORDER  BY ypno_view_order,officer_id`
+				query +
+				` GROUP BY officer_name ORDER  BY ypno_view_order,officer_id`
 		);
 
 		if (results) {
