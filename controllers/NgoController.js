@@ -232,11 +232,6 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 					required: false,
 				},
 
-				// {
-				//     model: Place,
-				//     where: { id: place_id },
-				//     required: false,
-				// }
 			],
 			order: [
 				Sequelize.fn('isnull', Sequelize.col('view_order')),
@@ -254,15 +249,17 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 		const result = [];
 		ngo_data.forEach((ngo) => {
 			const percentData = ngo.ngo_served_percent_by_palces;
-			const percent =
-				percentData && percentData.length > 0 ? percentData[0].percent : null;
+			const percent = percentData && percentData.length > 0 ? percentData[0].percent : null;
+			const ngoServedPercentByPlaceId = percentData && percentData.length > 0 ? percentData[0].id : null;
 			result.push({
 				id: ngo.id,
 				name: ngo.name,
-				percent,
 				divisionid: place_data?.division_id,
 				districtid: place_data?.district_id,
-				ngoID: place_data?.ngo_id,
+				placeid: Number(place_id),
+				percent,
+				ngoServedPercentByPlaceId,
+				
 			});
 		});
 

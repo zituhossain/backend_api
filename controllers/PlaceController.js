@@ -756,49 +756,41 @@ exports.addNgoServedPercent = async (req, res) => {
 }
 exports.addNgoServedPercent = async (req, res) => {
 	try {
-		let ngo_id = req.body.ngo_id;
-		for (i = 0; i < ngo_id.length; i++) {
+		
+		console.log(req.body.ngos);
+		let ngos = req.body.ngos;
+		for (i = 0; i < ngos.length; i++) {
 			// find the existing record by ngo_id and place_id
 			let existingRecord = await ngo_served_percent_by_palces.findOne({
 				where: {
-					place_id: req.body.place_id,
-					ngo_id: ngo_id[i].id,
+					id: ngos[i].ngoServedPercentByPlaceId,
+					place_id: ngos[i].placeid,
+					ngo_id: ngos[i].id,
 				},
 			});
 
 			// if the record exists, update the percent value
-			if (existingRecord) {
-				existingRecord.percent =
-					ngo_id[i]?.ngo_served_percent_by_palce?.percent ||
-					existingRecord.percent;
-
-				if (
-					existingRecord.percent == 0 ||
-					existingRecord.percent == null ||
-					existingRecord.percent === ''
-				) {
-					await existingRecord.destroy({
-						where: {
-							id: req.body.id,
-						},
-					});
-				} else {
+			if(existingRecord){
+				if(ngos[i].percent === 0 || ngos[i].percent === null || ngos[i].percent === ''){
+					await existingRecord.destroy();
+				}else{
+					existingRecord.percent=ngos[i].percent;
 					await existingRecord.save();
 				}
-			}
-			// if the record does not exist, create a new record
-			else if (ngo_id[i]?.ngo_served_percent_by_palce) {
-				await ngo_served_percent_by_palces.create({
-					place_id: req.body.place_id,
-					ngo_id: ngo_id[i].id,
-					district_id: req.body.district_id,
-					division_id: req.body.division_id,
-					percent: ngo_id[i].ngo_served_percent_by_palce.percent,
-				});
+			}else{
+				if(ngos[i].percent!== null){
+						await ngo_served_percent_by_palces.create({
+						place_id: req.body.place_id,
+						ngo_id: ngos[i].id,
+						district_id: req.body.district_id,
+						division_id: req.body.division_id,
+						percent: ngos[i].percent,
+					});
+				}
 			}
 		}
 
-		return apiResponse.successResponse(res, 'Data successfully saved.');
+		return apiResponse.successResponse(res, 'addNgoServedPercent - Data successfully saved.');
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}

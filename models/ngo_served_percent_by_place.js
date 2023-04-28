@@ -14,11 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   NgoServed.init({
-    place_id:DataTypes.INTEGER,
-    division_id:DataTypes.INTEGER,
-    district_id:DataTypes.INTEGER,
-    ngo_id:DataTypes.INTEGER,
-    percent:DataTypes.INTEGER,
+    place_id:{ type: DataTypes.INTEGER, allowNull: true },
+    division_id:{ type: DataTypes.INTEGER, allowNull: true },
+    district_id:{ type: DataTypes.INTEGER, allowNull: true },
+    ngo_id:{ type: DataTypes.INTEGER, allowNull: true },
+    percent:{ type: DataTypes.INTEGER, allowNull: true },
     created_by: DataTypes.INTEGER,
     updated_by: DataTypes.INTEGER,
     
