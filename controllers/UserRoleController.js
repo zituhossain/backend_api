@@ -184,7 +184,8 @@ exports.getprevilegeareabyid = async(req,res) => {
 exports.getallprevilegeurl = async(req,res) => {
     try{
         const previlegearea_data = await Previlege_url.findAll({
-            include:[Previlege_area]
+            include:[Previlege_area],
+            order: [['id', 'ASC']],
         });
         if(previlegearea_data){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
@@ -458,7 +459,10 @@ exports.getprevilegetable = async(req,res) => {
         const role_id = req.params.id;
         const user_data = await Previlege_table.findAll({
             include:[Previlege_url],
-            where:{user_role_id: role_id}
+            where:{user_role_id: role_id},
+            order: [
+                [{ model: Previlege_url }, 'id', 'ASC'],
+              ],
         })
         if(user_data.length > 0){
             return apiResponse.successResponseWithData(res,"Data found",user_data)
@@ -497,7 +501,6 @@ exports.getprevilegetablebyuserid = async(req,res) => {
             }
 
         }
-
         return apiResponse.successResponseWithData(res,"Data fetch success.",previlege_module)
         
 
