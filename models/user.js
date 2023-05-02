@@ -1,6 +1,6 @@
 'use strict';
 const { Model } = require('sequelize');
-const PROTECTED_ATTRIBUTES = ['password1', 'password2'];
+// const PROTECTED_ATTRIBUTES = ['password1', 'password2'];
 module.exports = (sequelize, DataTypes) => {
 	class User extends Model {
 		/**
@@ -12,14 +12,14 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			// define association here
 		}
-		toJSON() {
-			// hide protected fields
-			let attributes = Object.assign({}, this.get());
-			for (let a of PROTECTED_ATTRIBUTES) {
-				delete attributes[a];
-			}
-			return attributes;
-		}
+		// toJSON() {
+		// 	// hide protected fields
+		// 	let attributes = Object.assign({}, this.get());
+		// 	for (let a of PROTECTED_ATTRIBUTES) {
+		// 		delete attributes[a];
+		// 	}
+		// 	return attributes;
+		// }
 	}
 	User.init(
 		{
