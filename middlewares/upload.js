@@ -12,23 +12,15 @@ const excelFilter = (req, file, cb) => {
     }
 };
 
-// var storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, __basedir + "/uploads/");
-//     },
-//     filename: (req, file, cb) => {
-//         console.log(file.originalname);
-//         cb(null, `${Date.now()}-xl-${file.originalname}`);
-//     },
-// });
-const storage = multer.diskStorage({
+var storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, base_dir_config.base_dir + 'uploads/image_slider/')
+        cb(null, base_dir_config.base_dir + "uploads/excel_file/");
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname)
-    }
-})
+        console.log(file.originalname);
+        cb(null, `${Date.now()}-xl-${file.originalname}`);
+    },
+});
 
 var uploadFile = multer({ storage: storage, fileFilter: excelFilter });
 module.exports = uploadFile;
