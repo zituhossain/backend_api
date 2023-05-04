@@ -30,7 +30,10 @@ module.exports = (sequelize, DataTypes) => {
 			tableName: 'tutorials',
 			modelName: 'Tutorial',
 		}
-	);
+	),
+	{
+		updateOnDuplicate: ['name', 'address', 'phone'],
+	}
 	Tutorial.associate = (models) => { };
 	return Tutorial;
 };

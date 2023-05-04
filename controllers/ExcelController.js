@@ -1,6 +1,6 @@
 // const multer = require('multer');
 const { Tutorial } = require("../models");
-// const apiResponse = require('../helpers/apiResponse');
+const apiResponse = require('../helpers/apiResponse');
 // const jwt = require('jsonwebtoken');
 // const secret = process.env.JWT_SECRET;
 // const sequelize = require('sequelize');
@@ -16,48 +16,36 @@ const upload = async (req, res) => {
 
         let path = base_dir_config.base_dir + 'uploads/excel_file/' + req.file.filename;
 
-        readXlsxFile(path).then(async (rows) => {
-            // skip header
-            rows.shift();
+        const rows = await readXlsxFile(path);
+        // Skip header
+        rows.shift();
 
-            let tutorials = [];
+        const tutorials = rows.map(row => ({
+            id: row[0],
+            name: row[1],
+            address: row[2],
+            phone: row[3],
+            updatedAt: new Date(),
+            createdAt: new Date()
+        }));
 
-            for (let i = 0; i < rows.length; i++) {
-                let row = rows[i];
-
-                let [tut, created] = await Tutorial.findOrCreate({
-                    where: { name: row[1] },
-                    defaults: {
-                        id: row[0],
-                        name: row[1],
-                        address: row[2],
-                        phone: row[3],
-                    }
-                });
-
-                if (!created) {
-                    await Tutorial.update({
-                        address: row[2],
-                        phone: row[3],
-                    }, {
-                        where: { id: tut.id }
-                    });
-                }
-
-                tutorials.push(tut);
-            }
-
-            res.status(200).send({
-                message: "Uploaded the file successfully: " + req.file.originalname,
-            });
+        await Tutorial.bulkCreate(tutorials, {
+            updateOnDuplicate: ['name']
         });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            message: "Could not upload the file: " + req.file.originalname,
-        });
+
+        // res.status(200).send({
+        //     message: "Uploaded the file successfully: " + req.file.originalname,
+        // });
+        return apiResponse.successResponse(res, "Successfully uploaded.")
+    } catch (err) {
+        // console.log(error);
+        // res.status(500).send({
+        //     message: "Could not upload the file: " + req.file.originalname,
+        // });
+        return apiResponse.ErrorResponse(res, err.message)
     }
 };
+
 
 
 
