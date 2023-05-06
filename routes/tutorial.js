@@ -1,8 +1,8 @@
 const express = require('express');
 const auth = require('../middlewares/jwt');
 const router = express.Router();
-const multer = require('multer');
-const base_dir_config = require('../config.js');
+// const multer = require('multer');
+// const base_dir_config = require('../config.js');
 const upload = require("../middlewares/upload");
 
 

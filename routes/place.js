@@ -1,6 +1,9 @@
 const express = require('express');
 const PlaceController = require('../controllers/PlaceController');
+const ExcelFileUploadController = require('../controllers/ExcelFileUploadController')
 const auth = require('../middlewares/jwt');
+const upload = require("../middlewares/upload");
+const ExcelController = require("../controllers/ExcelController");
 const router = express.Router();
 
 router.get('/all_place', auth, PlaceController.getallPlace);
@@ -94,6 +97,8 @@ router.get(
 );
 router.delete('/delete_sub_place/:id', auth, PlaceController.deleteSubPlace);
 router.put('/update_sub_place/:id', auth, PlaceController.updateSubPlace);
+// Sub Place Excel file Upload
+router.post('/sub_place_excel', auth, upload.single('file'), ExcelFileUploadController.upload)
 
 // Upazila Route
 router.post('/create_upazila', auth, PlaceController.createUpazila);

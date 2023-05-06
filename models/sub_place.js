@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
 		toJSON() {
 			// hide protected fields
 			let attributes = Object.assign({}, this.get());
-			// for (let a of PROTECTED_ATTRIBUTES) {
+			// for (let "a" of PROTECTED_ATTRIBUTES) {
 			//   delete attributes[a]
 			// }
 			return attributes;
@@ -21,13 +21,13 @@ module.exports = (sequelize, DataTypes) => {
 	}
 	Sub_place.init(
 		{
-			name: DataTypes.STRING,
-			comments: DataTypes.STRING,
-			place_id: DataTypes.INTEGER,
-			assigned_officer: DataTypes.STRING,
-			officer_phone: DataTypes.STRING,
+			name: { type: DataTypes.STRING, allowNull: false, unique: true},
+			comments: { type: DataTypes.STRING, allowNull: true},
+			place_id: { type: DataTypes.INTEGER, allowNull: false},
+			assigned_officer: { type: DataTypes.STRING, allowNull: true},
+			officer_phone: { type: DataTypes.STRING, allowNull: true},
 			population: { type: DataTypes.INTEGER, allowNull: true },
-			type: DataTypes.STRING,
+			type: { type: DataTypes.INTEGER, allowNull: true},
 		},
 		{
 			sequelize,
