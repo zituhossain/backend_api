@@ -97,6 +97,7 @@ router.get(
 );
 router.delete('/delete_sub_place/:id', auth, PlaceController.deleteSubPlace);
 router.put('/update_sub_place/:id', auth, PlaceController.updateSubPlace);
+
 // Sub Place Excel file Upload
 router.post('/sub_place_excel', auth, upload.single('file'), ExcelFileUploadController.upload)
 
