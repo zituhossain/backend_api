@@ -3,7 +3,6 @@ const PlaceController = require('../controllers/PlaceController');
 const ExcelFileUploadController = require('../controllers/ExcelFileUploadController')
 const auth = require('../middlewares/jwt');
 const upload = require("../middlewares/upload");
-const ExcelController = require("../controllers/ExcelController");
 const router = express.Router();
 
 router.get('/all_place', auth, PlaceController.getallPlace);
