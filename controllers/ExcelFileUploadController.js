@@ -5,6 +5,7 @@ const apiResponse = require('../helpers/apiResponse');
 // const secret = process.env.JWT_SECRET;
 // const sequelize = require('sequelize');
 const base_dir_config = require('../config.js');
+const { Op } = require('sequelize');
 
 const readXlsxFile = require("read-excel-file/node");
 
@@ -134,24 +135,31 @@ const upload = async (req, res) => {
         });
 
         const existingPlaces = await Sub_place.findAll({
-            where: { name: subPlace.map(place => place.name) }
+            where: {
+                place_id: { [Op.in]: subPlace.map(place => place.place_id) },
+                upazilla_id: { [Op.in]: subPlace.map(place => place.upazilla_id) },
+                union_id: { [Op.in]: subPlace.map(place => place.union_id) },
+                name: { [Op.in]: subPlace.map(place => place.name) }
+            }
         });
 
         const updates = [];
         const inserts = [];
 
         subPlace.forEach(place => {
-            const existingPlace = existingPlaces.find(p => p.name === place.name);
+            const existingPlace = existingPlaces.find(p =>
+                p.place_id === place.place_id &&
+                p.upazilla_id === place.upazilla_id &&
+                p.union_id === place.union_id &&
+                p.name === place.name
+            );
 
             if (existingPlace) {
                 updates.push({
-                    place_id: place.place_id,
-                    upazilla_id: place.upazilla_id,
-                    union_id: place.union_id,
-                    comments: place.comments.trim(),
-                    assigned_officer: place.assigned_officer.trim(),
-                    officer_phone: place.officer_phone.trim(),
-                    population: place.population.trim(),
+                    comments: place.comments,
+                    assigned_officer: place.assigned_officer,
+                    officer_phone: place.officer_phone,
+                    population: place.population,
                     type: place.type,
                     id: existingPlace.id
                 });
@@ -161,10 +169,10 @@ const upload = async (req, res) => {
                     upazilla_id: place.upazilla_id,
                     union_id: place.union_id,
                     name: place.name.trim(),
-                    comments: place.comments.trim(),
-                    assigned_officer: place.assigned_officer.trim(),
-                    officer_phone: place.officer_phone.trim(),
-                    population: place.population.trim(),
+                    comments: place.comments ? place.comments : '',
+                    assigned_officer: place.assigned_officer ? place.assigned_officer : '',
+                    officer_phone: place.officer_phone ? place.officer_phone : '',
+                    population: place.population ? place.population : '',
                     type: place.type
                 });
             }
