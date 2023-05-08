@@ -1,7 +1,7 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-	class Ngo extends Model {
+	class NgoCategories extends Model {
 		/**
 		 * Helper method for defining associations.
 		 * This method is not a part of Sequelize lifecycle.
@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
 			// define association here
 		}
 	}
-	Ngo.init(
+	NgoCategories.init(
 		{
 			name: DataTypes.STRING,
 			short_name: DataTypes.STRING,
@@ -26,5 +26,13 @@ module.exports = (sequelize, DataTypes) => {
 			modelName: 'ngo_categories',
 		}
 	);
-	return Ngo;
+	NgoCategories.associate = (models) => {
+		NgoCategories.hasMany(models.ngo_category_b, {
+			foreignKey: 'ngo_category_id',
+		});
+		NgoCategories.hasMany(models.ngo_category_b, {
+			foreignKey: 'ngo_category_type_id',
+		});
+	};
+	return NgoCategories;
 };

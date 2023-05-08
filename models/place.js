@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
 		Place.belongsTo(models.District, {
 			foreignKey: 'district_id',
 		});
-		Place.hasMany(models.ngo_category_b, {
+		Place.hasOne(models.ngo_category_b, {
 			as: 'categoryB',
 			targetKey: 'id',
 			foreignKey: 'place_id',

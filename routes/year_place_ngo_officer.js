@@ -43,6 +43,11 @@ router.get(
 	auth,
 	YearPlaceNgoOfficerController.getkormitopbyxid
 );
+router.post(
+	'/get_year_place_ngo_officers_with_conditions',
+	auth,
+	YearPlaceNgoOfficerController.getYearPlaceNgoOfficersWithConditions
+);
 router.get(
 	'/all_year_place_ngo_officer_year/:year/:id',
 	auth,

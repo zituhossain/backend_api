@@ -1,7 +1,7 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-	class Ngo extends Model {
+	class NgoCategoryType extends Model {
 		/**
 		 * Helper method for defining associations.
 		 * This method is not a part of Sequelize lifecycle.
@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
 			// define association here
 		}
 	}
-	Ngo.init(
+	NgoCategoryType.init(
 		{
 			ngo_category_id: DataTypes.INTEGER,
 			ngo_category_type_id: DataTypes.INTEGER,
@@ -27,18 +27,34 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	);
 
-	Ngo.associate = (models) => {
-		Ngo.belongsTo(models.ngo_categories, {
+	NgoCategoryType.associate = (models) => {
+		NgoCategoryType.belongsTo(models.ngo_categories, {
 			as: 'category',
 			targetKey: 'id',
+			scope: {
+	          type: 1
+	      	},
 			foreignKey: 'ngo_category_id',
 		});
-		Ngo.belongsTo(models.ngo_categories, {
+		NgoCategoryType.belongsTo(models.ngo_categories, {
 			as: 'type',
 			targetKey: 'id',
+			scope: {
+	          type: 0
+	      	},
 			foreignKey: 'ngo_category_type_id',
 		});
+		NgoCategoryType.belongsTo(models.Place, {
+			as: 'place',
+			targetKey: 'id',
+			foreignKey: 'place_id',
+		});
+		// NgoCategoryType.hasOne(models.Place,{
+		// 	as: 'place',
+		// 	targetKey: 'id',
+		// 	foreignKey:'place_id'
+		// });
 	};
 
-	return Ngo;
+	return NgoCategoryType;
 };

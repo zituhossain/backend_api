@@ -55,6 +55,7 @@ exports.getngodetailwiseinfobyplaceid = async (req, res) => {
         const influencer_id = req.params.placeid;
         const influencer_data = await ngo_details_info.findAll({
             order: [
+                ['view_order', 'ASC'],
                 ['id', 'ASC'], 
                 [ngo_details_info_point_wise, "view_order", "ASC"],
                 [ngo_details_info_point_wise, "id", "ASC"]

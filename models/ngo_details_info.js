@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   ngo_details_info.init({
     title: DataTypes.STRING,
+    view_order: { type: DataTypes.INTEGER, allowNull: true },
   }, {
     sequelize,
     modelName: 'ngo_details_info',

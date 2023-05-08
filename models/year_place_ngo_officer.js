@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     place_id: DataTypes.INTEGER,
     ngo_id: DataTypes.INTEGER,
     officer_id: DataTypes.INTEGER,
+    popularity: { type: DataTypes.INTEGER, allowNull: true },
     served_population: { type: DataTypes.INTEGER, allowNull: true },
     percent_served: { type: DataTypes.INTEGER, allowNull: true },
     rank: DataTypes.TINYINT,

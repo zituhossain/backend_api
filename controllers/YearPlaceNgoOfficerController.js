@@ -394,18 +394,14 @@ exports.updateoveralltitlebyid = async (req, res) => {
 				},
 				raw: true,
 			});
-			console.log(
-				'------------------createYearPlaceNgoofficer----------------',
-				rank_data
-			);
 			if (!rank_data || req.body.rank !== 1 || rank_data.rank === 1) {
 				// const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id, officer_id: req.body.officer_id } });
 				// if (!get_data) {
-
 				if (req.body.place_id) {
-					await year_place_ngo_officer.update(req.body, {
+					const kafi = await year_place_ngo_officer.update(req.body, {
 						where: { id: condition_id },
 					});
+
 					officers_heading_description.destroy({
 						where: {
 							officer_id: req.body.officer_id,
@@ -473,6 +469,8 @@ exports.getkormibyxid = async (req, res) => {
 			`select places.name,officers.name as officer_name,places.id as place_id,officers.image from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id where ${query} = ${id} GROUP BY places.id`
 		);
 		if (results) {
+			console.log('0------------------jjjjj------------------');
+			console.log(results);
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',
@@ -486,6 +484,10 @@ exports.getkormibyxid = async (req, res) => {
 	}
 };
 
+// updated query
+// SELECT * FROM ngo_place_info2
+// where year = (SELECT max(year) FROM ngo_place_info2) and place_id=1
+// GROUP BY officer_name ORDER  BY -ngo_jot_id DESC,ypno_view_order,officer_id;
 exports.getkormitopbyxid = async (req, res) => {
 	try {
 		const id = req.params.id;
@@ -499,12 +501,13 @@ exports.getkormitopbyxid = async (req, res) => {
 			query = ` district_id=${id}`;
 		}
 		// query = `where year = (SELECT max(year) FROM ngo_place_info npi) and` + query
-		query = `where year = year(curdate()) and` + query;
+		//query = `where year = year(curdate()) and` + query;
+		query = `where year = (SELECT max(year) FROM ngo_place_info2) and` + query;
 
 		const [results, metadata] = await sequelize.query(
 			`SELECT * FROM ngo_place_info2 ` +
 				query +
-				` GROUP BY officer_name ORDER  BY ypno_view_order,officer_id`
+				` GROUP BY officer_name ORDER  BY -ngo_view_order DESC,ypno_status DESC,ypno_view_order,officer_id`
 		);
 
 		if (results) {
@@ -520,7 +523,85 @@ exports.getkormitopbyxid = async (req, res) => {
 					final_arr.push(results[i]);
 				}
 			}
-			console.log('resultsresultsresultsresultsresults', results);
+			//console.log('resultsresultsresultsresultsresults', results);
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				final_arr
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+
+		// if (results) {
+		//     return apiResponse.successResponseWithData(res, "Data successfully fetched.", results)
+		// } else {
+		//     return apiResponse.ErrorResponse(res, "No matching query found")
+		// }
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+
+exports.getYearPlaceNgoOfficersWithConditions = async (req, res) => {
+// how to use
+// const condition = {
+//   place_id: id,
+//   jot_id: 1,
+// };
+// const res = await getYearPlaceNgoOfficersWithConditions(condition);
+	try {
+		
+		let query = '';
+		if(req.body.place_id)
+			query = `AND place_id=${req.body.place_id}`;
+		else if(req.body.district_id)
+			query = `AND district_id=${req.body.district_id}`;
+		else if(req.body.division_id)
+			query = `AND division_id=${req.body.division_id}`;
+		
+		if(req.body.jot_id){
+			if(req.body.jot_id=="!1")
+				query = query +` AND ngo_jot_id <> 1 OR ngo_jot_id IS NULL`;
+			else
+			query = query +` AND ngo_jot_id=${req.body.jot_id}`;
+		}
+		//console.log(req.body.place_id);
+//console.log('--------lddddddd----------------------');
+//		 console.log(query);
+		// return;
+		// if (condition_name === 'place') {
+		// 	query = ` place_id=${id}`;
+		// } else if (condition_name === 'division') {
+		// 	query = ` division_id=${id}`;
+		// } else if (condition_name === 'district') {
+		// 	query = ` district_id=${id}`;
+		//}
+		// query = `where year = (SELECT max(year) FROM ngo_place_info npi) and` + query
+		//query = `where year = year(curdate()) and` + query;
+		query = `where year = (SELECT max(year) FROM ngo_place_info2) ` + query;
+
+		const [results, metadata] = await sequelize.query(
+			`SELECT * FROM ngo_place_info2 ` +
+				query +
+				` GROUP BY officer_name ORDER  BY -ngo_view_order DESC,ypno_status DESC,ypno_view_order,officer_id`
+		);
+
+		if (results) {
+			let final_arr = [];
+			for (let i = 0; i < results.length; i++) {
+				console.log('results[i].sarbik_desc', results[i].sarbik_desc);
+				if (results[i].sarbik_desc !== null) {
+					let decrypted_data = decryptHash(results[i].sarbik_desc);
+					results[i].sarbik_desc = decrypted_data;
+					final_arr.push(results[i]);
+				} else {
+					results[i].sarbik_desc = '';
+					final_arr.push(results[i]);
+				}
+			}
+			//console.log('resultsresultsresultsresultsresults', results);
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',

@@ -526,6 +526,17 @@ exports.addCategoryB = async (req, res) => {
 // 		return apiResponse.ErrorResponse(res, err.message);
 // 	}
 // };
+//
+//					include: [{model:ngo_categories}]
+					// include: [
+					// 	{
+					// 		model:ngo_categories,
+					// 		as: 'category',
+					// 		where: {
+					// 			ngo_categories.id: ngo_category_b.ngo_category_id,
+					// 		}
+					// 	}
+					// ]
 
 exports.placeDetails = async (req, res) => {
 	try {
@@ -541,6 +552,16 @@ exports.placeDetails = async (req, res) => {
 				{
 					model: ngo_category_b,
 					as: 'categoryB',
+					include: [
+						{
+							model: ngo_categories,
+							as: 'category',
+						},
+						{
+							model: ngo_categories,
+							as: 'type',
+						},
+					]
 				},
 				{
 					model: ngo_served_percent_by_palces,
@@ -646,9 +667,9 @@ exports.placeHistory = async (req, res) => {
 	const place_id = req.params.id;
 	try {
 		const place_data = await year_place_ngo_officer.sequelize.query(
-			'SELECT years.bn_name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list, GROUP_CONCAT(ypno.served_population) population_list, GROUP_CONCAT(ypno.rank) rank_list, GROUP_CONCAT(officers.name) as officer_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id LEFT JOIN officers ON ypno.officer_id = officers.id  where ypno.place_id = ' +
+			'SELECT years.bn_name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.short_name) as ngo_short_name_list,GROUP_CONCAT(ngos.logo) as ngo_logo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list, GROUP_CONCAT(ypno.served_population) population_list, GROUP_CONCAT(ypno.rank) rank_list, GROUP_CONCAT(officers.name) as officer_list FROM `year_place_ngo_officers` ypno LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id LEFT JOIN officers ON ypno.officer_id = officers.id  where ypno.place_id = ' +
 				place_id +
-				' group by ypno.year_id,ypno.place_id order by ypno.year_id desc',
+				' GROUP BY ypno.year_id,ypno.place_id ORDER BY ypno.year_id desc',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
