@@ -15,6 +15,25 @@ exports.fetchall = async (req, res) => {
         return apiResponse.ErrorResponse(res, "No data found")
     }
 }
+exports.getbyCondition = async (req, res) => {
+    //console.log('----------dddddd-------------------imhere---------------');
+    //console.log(req.body);
+    try {
+        let query = '';
+        if(req.body.place_id)
+            query = `places.id=${req.body.place_id}`;
+        else if(req.body.district_id)
+            query = `places.district_id =${req.body.district_id}`;
+        else if(req.body.division_id)
+            query = `places.division_id=${req.body.division_id}`;
+;
+        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as total_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female,sum(pyp.minority) as total_minority,sum(pyp.minority1) as total_minority1,sum(pyp.minority2) as total_minority2 from population_year_places pyp left join places on places.id = pyp.place_id where '+query+' and year_id = (select max(id) as year_id from years)');
+
+        return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
+    }
+}
 
 exports.getbyid = async (req, res) => {
     try {

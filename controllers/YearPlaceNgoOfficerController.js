@@ -563,13 +563,13 @@ exports.getYearPlaceNgoOfficersWithConditions = async (req, res) => {
 		
 		if(req.body.jot_id){
 			if(req.body.jot_id=="!1")
-				query = query +` AND ngo_jot_id <> 1 OR ngo_jot_id IS NULL`;
+				query = query +` AND (ngo_jot_id <> 1 OR ngo_jot_id IS NULL)`;
 			else
 			query = query +` AND ngo_jot_id=${req.body.jot_id}`;
 		}
 		//console.log(req.body.place_id);
 //console.log('--------lddddddd----------------------');
-//		 console.log(query);
+//where year = (SELECT max(year) FROM ngo_place_info2) AND place_id=250 AND ngo_jot_id <> 1 OR ngo_jot_id IS NULL		 
 		// return;
 		// if (condition_name === 'place') {
 		// 	query = ` place_id=${id}`;
@@ -581,7 +581,7 @@ exports.getYearPlaceNgoOfficersWithConditions = async (req, res) => {
 		// query = `where year = (SELECT max(year) FROM ngo_place_info npi) and` + query
 		//query = `where year = year(curdate()) and` + query;
 		query = `where year = (SELECT max(year) FROM ngo_place_info2) ` + query;
-
+//console.log(query);
 		const [results, metadata] = await sequelize.query(
 			`SELECT * FROM ngo_place_info2 ` +
 				query +

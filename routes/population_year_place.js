@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get('/all_population_year_place',auth, PopulationYearPlaceController.fetchall);
 router.get('/all_population_year_place/:id',auth, PopulationYearPlaceController.getbyid);
+router.post('/all_population_year_place_by_condition',auth, PopulationYearPlaceController.getbyCondition);
 router.get('/all_population_year_place_by_place/:place',auth, PopulationYearPlaceController.getbyYear);
 router.get('/all_population_year_place_by_district/:disId',auth, PopulationYearPlaceController.getbyDisId);
 router.get('/all_population_year_place_by_division/:divId',auth, PopulationYearPlaceController.getbyDivId);
