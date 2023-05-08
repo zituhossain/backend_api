@@ -221,11 +221,12 @@ exports.finalReportGenerateJot = async (req, res) => {
 	}
 	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
 	console.log('custome_query', custome_query);
-	const [alldata, metadata] = await sequelize.query(
-		`SELECT ngo_place_info.*,(select name from ngo_jots limit 1) jot1,(select ngo_name from ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = ngo_place_info.place_id AND ngos.ngo_jots_id = (select id from ngo_jots limit 1) limit 1) as ngo_officer ${custome_query} FROM ngo_place_info` +
-			query +
-			` GROUP BY place_id`
-	);
+	const [alldata, metadata] = await sequelize.query(`SELECT ngo_place_info.*,(select name from ngo_jots limit 1) jot1,(select ngo_name from ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id where years.name =(
+        SELECT
+            MAX(NAME)
+        FROM
+            years
+        ) and year_place_ngo_officers.place_id = ngo_place_info.place_id AND ngos.ngo_jots_id = (select id from ngo_jots limit 1) limit 1) as ngo_officer ${custome_query} FROM ngo_place_info` + query + ` GROUP BY place_id`);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
 		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
