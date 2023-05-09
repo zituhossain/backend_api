@@ -421,14 +421,14 @@ exports.updateoveralltitlebyid = async (req, res) => {
 		});
 		if (condition_data) {
 			
-			const status_data = await year_place_ngo_officer.findOne({
-				where: {
-					place_id: req.body.place_id,
-					year_id: req.body.year_id,
-					status: req.body.status,
-					ngo_id: req.body.ngo_id,
-				}
-			});
+			// const status_data = await year_place_ngo_officer.findOne({
+			// 	where: {
+			// 		place_id: req.body.place_id,
+			// 		year_id: req.body.year_id,
+			// 		status: req.body.status,
+			// 		ngo_id: req.body.ngo_id,
+			// 	}
+			// });
 			// const rank_data = await year_place_ngo_officer.findOne({
 			// 	where: {
 			// 		place_id: req.body.place_id,
@@ -437,6 +437,17 @@ exports.updateoveralltitlebyid = async (req, res) => {
 			// 		id:{ [Op.ne]: condition_id },
 			// 	}
 			// });
+			let status_data=[];
+			const [results1, metadata1] = await sequelize.query(`SELECT * FROM year_place_ngo_officers WHERE place_id=${req.body.place_id} AND year_id=${req.body.year_id} AND status=${req.body.rank} AND ngo_id=${req.body.ngo_id} AND id <> ${condition_id} LIMIT 1;`);
+			if(results1.length>0){
+				// console.log('if');
+				// console.log(results);
+				status_data = results[0];
+			}else{
+				//console.log('else');
+				status_data['status']=0;
+			}
+
 			let rank_data=[];
 			const [results, metadata] = await sequelize.query(`SELECT * FROM year_place_ngo_officers WHERE place_id=${req.body.place_id} AND year_id=${req.body.year_id} AND rank=${req.body.rank} AND id <> ${condition_id} LIMIT 1;`);
 			if(results.length>0){
@@ -447,8 +458,8 @@ exports.updateoveralltitlebyid = async (req, res) => {
 				//console.log('else');
 				rank_data['rank']=0;
 			}
-			//console.log(rank_data);
-			//console.log('--------------update--------------bs---',req.body.rank,'------------sd--',rank_data.rank,'-------',req.params.id);
+			console.log(status_data);
+			console.log('--------------update--------------bs---',req.body.status,'------------sd--',status_data.status,'-------',req.params.id);
 	//return;
 			if (!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1)) {
 			if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null ) {
