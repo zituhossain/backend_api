@@ -232,10 +232,32 @@ exports.getNgoPopularOfficer = async (req, res) => {
 };
 exports.getNgoFinalOfficer = async (req, res) => {
 	try {
-		const [results, metadata] = await sequelize.query(
-			`select officers.*, ngos.name as ngoname, year_place_ngo_officers.ngo_id, year_place_ngo_officers.place_id, year_place_ngo_officers.status AS status from officers left join year_place_ngo_officers on officers.id = year_place_ngo_officers.officer_id left join ngos on year_place_ngo_officers.ngo_id = ngos.id LEFT JOIN places ON year_place_ngo_officers.place_id = places.id where year_place_ngo_officers.ngo_id=6 and year_place_ngo_officers.place_id = ${req.params.id} GROUP by year_place_ngo_officers.status;`
-		);
-
+		console.log('-----------adsfasfasdfasdf---------------asdfasdfas-df');
+		// const [results, metadata] = await sequelize.query(
+		// 	`select officers.*, ngos.name as ngoname, year_place_ngo_officers.ngo_id, year_place_ngo_officers.place_id, year_place_ngo_officers.status AS status from officers left join year_place_ngo_officers on officers.id = year_place_ngo_officers.officer_id left join ngos on year_place_ngo_officers.ngo_id = ngos.id LEFT JOIN places ON year_place_ngo_officers.place_id = places.id where year_place_ngo_officers.ngo_id=6 and year_place_ngo_officers.place_id = ${req.params.id} GROUP by year_place_ngo_officers.status;`
+		// );
+		const [results,metadata] = await sequelize.query(`
+			select 
+  officers.*, 
+  ngos.name as ngoname, 
+  year_place_ngo_officers.id as ypno_id,
+  year_place_ngo_officers.ngo_id, 
+  year_place_ngo_officers.place_id, 
+  year_place_ngo_officers.status AS status, 
+  years.id as year_id, 
+  years.name as year_name
+from 
+  officers 
+  left join year_place_ngo_officers on officers.id = year_place_ngo_officers.officer_id 
+  left join ngos on year_place_ngo_officers.ngo_id = ngos.id 
+  LEFT JOIN places ON year_place_ngo_officers.place_id = places.id 
+  LEFT JOIN years on year_place_ngo_officers.year_id = years.id 
+where 
+  year_place_ngo_officers.ngo_id = 6 
+  and year_place_ngo_officers.place_id = ${req.params.id}
+  and years.name = (SELECT MAX(name) FROM years)
+  and year_place_ngo_officers.year_id = years.id;`);
+console.log(results);
 		if (results) {
 			return apiResponse.successResponseWithData(
 				res,
@@ -301,10 +323,14 @@ var generateHash = (value) => {
 
 exports.createYearPlaceNgoofficer = async (req, res) => {
 	try {
-		console.log(
-			'------------------createYearPlaceNgoofficer-------------------',
-			req.body
-		);
+		const status_data = await year_place_ngo_officer.findOne({
+			where: {
+				place_id: req.body.place_id,
+				year_id: req.body.year_id,
+				status: req.body.status,
+				ngo_id: req.body.ngo_id,
+			},
+		});
 		const rank_data = await year_place_ngo_officer.findOne({
 			where: {
 				place_id: req.body.place_id,
@@ -312,11 +338,13 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 				rank: req.body.rank,
 			},
 		});
-		console.log(
-			'------------------createYearPlaceNgoofficer----------------',
-			rank_data
-		);
-		if (!rank_data || req.body.rank !== 1) {
+		
+		// console.log(
+		// 	'------------------createYearPlaceNgoofficer----------------',
+		// 	rank_data
+		// );
+		if(!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1)) {
+		if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null) {
 			const get_data = await year_place_ngo_officer.findOne({
 				where: {
 					place_id: req.body.place_id,
@@ -371,9 +399,15 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 		} else {
 			return apiResponse.ErrorResponse(
 				res,
-				'Same Year Same Place Same Rank Failed'
+				'একই স্থানে, একই বছরে দুইজনের রেজাল্ট/ রেঙ্ক সমান হতে পারবে না'
 			);
 		}
+	}else{
+		return apiResponse.ErrorResponse(
+				res,
+				'একই স্থানে, একই বছরে দুইজন চূড়ান্ত হতে পারবেন না।'
+			);
+	}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
@@ -386,15 +420,38 @@ exports.updateoveralltitlebyid = async (req, res) => {
 			where: { id: condition_id },
 		});
 		if (condition_data) {
-			const rank_data = await year_place_ngo_officer.findOne({
+			
+			const status_data = await year_place_ngo_officer.findOne({
 				where: {
 					place_id: req.body.place_id,
 					year_id: req.body.year_id,
-					rank: req.body.rank,
-				},
-				raw: true,
+					status: req.body.status,
+					ngo_id: req.body.ngo_id,
+				}
 			});
-			if (!rank_data || req.body.rank !== 1 || rank_data.rank === 1) {
+			// const rank_data = await year_place_ngo_officer.findOne({
+			// 	where: {
+			// 		place_id: req.body.place_id,
+			// 		year_id: req.body.year_id,
+			// 		rank: req.body.rank,
+			// 		id:{ [Op.ne]: condition_id },
+			// 	}
+			// });
+			let rank_data=[];
+			const [results, metadata] = await sequelize.query(`SELECT * FROM year_place_ngo_officers WHERE place_id=${req.body.place_id} AND year_id=${req.body.year_id} AND rank=${req.body.rank} AND id <> ${condition_id} LIMIT 1;`);
+			if(results.length>0){
+				// console.log('if');
+				// console.log(results);
+				rank_data = results[0];
+			}else{
+				//console.log('else');
+				rank_data['rank']=0;
+			}
+			//console.log(rank_data);
+			//console.log('--------------update--------------bs---',req.body.rank,'------------sd--',rank_data.rank,'-------',req.params.id);
+	//return;
+			if (!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1)) {
+			if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null ) {
 				// const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id, officer_id: req.body.officer_id } });
 				// if (!get_data) {
 				if (req.body.place_id) {
@@ -442,7 +499,13 @@ exports.updateoveralltitlebyid = async (req, res) => {
 			} else {
 				return apiResponse.ErrorResponse(
 					res,
-					'Same Year Same Place Same Rank Failed'
+					'একই স্থানে, একই বছরে দুইজনের রেজাল্ট/ রেঙ্ক সমান হতে পারবে না'
+				);
+			}
+			}else{
+				return apiResponse.ErrorResponse(
+					res,
+					'একই স্থানে, একই বছরে দুইজন চূড়ান্ত হতে পারবেন না।'
 				);
 			}
 		} else {
