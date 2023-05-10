@@ -414,6 +414,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 };
 
 exports.updateoveralltitlebyid = async (req, res) => {
+
 	try {
 		const condition_id = req.params.id;
 		const condition_data = await year_place_ngo_officer.findOne({
@@ -442,12 +443,11 @@ exports.updateoveralltitlebyid = async (req, res) => {
 			if(results1.length>0){
 				// console.log('if');
 				// console.log(results);
-				status_data = results[0];
+				status_data = results1[0];
 			}else{
 				//console.log('else');
 				status_data['status']=0;
 			}
-
 			let rank_data=[];
 			const [results, metadata] = await sequelize.query(`SELECT * FROM year_place_ngo_officers WHERE place_id=${req.body.place_id} AND year_id=${req.body.year_id} AND rank=${req.body.rank} AND id <> ${condition_id} LIMIT 1;`);
 			if(results.length>0){
@@ -567,11 +567,12 @@ exports.getkormitopbyxid = async (req, res) => {
 		const id = req.params.id;
 		const condition_name = req.params.condition;
 		let query = '';
-		if (condition_name === 'place') {
+		let placeOrderCondition = 'place_id';
+		if (condition_name === 'place_id') {
 			query = ` place_id=${id}`;
-		} else if (condition_name === 'division') {
+		} else if (condition_name === 'division_id') {
 			query = ` division_id=${id}`;
-		} else if (condition_name === 'district') {
+		} else if (condition_name === 'district_id') {
 			query = ` district_id=${id}`;
 		}
 		// query = `where year = (SELECT max(year) FROM ngo_place_info npi) and` + query
@@ -581,7 +582,7 @@ exports.getkormitopbyxid = async (req, res) => {
 		const [results, metadata] = await sequelize.query(
 			`SELECT * FROM ngo_place_info2 ` +
 				query +
-				` GROUP BY officer_name ORDER  BY -ngo_view_order DESC,ypno_status DESC,ypno_view_order,officer_id`
+				` GROUP BY officer_name ORDER  BY -` +placeOrderCondition+ ` DESC,-ngo_view_order DESC,ypno_status DESC, -ypno_view_order DESC, ypno_view_order,officer_id`
 		);
 
 		if (results) {
