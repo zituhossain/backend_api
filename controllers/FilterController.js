@@ -165,10 +165,7 @@ exports.finalReportGenerate = async (req, res) => {
 	// ngo_place_info.officer_name AS ngo_officer_one
 	// FROM ngo_place_info where ngo_place_info.year = (select Max(name) from years) AND ngo_place_info.ypno_status = 1`;
 
-	let query = `SELECT ngo_place_info.place_name, 
-	ngo_place_info.place_area, 
-	ngo_place_info.year,
-	ngo_place_info.categoryb_name,
+	let query = `SELECT ngo_place_info.*,
 		(SELECT officers.name from year_place_ngo_officers LEFT JOIN officers 
 		ON(officers.id = year_place_ngo_officers.officer_id) LEFT JOIN years 
 		ON(years.id = year_place_ngo_officers.year_id)
