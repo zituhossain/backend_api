@@ -621,8 +621,8 @@ exports.placeDetails = async (req, res) => {
 					}
 				});
 		}
-		// console.log('----------jkafdf------------------------------');
-		// console.log(place_data.ngoServedPercentByPalce);
+		 console.log('----------jkafdf------------------------------');
+		 console.log(place_data);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -695,6 +695,7 @@ exports.placeHistory = async (req, res) => {
 			`SELECT
 years.id as year_id,
 years.bn_name as bn_name,
+years.bn_term as bn_term,
 ypno.id as ypno_id,
 ypno.year_id as ypno_year_id,
 ypno.place_id as ypno_place_id,
