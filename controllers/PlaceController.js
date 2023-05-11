@@ -528,15 +528,15 @@ exports.addCategoryB = async (req, res) => {
 // };
 //
 //					include: [{model:ngo_categories}]
-					// include: [
-					// 	{
-					// 		model:ngo_categories,
-					// 		as: 'category',
-					// 		where: {
-					// 			ngo_categories.id: ngo_category_b.ngo_category_id,
-					// 		}
-					// 	}
-					// ]
+// include: [
+// 	{
+// 		model:ngo_categories,
+// 		as: 'category',
+// 		where: {
+// 			ngo_categories.id: ngo_category_b.ngo_category_id,
+// 		}
+// 	}
+// ]
 
 exports.placeDetails = async (req, res) => {
 	try {
@@ -621,8 +621,8 @@ exports.placeDetails = async (req, res) => {
 					}
 				});
 		}
-		 console.log('----------jkafdf------------------------------');
-		 console.log(place_data);
+		console.log('----------jkafdf------------------------------');
+		console.log(place_data);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -668,62 +668,62 @@ exports.placeHistory = async (req, res) => {
 	try {
 		console.log('---------------hiimhere')
 		const place_data = await sequelize.query(
-		// 	`SELECT 
-		// 	GROUP_CONCAT(IFNULL(population_year_places.served_population, 0)) as total_serve_population, 
-		// 	years.bn_name as year_id, 
-		// 	years.bn_term as term, 
-		// 	GROUP_CONCAT(ngos.name) as ngo_list, 
-		// 	GROUP_CONCAT(ngos.color_code) as color_list, 
-		// 	GROUP_CONCAT(percent_served) as percent_list, 
-		// 	GROUP_CONCAT(IFNULL(ypno.served_population, 0)) population_list, 
-		// 	GROUP_CONCAT(ypno.rank) rank_list, 
-		// 	GROUP_CONCAT(officers.name) as officer_list 
-		//   FROM year_place_ngo_officers ypno 
-		//   INNER JOIN population_year_places ON (ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id) 
-		//   INNER join ngos on ngos.id = ypno.ngo_id 
-		//   INNER join years on years.id = ypno.year_id 
-		//   INNER JOIN officers ON ypno.officer_id = officers.id  
-		//   WHERE ypno.place_id =` +
-		// 		place_id +
-		// 		' GROUP BY ypno.year_id,ypno.place_id ORDER BY ypno.year_id desc',
-		// 	{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
+			// 	`SELECT 
+			// 	GROUP_CONCAT(IFNULL(population_year_places.served_population, 0)) as total_serve_population, 
+			// 	years.bn_name as year_id, 
+			// 	years.bn_term as term, 
+			// 	GROUP_CONCAT(ngos.name) as ngo_list, 
+			// 	GROUP_CONCAT(ngos.color_code) as color_list, 
+			// 	GROUP_CONCAT(percent_served) as percent_list, 
+			// 	GROUP_CONCAT(IFNULL(ypno.served_population, 0)) population_list, 
+			// 	GROUP_CONCAT(ypno.rank) rank_list, 
+			// 	GROUP_CONCAT(officers.name) as officer_list 
+			//   FROM year_place_ngo_officers ypno 
+			//   INNER JOIN population_year_places ON (ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id) 
+			//   INNER join ngos on ngos.id = ypno.ngo_id 
+			//   INNER join years on years.id = ypno.year_id 
+			//   INNER JOIN officers ON ypno.officer_id = officers.id  
+			//   WHERE ypno.place_id =` +
+			// 		place_id +
+			// 		' GROUP BY ypno.year_id,ypno.place_id ORDER BY ypno.year_id desc',
+			// 	{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 
 			// 'SELECT GROUP_CONCAT(population_year_places.served_population) as total_serve_population, years.bn_name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list, GROUP_CONCAT(ypno.served_population) population_list, GROUP_CONCAT(ypno.rank) rank_list, GROUP_CONCAT(officers.name) as officer_list FROM `year_place_ngo_officers` ypno INNER JOIN population_year_places ON (ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id) LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id LEFT JOIN officers ON ypno.officer_id = officers.id  where ypno.place_id =' +
 			// 	place_id +
 			// 	' GROUP BY ypno.year_id,ypno.place_id ORDER BY ypno.year_id desc',
 			// { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 			`SELECT
-years.id as year_id,
-years.bn_name as bn_name,
-years.bn_term as bn_term,
-ypno.id as ypno_id,
-ypno.year_id as ypno_year_id,
-ypno.place_id as ypno_place_id,
-ypno.ngo_id as ypno_ngo_id,
-ypno.rank as ypno_rank,
-ypno.served_population as ypno_served_population,
-places.name as place_name,
-places.id as place_id,
-ngos.name as ngo_name,
-ngos.short_name as ngo_short_name,
-ngos.color_code as ngo_color_code,
-officers.name as officer_name,
-pyp.served_population as total_served_population
-FROM year_place_ngo_officers ypno
-	LEFT JOIN years on years.id = ypno.year_id
-    LEFT JOIN places on places.id = ypno.place_id
-    LEFT JOIN ngos on ngos.id = ypno.ngo_id
-    LEFT JOIN officers on officers.id = ypno.officer_id
-    LEFT JOIN population_year_places as pyp on ypno.id = pyp.id
-WHERE
-	places.id = `+place_id + `
-	AND ypno.rank IS NOT NULL
-	AND ypno.rank <> 0
-ORDER BY
-years.id desc, ypno.rank ASC;`,{ type: sequelize.QueryTypes.SELECT }
+			years.id as year_id,
+			years.bn_name as bn_name,
+			years.bn_term as bn_term,
+			ypno.id as ypno_id,
+			ypno.year_id as ypno_year_id,
+			ypno.place_id as ypno_place_id,
+			ypno.ngo_id as ypno_ngo_id,
+			ypno.rank as ypno_rank,
+			ypno.served_population as ypno_served_population,
+			places.name as place_name,
+			places.id as place_id,
+			ngos.name as ngo_name,
+			ngos.short_name as ngo_short_name,
+			ngos.color_code as ngo_color_code,
+			officers.name as officer_name,
+			pyp.served_population as total_served_population
+			FROM year_place_ngo_officers ypno
+				LEFT JOIN years on years.id = ypno.year_id
+				LEFT JOIN places on places.id = ypno.place_id
+				LEFT JOIN ngos on ngos.id = ypno.ngo_id
+				LEFT JOIN officers on officers.id = ypno.officer_id
+				LEFT JOIN population_year_places as pyp on ypno.year_id = pyp.year_id AND ypno.place_id = pyp.place_id
+			WHERE
+				places.id = `+ place_id + `
+				AND ypno.rank IS NOT NULL
+				AND ypno.rank <> 0
+			ORDER BY
+			years.id desc, ypno.rank ASC;`, { type: sequelize.QueryTypes.SELECT }
 		);
-console.log('---------------imhere')
-console.log(place_data)
+		console.log('---------------imhere')
+		console.log(place_data)
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -828,7 +828,7 @@ exports.addNgoServedPercent = async (req, res) => {
 }
 exports.addNgoServedPercent = async (req, res) => {
 	try {
-		
+
 		console.log(req.body.ngos);
 		let ngos = req.body.ngos;
 		for (i = 0; i < ngos.length; i++) {
@@ -842,16 +842,16 @@ exports.addNgoServedPercent = async (req, res) => {
 			});
 
 			// if the record exists, update the percent value
-			if(existingRecord){
-				if(ngos[i].percent === 0 || ngos[i].percent === null || ngos[i].percent === ''){
+			if (existingRecord) {
+				if (ngos[i].percent === 0 || ngos[i].percent === null || ngos[i].percent === '') {
 					await existingRecord.destroy();
-				}else{
-					existingRecord.percent=ngos[i].percent;
+				} else {
+					existingRecord.percent = ngos[i].percent;
 					await existingRecord.save();
 				}
-			}else{
-				if(ngos[i].percent!== null){
-						await ngo_served_percent_by_palces.create({
+			} else {
+				if (ngos[i].percent !== null) {
+					await ngo_served_percent_by_palces.create({
 						place_id: req.body.place_id,
 						ngo_id: ngos[i].id,
 						district_id: req.body.district_id,
