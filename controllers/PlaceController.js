@@ -707,6 +707,7 @@ exports.placeHistory = async (req, res) => {
 			ngos.name as ngo_name,
 			ngos.short_name as ngo_short_name,
 			ngos.color_code as ngo_color_code,
+			ngos.logo as ngo_logo,
 			officers.name as officer_name,
 			pyp.served_population as total_served_population
 			FROM year_place_ngo_officers ypno
