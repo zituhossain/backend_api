@@ -106,20 +106,52 @@ exports.getNgoDetailPointWisebyplaceid = async (req, res) => {
 	}
 };
 
+// exports.createNgoDetailPointWise = async (req, res) => {
+// 	try {
+// 		const token = req.headers.authorization.split(' ')[1];
+// 		const decodedToken = jwt.verify(token, secret);
+// 		const userId = decodedToken._id;
+// 		req.body.createdby = userId;
+// 		if (Object.keys(req.body).length === 0) {
+// 			return apiResponse.ErrorResponse(res, 'place/title missing');
+// 		} else {
+// 			await ngo_details_info_point_wise.create(req.body);
+// 			return apiResponse.successResponse(
+// 				res,
+// 				'Ngo Details Info saved successfully.'
+// 			);
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.createNgoDetailPointWise = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
 		const userId = decodedToken._id;
 		req.body.createdby = userId;
+
 		if (Object.keys(req.body).length === 0) {
 			return apiResponse.ErrorResponse(res, 'place/title missing');
+		}
+
+		const { place_id, ngo_details_info_id } = req.body;
+		const existingRecord = await ngo_details_info_point_wise.findOne({
+			where: { place_id, ngo_details_info_id },
+		});
+
+		if (existingRecord) {
+			// Update the existing record
+			await ngo_details_info_point_wise.update(req.body, {
+				where: { place_id, ngo_details_info_id },
+			});
+			return apiResponse.successResponse(res, 'Ngo Details Info updated successfully.');
 		} else {
+			// Create a new record
 			await ngo_details_info_point_wise.create(req.body);
-			return apiResponse.successResponse(
-				res,
-				'Ngo Details Info saved successfully.'
-			);
+			return apiResponse.successResponse(res, 'Ngo Details Info saved successfully.');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
