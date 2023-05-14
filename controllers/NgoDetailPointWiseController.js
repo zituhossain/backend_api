@@ -52,74 +52,54 @@ exports.getlocalinfluencerbyid = async (req, res) => {
 	}
 };
 
-// exports.getNgoDetailPointWisebyplaceid = async (req, res) => {
-//     try {
-//         const placeid = req.params.placeid;
-//         const influencer_data = await ngo_details_info_point_wise.findAll({
-//             include: [
-//                 Place, ngo_details_info
-//             ],
-//             where: { place_id: placeid }
-//          });
-//         if (influencer_data) {
-//             return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
-//         } else {
-//             return apiResponse.ErrorResponse(res, "No matching query found")
-//         }
-
-//     } catch (err) {
-//         return apiResponse.ErrorResponse(res, err.message)
-//     }
-// }
-
 exports.getNgoDetailPointWisebyplaceid = async (req, res) => {
-	try {
-		const placeid = req.params.placeid;
-		const titleId = req.params.titleId; // Updated parameter name
+    try {
+        const placeid = req.params.placeid;
+        const influencer_data = await ngo_details_info_point_wise.findAll({
+            include: [
+                Place, ngo_details_info
+            ],
+            where: { place_id: placeid }
+         });
+        if (influencer_data) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
 
-		const influencer_data = await ngo_details_info_point_wise.findAll({
-			include: [
-				{ model: Place },
-				{
-					model: ngo_details_info,
-					attributes: ['id'], // Retrieve only the 'id' attribute (title_id)
-					where: { id: titleId }, // Updated to filter by ngo_details_info_id
-				},
-			],
-			where: {
-				place_id: placeid,
-				details: { [Op.not]: null },
-			},
-		});
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
 
-		if (influencer_data) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data successfully fetched.',
-				influencer_data
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-
-// exports.createNgoDetailPointWise = async (req, res) => {
+// exports.getNgoDetailPointWisebyplaceid = async (req, res) => {
 // 	try {
-// 		const token = req.headers.authorization.split(' ')[1];
-// 		const decodedToken = jwt.verify(token, secret);
-// 		const userId = decodedToken._id;
-// 		req.body.createdby = userId;
-// 		if (Object.keys(req.body).length === 0) {
-// 			return apiResponse.ErrorResponse(res, 'place/title missing');
-// 		} else {
-// 			await ngo_details_info_point_wise.create(req.body);
-// 			return apiResponse.successResponse(
+// 		const placeid = req.params.placeid;
+// 		const titleId = req.params.titleId; // Updated parameter name
+
+// 		const influencer_data = await ngo_details_info_point_wise.findAll({
+// 			include: [
+// 				{ model: Place },
+// 				{
+// 					model: ngo_details_info,
+// 					attributes: ['id'], // Retrieve only the 'id' attribute (title_id)
+// 					where: { id: titleId }, // Updated to filter by ngo_details_info_id
+// 				},
+// 			],
+// 			where: {
+// 				place_id: placeid,
+// 				details: { [Op.not]: null },
+// 			},
+// 		});
+
+// 		if (influencer_data) {
+// 			return apiResponse.successResponseWithData(
 // 				res,
-// 				'Ngo Details Info saved successfully.'
+// 				'Data successfully fetched.',
+// 				influencer_data
 // 			);
+// 		} else {
+// 			return apiResponse.ErrorResponse(res, 'No matching query found');
 // 		}
 // 	} catch (err) {
 // 		return apiResponse.ErrorResponse(res, err.message);
@@ -132,31 +112,51 @@ exports.createNgoDetailPointWise = async (req, res) => {
 		const decodedToken = jwt.verify(token, secret);
 		const userId = decodedToken._id;
 		req.body.createdby = userId;
-
 		if (Object.keys(req.body).length === 0) {
 			return apiResponse.ErrorResponse(res, 'place/title missing');
-		}
-
-		const { place_id, ngo_details_info_id } = req.body;
-		const existingRecord = await ngo_details_info_point_wise.findOne({
-			where: { place_id, ngo_details_info_id },
-		});
-
-		if (existingRecord) {
-			// Update the existing record
-			await ngo_details_info_point_wise.update(req.body, {
-				where: { place_id, ngo_details_info_id },
-			});
-			return apiResponse.successResponse(res, 'Ngo Details Info updated successfully.');
 		} else {
-			// Create a new record
 			await ngo_details_info_point_wise.create(req.body);
-			return apiResponse.successResponse(res, 'Ngo Details Info saved successfully.');
+			return apiResponse.successResponse(
+				res,
+				'Ngo Details Info saved successfully.'
+			);
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+// exports.createNgoDetailPointWise = async (req, res) => {
+// 	try {
+// 		const token = req.headers.authorization.split(' ')[1];
+// 		const decodedToken = jwt.verify(token, secret);
+// 		const userId = decodedToken._id;
+// 		req.body.createdby = userId;
+
+// 		if (Object.keys(req.body).length === 0) {
+// 			return apiResponse.ErrorResponse(res, 'place/title missing');
+// 		}
+
+// 		const { place_id, ngo_details_info_id } = req.body;
+// 		const existingRecord = await ngo_details_info_point_wise.findOne({
+// 			where: { place_id, ngo_details_info_id },
+// 		});
+
+// 		if (existingRecord) {
+// 			// Update the existing record
+// 			await ngo_details_info_point_wise.update(req.body, {
+// 				where: { place_id, ngo_details_info_id },
+// 			});
+// 			return apiResponse.successResponse(res, 'Ngo Details Info updated successfully.');
+// 		} else {
+// 			// Create a new record
+// 			await ngo_details_info_point_wise.create(req.body);
+// 			return apiResponse.successResponse(res, 'Ngo Details Info saved successfully.');
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
 
 exports.updatelocalinfluencerbyid = async (req, res) => {
 	try {

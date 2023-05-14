@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
 			address: DataTypes.STRING,
 			designation: DataTypes.STRING,
 			joining_date: DataTypes.STRING,
-			batch: DataTypes.INTEGER,
+			batch: DataTypes.String,
 			ability: DataTypes.STRING,
 			honesty: DataTypes.STRING,
 			qualification: DataTypes.STRING,
