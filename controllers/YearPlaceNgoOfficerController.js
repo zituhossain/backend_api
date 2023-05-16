@@ -736,7 +736,7 @@ exports.getYearPlaceNgoOfficersWithConditions = async (req, res) => {
 		const [results, metadata] = await sequelize.query(
 			`SELECT * FROM ngo_place_info2 ` +
 				query +
-				` GROUP BY officer_name ORDER BY ypno_status ASC, -ngo_view_order DESC,ypno_view_order IS NULL, ypno_view_order ASC,officer_id`
+				` GROUP BY officer_name ORDER BY FIELD(ypno_status, 1, 3, 2,0), -ngo_view_order DESC,ypno_view_order IS NULL, ypno_view_order ASC,officer_id`
 		);
 
 		if (results) {
