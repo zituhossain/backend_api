@@ -2,6 +2,10 @@ const apiResponse = require('../helpers/apiResponse');
 const { Officer, sequelize } = require('../models');
 const CryptoJS = require('crypto-js');
 
+const fs = require('fs');
+const path = require('path');
+const base_dir_config = require('../config.js');
+
 exports.createofficer = async (req, res) => {
 	if (req.file) {
 		const filePath = `uploads/officer/${req.file.filename}`;
@@ -41,6 +45,77 @@ exports.createofficer = async (req, res) => {
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.filterImageName = async (req, res) => {
+	try {
+		// Assuming you are using a database library such as Sequelize or Mongoose
+		// and have a model called "Officer" representing your table
+		const data = await Officer.findAll(); // Fetch the Officer data
+
+		// Iterate over the data and update each field that contains spaces
+		for (let i = 0; i < data.length; i++) {
+			const field = data[i].image; // Replace "image" with your actual field name
+
+			if (field.includes(' ')) {
+				const updatedField = field.replace(/[\s\u200B-\u200D\uFEFF]/g, '_');
+
+				console.log('filter====>', updatedField);
+
+				// Assuming you have an update method in your model to update the field
+				await Officer.update(
+					{ image: updatedField },
+					{ where: { id: data[i].id } }
+				);
+			}
+		}
+
+		return res
+			.status(200)
+			.json({ message: 'Field data filtered successfully' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: 'Internal server error' });
+	}
+};
+
+exports.filterLocalDirectoryImageName = async (req, res) => {
+	try {
+		const directoryPath = base_dir_config.base_dir + 'uploads/officer/';
+
+		// Read the directory contents
+		fs.readdir(directoryPath, async (err, files) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).json({ error: 'Internal server error' });
+			}
+
+			// Iterate over the files and filter the image names
+			for (let i = 0; i < files.length; i++) {
+				const file = files[i];
+				const filePath = path.join(directoryPath, file);
+
+				// Check if the file is an image (you can modify the check based on your image file extensions)
+				if (
+					fs.statSync(filePath).isFile() &&
+					/\.(jpg|jpeg|png|gif)$/i.test(file)
+				) {
+					const updatedFileName = file.replace(/\s/g, '_');
+					const updatedFilePath = path.join(directoryPath, updatedFileName);
+
+					// Rename the file with the updated name
+					fs.renameSync(filePath, updatedFilePath);
+				}
+			}
+
+			return res
+				.status(200)
+				.json({ message: 'Image files filtered successfully' });
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: 'Internal server error' });
 	}
 };
 
