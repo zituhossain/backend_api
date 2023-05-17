@@ -92,18 +92,20 @@ exports.updateUser = async (req, res) => {
 		user.username = username;
 		user.firstname = firstname;
 		user.lastname = lastname;
-		user.password1 = password1;
-		user.password2 = password2;
 		user.office_id = office_id;
 		user.phone = phone;
 		user.role_id = role_id;
 		user.status = status;
 
+
+
 		if (password1 && password2) {
 			if (password1 === password2) {
 				return apiResponse.ErrorResponse(res, 'Password can not be same');
 			} else {
+				if(password1!==null || password1!=='')
 				user.password1 = generatePassword(password1);
+				if(password2!==null || password2!=='')
 				user.password2 = generatePassword(password2);
 			}
 		}

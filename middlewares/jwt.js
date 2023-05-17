@@ -132,9 +132,13 @@ module.exports = async (req, res, next) => {
 						if (url_table_data) {
 							next();
 						} else {
+							console.log('------------jwt.js 111----------');
+							console.log(finalurl);
 							return apiResponse.unauthorizedResponse(res, "You have no access on this url")
 						}
 					} else {
+						console.log('------------jwt.js 222----------');
+						console.log(finalurl);
 						return apiResponse.unauthorizedResponse(res, "You have no access on this url")
 					}
 				}

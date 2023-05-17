@@ -479,30 +479,34 @@ exports.create_administration_officer = async (req, res) => {
 		req.body.filename = filePath;
 	}
 	try {
-		if (req.body.district_id === 'null' || req.body.district_id === '') {
-			req.body.district_id = null;
-		}
+		// if (req.body.district_id === 'null' || req.body.district_id === '') {
+		// 	req.body.district_id = null;
+		// }
 
-		if (req.body.ordering === 'null' || req.body.ordering === '') {
-			req.body.ordering = null;
-		}
+		// if (req.body.ordering === 'null' || req.body.ordering === '') {
+		// 	req.body.ordering = null;
+		// }
 
-		if (req.body.place_id === 'null' || req.body.place_id === '') {
-			req.body.place_id = null;
-		}
-		if (
-			req.body.administration_office_id === 'null' ||
-			req.body.administration_office_id === ''
-		) {
-			req.body.administration_office_id = null;
-		}
+		// if (req.body.place_id === 'null' || req.body.place_id === '') {
+		// 	req.body.place_id = null;
+		// }
+		// if (
+		// 	req.body.administration_office_id === 'null' ||
+		// 	req.body.administration_office_id === ''
+		// ) {
+		// 	req.body.administration_office_id = null;
+		// }
 
 		const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
 		const userId = decodedToken._id;
 
 		req.body.created_by = userId;
-		if (req.body.division_id && req.body.division_id !== '') {
+			for (const key in req.body) {
+					  if (req.body[key] === 'null') {
+					    req.body[key] = null;
+					  }
+					}
 			const exist_data = await Administration_officer.findAll({
 				where: { email: req.body.email, phone: req.body.phone },
 			});
@@ -512,9 +516,6 @@ exports.create_administration_officer = async (req, res) => {
 				await Administration_officer.create(req.body);
 				return apiResponse.successResponse(res, 'data successfully saved!!!');
 			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'division is missing.');
-		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
@@ -611,40 +612,56 @@ exports.update_administration_officerbyid = async (req, res) => {
 				req.body.filename = filePath;
 			}
 			try {
-				if (
-					req.body.district_id === 'null' ||
-					req.body.district_id === 'null'
-				) {
-					req.body.district_id = null;
-				}
+				//console.log(req.body);
+				// if (
+				// 	req.body.district_id === 'null' ||
+				// 	req.body.district_id === ''
+				// ) {
+				// 	req.body.district_id = null;
+				// }
 
-				if (req.body.ordering === 'null' || req.body.ordering === '') {
-					req.body.ordering = null;
-				}
+				// if (req.body.ordering === 'null' || req.body.ordering === '') {
+				// 	req.body.ordering = null;
+				// }
 
-				if (req.body.place_id === 'null' || req.body.place_id === '') {
-					req.body.place_id = null;
-				}
-				if (
-					req.body.administration_office_id === 'null' ||
-					req.body.administration_office_id === ''
-				) {
-					req.body.administration_office_id = null;
-				}
+				// if (req.body.place_id === 'null' || req.body.place_id === '') {
+				// 	req.body.place_id = null;
+				// }
+				// if (
+				// 	req.body.administration_office_id === 'null' ||
+				// 	req.body.administration_office_id === ''
+				// ) {
+				// 	req.body.administration_office_id = null;
+				// }
 
-				req.body.updated_by = userId;
-				if (req.body.division_id && req.body.division_id !== '') {
-					await Administration_officer.update(req.body, { where: { id: id } });
+				// req.body.updated_by = userId;
+				// if (req.body.division_id && req.body.division_id !== '') {
+				// 	await Administration_officer.update(req.body, { where: { id: id } });
+				// 	return apiResponse.successResponse(
+				// 		res,
+				// 		'data successfully updated!!!'
+				// 	);
+				// } else {
+				// 	return apiResponse.ErrorResponse(
+				// 		res,
+				// 		'parameter or value is missing.'
+				// 	);
+				// }
+
+				// console.log(req.body);
+				for (const key in req.body) {
+				  if (req.body[key] === 'null') {
+				    req.body[key] = null;
+				  }
+				}
+				// console.log(req.body);
+				//return('die');
+
+				await Administration_officer.update(req.body, { where: { id: id } });
 					return apiResponse.successResponse(
 						res,
 						'data successfully updated!!!'
 					);
-				} else {
-					return apiResponse.ErrorResponse(
-						res,
-						'parameter or value is missing.'
-					);
-				}
 			} catch (err) {
 				req.body.updated_by = userId;
 				if (
