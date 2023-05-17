@@ -546,7 +546,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
 							// 	};
 							// 	await officers_heading_description.create(description);
 							// }
-//console.log(res);
+console.log(res);
 							if (res?.headings_value && res?.headings_value!=='') {
 								let hashedContent = generateHash(res?.headings_value ?? '');
 
@@ -568,6 +568,11 @@ exports.updateoveralltitlebyid = async (req, res) => {
 									});
 									//await officers_heading_description.updat(description);
 								}
+							}
+
+							if (res?.id && res?.headings_value==='' || res?.headings_value===null) {
+								const kafi = await officers_heading_description.destroy({where: { id: res.id } });
+
 							}
 							
 
