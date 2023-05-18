@@ -49,15 +49,17 @@ exports.createofficer = async (req, res) => {
 };
 
 exports.filterImageName = async (req, res) => {
+	console.log('---------------------filterImageName--------------');
 	try {
 		// Assuming you are using a database library such as Sequelize or Mongoose
 		// and have a model called "Officer" representing your table
 		const data = await Officer.findAll(); // Fetch the Officer data
 
 		// Iterate over the data and update each field that contains spaces
-		for (let i = 0; i < data.length; i++) {
-			const field = data[i].image; // Replace "image" with your actual field name
-
+		for (let i = 0; i < data?.length; i++) {
+			const field = data[i]?.image; // Replace "image" with your actual field name
+console.log(data[i]?.image);
+			if(field)	
 			if (field.includes(' ')) {
 				const updatedField = field.replace(/[\s\u200B-\u200D\uFEFF]/g, '_');
 
@@ -83,7 +85,7 @@ exports.filterImageName = async (req, res) => {
 exports.filterLocalDirectoryImageName = async (req, res) => {
 	try {
 		const directoryPath = base_dir_config.base_dir + 'uploads/officer/';
-
+console.log('i m here');
 		// Read the directory contents
 		fs.readdir(directoryPath, async (err, files) => {
 			if (err) {
