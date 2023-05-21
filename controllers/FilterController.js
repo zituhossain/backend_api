@@ -441,7 +441,58 @@ exports.finalReportGenerateDoubleNGO = async (req, res) => {
 	}
 };
 exports.finalReportGeneratePossibilityJot = async (req, res) => {
+	let query = '';
+	if (req.body.division_id != '') {
+		query += ` AND division_id = '${req.body.division_id}'`;
+	}
+	if (req.body.district_id != '') {
+		query += ` AND district_id = '${req.body.district_id}'`;
+	}
+	if (req.body.place_id != '') {
+		query += ` AND place_id = '${req.body.place_id}'`;
+	}
+	const [alldata, metadata] = await sequelize.query(`
+		SELECT
+    place_id,
+    place_name,
+    place_area,
+    categoryb_name,
+    MAX(CASE WHEN rn = 1 THEN officer_name END) AS ngo_officer_one,
+    MAX(CASE WHEN rn = 1 THEN ngo_name END) AS ngo_name1,
+    MAX(CASE WHEN rn = 2 THEN officer_name END) AS ngo_officer_two,
+    MAX(CASE WHEN rn = 2 THEN ngo_name END) AS ngo_name2
+FROM (
+    SELECT
+        place_id,
+        place_name,
+    	place_area,
+    	categoryb_name,
+        officer_name,
+        ngo_name,
+        ROW_NUMBER() OVER (PARTITION BY place_id ORDER BY ngo_jot_id) AS rn
+    FROM ngo_place_info2
+    WHERE ypno_status = 1
+    AND year=2023 `+query+`
+) subquery
+GROUP BY place_id, place_name
+ORDER BY place_id;`);
+
+	if (alldata.length > 0) {
+		const userId = report.getUserId(req);
+		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
+		//console.log('ReportPossibilityJot', reportGenerateInfo);
+		return apiResponse.successResponseWithData(
+			res,
+			'all_data fetch successfully.',
+			alldata
+		);
+	} else {
+		return apiResponse.ErrorResponse(res, 'No data found');
+	}
+}
+exports.finalReportGeneratePossibilityJot3 = async (req, res) => {
 	let query = ' where categoryb_name IS NOT NULL ';
+	console.log('req ',req.body);
 	if (req.body.year_id != '') {
 		const get_year = await years.findOne({ where: { id: req.body.year_id } });
 		if (query.includes('where')) {
