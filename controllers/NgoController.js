@@ -58,7 +58,7 @@ exports.fetchall_by_place_id = async (req, res) => {
 exports.fetchall_ngo = async (req, res) => {
 	const ngo_id = req.params.id;
 	try {
-		const ngo_data = await Ngo.findAll({ include: [Place] });
+		const ngo_data = await Ngo.findAll();
 		if (ngo_data.length > 0) {
 			return apiResponse.successResponseWithData(
 				res,

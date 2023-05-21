@@ -710,21 +710,24 @@ exports.getYearPlaceNgoOfficersWithConditions = async (req, res) => {
 	try {
 		
 		let query = '';
+
+		console.log(req.body)
 		if(req.body.place_id)
-			query = `AND place_id=${req.body.place_id}`;
+			query = ` AND place_id=${req.body.place_id}`;
 		else if(req.body.district_id)
-			query = `AND district_id=${req.body.district_id}`;
+			query = ` AND district_id=${req.body.district_id}`;
 		else if(req.body.division_id)
-			query = `AND division_id=${req.body.division_id}`;
+			query = ` AND division_id=${req.body.division_id}`;
 		
 		if(req.body.jot_id){
-			if(req.body.jot_id=="!1")
+			if(req.body.jot_id==="!1")
 				query = query +` AND (ngo_jot_id <> 1 OR ngo_jot_id IS NULL)`;
-			else
+			else if(req.body.jot_id==="1")
 			query = query +` AND ngo_jot_id=${req.body.jot_id}`;
+			else{}
 		}
 		//console.log(req.body.place_id);
-//console.log('--------lddddddd----------------------');
+console.log('--------lddddddd----------------------');
 //where year = (SELECT max(year) FROM ngo_place_info2) AND place_id=250 AND ngo_jot_id <> 1 OR ngo_jot_id IS NULL		 
 		// return;
 		// if (condition_name === 'place') {
@@ -736,12 +739,13 @@ exports.getYearPlaceNgoOfficersWithConditions = async (req, res) => {
 		//}
 		// query = `where year = (SELECT max(year) FROM ngo_place_info npi) and` + query
 		//query = `where year = year(curdate()) and` + query;
-		query = `where year = (SELECT max(year) FROM ngo_place_info2) ` + query;
-//console.log(query);
+		query = `WHERE year = (SELECT max(year) FROM ngo_place_info2)` + query;
+console.log(query);
+
 		const [results, metadata] = await sequelize.query(
-			`SELECT * FROM ngo_place_info2 ` +
-				query +
-				` GROUP BY officer_name ORDER BY FIELD(ypno_status, 1, 3, 2,0), ypno_view_order IS NULL, ypno_view_order ASC,-ngo_view_order DESC,officer_id`
+			`SELECT *
+FROM ngo_place_info2
+`+query+` ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order ASC, -ypno_view_order ASC, -ngo_view_order DESC, officer_id;`
 		);
 
 		if (results) {

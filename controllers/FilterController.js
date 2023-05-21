@@ -479,6 +479,8 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 			query += ` where place_name = '${get_place.name}'`;
 		}
 	}
+	console.log('------------------------');
+	console.log(query);
 	const [alldata, metadata] = await sequelize.query(`SELECT
     ngo_place_info.*,(select name from ngo_jots limit 1) jot1,(select name from ngo_jots limit 1,1) jot2,
     (
@@ -557,7 +559,7 @@ GROUP BY
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
 		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
-		console.log('ReportPossibilityJot', reportGenerateInfo);
+		//console.log('ReportPossibilityJot', reportGenerateInfo);
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
