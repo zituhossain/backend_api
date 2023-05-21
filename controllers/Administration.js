@@ -473,6 +473,7 @@ exports.place_comment_update = async (req, res) => {
 	}
 };
 
+
 exports.create_administration_officer = async (req, res) => {
 	if (req.file) {
 		const filePath = `uploads/admin_officer_photo/${req.file.filename}`;
@@ -521,6 +522,10 @@ exports.create_administration_officer = async (req, res) => {
 	}
 };
 
+
+
+  
+
 exports.getadministration_officerbyplaceid = async (req, res) => {
 	try {
 		const place_id = req.params.id;
@@ -541,6 +546,8 @@ exports.getadministration_officerbyplaceid = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+/*
 exports.getadministration_officer = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
@@ -595,6 +602,63 @@ exports.getadministration_officer = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+*/
+
+exports.getadministration_officer = async (req, res) => {
+	try {
+	  const token = req.headers.authorization.split(' ')[1];
+	  let roleByplace = await checkUserRoleByPlace(token);
+	  let whereCondition = {};
+  
+	  if (roleByplace.district.length > 0) {
+		whereCondition.district_id = roleByplace.district;
+	  }
+	  if (roleByplace.division.length > 0) {
+		whereCondition.division_id = roleByplace.division;
+	  }
+	  if (roleByplace.place.length > 0) {
+		whereCondition.place_id = roleByplace.place;
+	  }
+  
+	  const administration_officer_data = await Administration_officer.findAll({
+		include: [
+		  {
+			model: Division,
+		  },
+		  {
+			model: District,
+		  },
+		  {
+			model: Place,
+		  },
+		  {
+			model: Administration_officer_type,
+		  },
+		  {
+			model: Administration_office,
+		  },
+		  {
+			model: Ngo,
+		  },
+		],
+		where: whereCondition,
+	  });
+  
+	  if (administration_officer_data.length > 0) {
+		return apiResponse.successResponseWithData(
+		  res,
+		  'Data successfully fetched.',
+		  administration_officer_data
+		);
+	  } else {
+		return apiResponse.ErrorResponse(res, 'No matching query found');
+	  }
+	} catch (err) {
+	  return apiResponse.ErrorResponse(res, err.message);
+	}
+  };
+  
+  
 
 exports.update_administration_officerbyid = async (req, res) => {
 	try {
