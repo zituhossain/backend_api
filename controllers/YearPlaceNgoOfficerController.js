@@ -351,6 +351,7 @@ var generateHash = (value) => {
 };
 
 exports.createYearPlaceNgoofficer = async (req, res) => {
+
 	try {
 
 		const jot_data = await Ngo.findOne({
@@ -404,22 +405,6 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 					if (results.length === 0) {
 						headingsValueList.length > 0 &&
 							headingsValueList.map(async (res, index) => {
-
-								// const heading_value = headingsValueList.find(
-								// 	(ress) => ress.profile_id === res.id
-								// );
-
-								// if (heading_value?.headings_value) {
-								// 	let get_desc = generateHash(heading_value?.headings_value);
-								// 	const description = {
-								// 		// ypno_id: ypno?.dataValues?.id,
-								// 		heading_id: res.id,
-								// 		officer_id: req.body.officer_id,
-								// 		year_id: req.body.year_id,
-								// 		desc: get_desc,
-								// 	};
-								// 	await officers_heading_description.create(description);
-								// }
 
 							if (res?.headings_value && res?.headings_value!=='') {
 								let hashedContent = generateHash(res?.headings_value ?? '');
@@ -529,24 +514,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
 					headingsValueList.length > 0 &&
 						headingsValueList.map(async (res, index) => {
 
-							// const heading_value = headingsValueList.find(
-							// 	(ress) => ress.profile_id === res.id
-							// );
-
-							// if (heading_value?.headings_value) {
-							// 	let get_desc = generateHash(
-							// 		heading_value?.headings_value ?? ''
-							// 	);
-							// 	const description = {
-							// 		// ypno_id: condition_id,
-							// 		officer_id: req.body.officer_id,
-							// 		year_id: req.body.year_id,
-							// 		heading_id: res.id,
-							// 		desc: get_desc,
-							// 	};
-							// 	await officers_heading_description.create(description);
-							// }
-console.log(res);
+//console.log(res);
 							if (res?.headings_value && res?.headings_value!=='') {
 								let hashedContent = generateHash(res?.headings_value ?? '');
 
@@ -751,21 +719,33 @@ FROM ngo_place_info2
 		if (results) {
 			let final_arr = [];
 			for (let i = 0; i < results.length; i++) {
-				console.log('results[i].sarbik_desc', results[i].sarbik_desc);
-				if (results[i].sarbik_desc !== null) {
-					let decrypted_data = decryptHash(results[i].sarbik_desc);
+				
+				if (results[i]?.sarbik_desc !== null) {
+					console.log('results[i].sarbik_desc', results[i].sarbik_desc);
+					let decrypted_data = decryptHash(results[i]?.sarbik_desc);
 					results[i].sarbik_desc = decrypted_data;
-					final_arr.push(results[i]);
+					console.log('results[i].sarbik_desc', results[i].sarbik_desc);
+					//final_arr.push(results[i]);
 				} else {
 					results[i].sarbik_desc = '';
-					final_arr.push(results[i]);
+					//final_arr.push(results[i]);
+				}
+				if (results[i]?.sarbik_desc2 !== null) {
+					console.log('results[i].sarbik_desc2', results[i].sarbik_desc2);
+					let decrypted_data = decryptHash(results[i]?.sarbik_desc2);
+					results[i].sarbik_desc2 = decrypted_data;
+					console.log('results[i].sarbik_desc2', results[i].sarbik_desc2);
+					//final_arr.push(results[i]);
+				} else {
+					results[i].sarbik_des2 = '';
+					//final_arr.push(results[i]);
 				}
 			}
 			//console.log('resultsresultsresultsresultsresults', results);
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',
-				final_arr
+				results
 			);
 		} else {
 			return apiResponse.ErrorResponse(res, 'No matching query found');
