@@ -1,5 +1,6 @@
 const apiResponse = require('../helpers/apiResponse');
 const report = require('../helpers/reportLog');
+const checkUserRoleByPlace = require('./globalController');
 const {
 	Division,
 	District,
@@ -36,6 +37,8 @@ exports.districtById = async (req, res) => {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
+
+/*
 exports.placesByDistricId = async (req, res) => {
 	const district_id = req.params.id;
 	const placeAll = await Place.findAll({ where: { district_id } });
@@ -49,6 +52,38 @@ exports.placesByDistricId = async (req, res) => {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
+*/
+
+// /*
+exports.placesByDistricId = async (req, res) => {
+	const district_id = req.params.id;
+	const token = req.headers.authorization.split(' ')[1];
+	const roleByplace = await checkUserRoleByPlace(token);
+
+	const permittedPlaceIds = roleByplace.place; // Get the permitted place IDs from the user's role
+
+	let placeAll;
+
+	if (permittedPlaceIds.length > 0) {
+		placeAll = await Place.findAll({
+			where: { district_id, id: permittedPlaceIds } // Fetch places that match the provided district ID and the permitted place IDs
+		});
+	} else {
+		placeAll = await Place.findAll({ where: { district_id } }); // Fetch all places for the provided district ID when no place IDs are set in the user's role
+	}
+
+	if (placeAll && placeAll.length > 0) {
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			placeAll
+		);
+	} else {
+		return apiResponse.ErrorResponse(res, 'No places found for the user role and provided district.');
+	}
+};
+// */
+
 exports.places = async (req, res) => {
 	const district_id = req.params.id;
 	const placeAll = await Place.findAll();
