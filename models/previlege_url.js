@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Previlege_url.init({
     name: DataTypes.TEXT,
+    url_order: { type: DataTypes.INTEGER, allowNull: true},
     previlege_area_id: DataTypes.INTEGER,
     url: DataTypes.TEXT
   }, {

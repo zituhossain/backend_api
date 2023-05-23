@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
     },
     name: DataTypes.STRING,
+    parea_order: { type: DataTypes.INTEGER, allowNull: true},
     previlege_url: DataTypes.STRING
   }, {
     sequelize,
