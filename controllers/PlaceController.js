@@ -59,6 +59,7 @@ exports.getallPlace = async (req, res) => {
 	}
 };
 
+/*
 exports.getallDivision = async (req, res) => {
 	try {
 		const division_data = await Division.findAll();
@@ -75,6 +76,40 @@ exports.getallDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+*/
+
+exports.getallDivision = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		const roleByplace = await checkUserRoleByPlace(token);
+
+		const divisionIds = roleByplace.division; // Get the division IDs from the user's role
+
+		let division_data;
+
+		if (divisionIds.length > 0) {
+			division_data = await Division.findAll({
+				where: { id: divisionIds } // Fetch divisions that match the IDs in the user's role
+			});
+		} else {
+			division_data = await Division.findAll(); // Fetch all divisions if no division IDs are set in the user's role
+		}
+
+		if (division_data && division_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				division_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No divisions found.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+
 exports.getDivision = async (req, res) => {
 	try {
 		const division_data = await Division.findByPk(req.params.id);
@@ -234,6 +269,8 @@ exports.getDivisionmap = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+/*
 exports.getDistrictByDivision = async (req, res) => {
 	try {
 		const id = req.params.id;
@@ -253,6 +290,42 @@ exports.getDistrictByDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+*/
+
+exports.getDistrictByDivision = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const token = req.headers.authorization.split(' ')[1];
+		const roleByplace = await checkUserRoleByPlace(token);
+
+		const permittedDistrictIds = roleByplace.district; // Get the permitted district IDs from the user's role
+
+		let district_data;
+
+		if (permittedDistrictIds.length > 0) {
+			district_data = await District.findAll({
+				where: { division_id: id, id: permittedDistrictIds } // Fetch districts that match the provided division ID and the permitted district IDs
+			});
+		} else {
+			district_data = await District.findAll({
+				where: { division_id: id } // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+			});
+		}
+
+		if (district_data && district_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				district_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No districts found for the user role and provided division.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 // Select a.ID, a.Name, b.ID as Boss, b.Name as BossName
 // from Employees A
 // left join Employees B
