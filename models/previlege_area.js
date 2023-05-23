@@ -26,5 +26,11 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'previlege_areas',
     modelName: 'Previlege_area',
   });
+
+  Previlege_area.associate = (models) => {
+    Previlege_area.hasMany(models.Previlege_url, {
+      foreignKey: 'previlege_area_id',
+    });
+  };
   return Previlege_area;
 };

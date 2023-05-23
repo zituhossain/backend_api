@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const {User_role,Previlege_area,User,Previlege_url,Previlege_table,Previlege_place_division_district,District,Division,Place} = require('../models');
+const {User_role,Previlege_area,User,Previlege_url,Previlege_table,Previlege_place_division_district,District,Division,Place,Sequelize,} = require('../models');
 const db = require('../db/db');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
@@ -183,10 +183,57 @@ exports.getprevilegeareabyid = async(req,res) => {
 }
 exports.getallprevilegeurl = async(req,res) => {
     try{
-        const previlegearea_data = await Previlege_url.findAll({
-            include:[Previlege_area],
-            order: [['id', 'ASC']],
-        });
+        // const previlegearea_data = await Previlege_url.findAll({
+        //     include:[Previlege_area],
+        //     order: [['id', 'ASC']],
+        // });
+        // const previlegearea_data = await Previlege_url.findAll({
+        //   include: [
+        //     {
+        //       model: Previlege_area,
+        //       order: [['view_order', 'ASC'], ['id', 'ASC']],
+        //     },
+        //   ],
+        //   order: [['view_order', 'ASC'], ['id', 'ASC']],
+        // });
+// const previlegearea_data = await Previlege_url.findAll({
+//   include: [
+//     {
+//       model: Previlege_area,
+//       order: [
+//         ['view_order', 'ASC'],
+//         ['id', 'ASC'],
+//       ],
+//     },
+//   ],
+//   order: [
+//     ['view_order', 'ASC'],
+//     ['id', 'ASC'],
+//   ],
+// });
+
+const previlegearea_data = await Previlege_url.findAll({
+  include: [
+    {
+      model: Previlege_area,
+      order: [
+        [Sequelize.literal('CASE WHEN parea_order IS NULL THEN 1 ELSE 0 END'), 'ASC'],
+        [Sequelize.literal('parea_order'), 'ASC'],
+        ['id', 'ASC'],
+      ],
+    },
+  ],
+  order: [
+    [Sequelize.literal('CASE WHEN url_order IS NULL THEN 1 ELSE 0 END'), 'ASC'],
+    [Sequelize.literal('url_order'), 'ASC'],
+    ['id', 'ASC'],
+  ],
+});
+
+
+
+
+
         if(previlegearea_data){
             return apiResponse.successResponseWithData(res,"Data successfully fetched.",previlegearea_data)
         }else{
