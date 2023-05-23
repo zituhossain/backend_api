@@ -214,7 +214,7 @@ exports.finalReportGenerate = async (req, res) => {
 	} else {
 		query
 	}
-	
+
 	if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
 		const get_ngo = await Ngo.findOne({ where: { id: req.body.ngo_id } });
 		if (query.includes('where')) {
@@ -364,8 +364,8 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT places.id, places.name AS place_name, places.area, SUM(CASE WHEN ngo_jot_id = 1 THEN percent END) AS percent1, SUM(CASE WHEN ngo_jot_id = 2 THEN percent END) AS percent2 FROM ngo_jots jot LEFT JOIN ngo_jot_add_into_places ON (ngo_jot_add_into_places.ngo_jot_id = jot.id) INNER JOIN places ON (ngo_jot_add_into_places.place_id = places.id)` +
-			query +
-			`GROUP BY places.id,places.name,places.area`
+		query +
+		`GROUP BY places.id,places.name,places.area`
 	);
 
 	if (alldata.length > 0) {
@@ -424,8 +424,8 @@ exports.finalReportGenerateDoubleNGO = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT ngo_place_info.*,(select ngo_name from ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select ngo_name from ngo_place_info npi where ngo_id = 2 limit 1) as ngo_name3,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id}) as ngo_officer_one, (select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id2}) as ngo_officer_two,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = ngo_place_info.place_id limit 1) as ngo_officer FROM ngo_place_info` +
-			query +
-			` GROUP BY place_id`
+		query +
+		` GROUP BY place_id`
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -441,7 +441,16 @@ exports.finalReportGenerateDoubleNGO = async (req, res) => {
 	}
 };
 exports.finalReportGeneratePossibilityJot = async (req, res) => {
+	console.log(req.body)
 	let query = '';
+	let resYear = await years.findOne({
+		where: { id: req.body.year_id },
+	});
+	let yvalue = resYear.name;
+	console.log(yvalue);
+	//return ('die');
+
+	query += yvalue;
 	if (req.body.division_id != '') {
 		query += ` AND division_id = '${req.body.division_id}'`;
 	}
@@ -452,30 +461,40 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 		query += ` AND place_id = '${req.body.place_id}'`;
 	}
 	const [alldata, metadata] = await sequelize.query(`
-		SELECT
-    place_id,
-    place_name,
-    place_area,
-    categoryb_name,
-    MAX(CASE WHEN rn = 1 THEN officer_name END) AS ngo_officer_one,
-    MAX(CASE WHEN rn = 1 THEN ngo_name END) AS ngo_name1,
-    MAX(CASE WHEN rn = 2 THEN officer_name END) AS ngo_officer_two,
-    MAX(CASE WHEN rn = 2 THEN ngo_name END) AS ngo_name2
+	SELECT
+    subquery.place_id,
+    subquery.place_name,
+    MAX(subquery.place_area) AS place_area,
+    MAX(subquery.categoryb_name) AS categoryb_name,
+    MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.officer_name END) AS ngo_officer_one,
+    MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.ngo_name END) AS ngo_name1,
+    MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.officer_name END) AS ngo_officer_two,
+    MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.ngo_name END) AS ngo_name2,
+    (SELECT officer_name
+     FROM ngo_place_info2
+     WHERE place_id = subquery.place_id AND year < 2023 AND ypno_rank = 1 AND ypno_status = 0
+     ORDER BY year DESC
+     LIMIT 1) AS winner_name,
+    (SELECT ngo_name
+     FROM ngo_place_info2
+     WHERE place_id = subquery.place_id AND year < 2023 AND ypno_rank = 1 AND ypno_status = 0
+     ORDER BY year DESC
+     LIMIT 1) AS winner_ngo_name
 FROM (
     SELECT
         place_id,
         place_name,
-    	place_area,
-    	categoryb_name,
+        place_area,
+        categoryb_name,
         officer_name,
         ngo_name,
-        ROW_NUMBER() OVER (PARTITION BY place_id ORDER BY ngo_jot_id) AS rn
+        ngo_jot_id
     FROM ngo_place_info2
-    WHERE ypno_status = 1
-    AND year=2023 `+query+`
+    WHERE ypno_status = 1 AND year = `+ query + `
+    ORDER BY place_id, ngo_jot_id
 ) subquery
-GROUP BY place_id, place_name
-ORDER BY place_id;`);
+GROUP BY subquery.place_id, subquery.place_name
+ORDER BY subquery.place_id;`);
 
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -492,7 +511,7 @@ ORDER BY place_id;`);
 }
 exports.finalReportGeneratePossibilityJot3 = async (req, res) => {
 	let query = ' where categoryb_name IS NOT NULL ';
-	console.log('req ',req.body);
+	console.log('req ', req.body);
 	if (req.body.year_id != '') {
 		const get_year = await years.findOne({ where: { id: req.body.year_id } });
 		if (query.includes('where')) {
@@ -678,7 +697,7 @@ exports.finalReportGenerateOfficerProfileNGO_new = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT *,GROUP_CONCAT ( DISTINCT heading) as multiple_heading,GROUP_CONCAT ( DISTINCT officers_heading_descriptions.desc) as multiple_desc,places.id as place_id,places.name as place_name,officers.name as officer_name,ngos.name as ngo_name,ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join places on places.id = year_place_ngo_officers.place_id left join officers on officers.id = year_place_ngo_officers.officer_id left join ngos on ngos.id = year_place_ngo_officers.ngo_id` +
-			query
+		query
 	);
 	if (alldata.length > 0) {
 		let final_data = [];
@@ -773,12 +792,12 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 			alldata[i].description_list =
 				alldata[i].description_list !== null
 					? alldata[i].description_list.split(',')?.map((res) => {
-							const desc = res.split('/-/');
-							console.log(desc[2]);
-							const newDesc = decryptHash(desc[2]);
-							console.log(newDesc);
-							return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
-					  })
+						const desc = res.split('/-/');
+						console.log(desc[2]);
+						const newDesc = decryptHash(desc[2]);
+						console.log(newDesc);
+						return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
+					})
 					: alldata[i].description_list;
 			// let decoded_desc = "";
 			// if(current_desc){
@@ -843,7 +862,7 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`select *,administration_officer_types.name as admin_office_type_name,administration_officer_types.id as admin_office_type_id,administration_offices.name as present_office,administration_officers.name as officer_name,administration_offices.name as office_name from administration_officers left join administration_offices on administration_officers.administration_office_id = administration_offices.id left join districts on administration_officers.district_id = districts.id left join administration_officer_types on administration_officers.designation  = administration_officer_types.id` +
-			query
+		query
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
