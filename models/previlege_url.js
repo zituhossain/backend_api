@@ -27,6 +27,9 @@ module.exports = (sequelize, DataTypes) => {
     Previlege_url.belongsTo(models.Previlege_area, {
       foreignKey: 'previlege_area_id',
     });
+    Previlege_url.hasMany(models.Previlege_table, {
+      foreignKey: 'previlege_url_id',
+    });
   }
   return Previlege_url;
 };

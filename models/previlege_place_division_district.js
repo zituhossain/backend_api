@@ -33,6 +33,9 @@ module.exports = (sequelize, DataTypes) => {
     Previlege_place_division_district.belongsTo(models.Place, {
       foreignKey: 'place_id',
     });
+    Previlege_place_division_district.belongsTo(models.User_role, {
+      foreignKey: 'user_role_id',
+    });
   }
   return Previlege_place_division_district;
 };

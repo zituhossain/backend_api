@@ -4,9 +4,9 @@ const auth = require('../middlewares/jwt');
 const router = express.Router();
 
 router.get(
-	'/all_year_place_ngo_officer_front',
+	'/ypno_profile_heading_detail_list',
 	auth,
-	YearPlaceNgoOfficerController.fetchYearPlaceNgoofficerFront
+	YearPlaceNgoOfficerController.fetchYearPlaceNgoofficerProfileHeadingDetailList
 );
 router.get(
 	'/all_year_place_ngo_officer',

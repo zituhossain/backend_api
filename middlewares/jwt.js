@@ -56,18 +56,37 @@ const authenticate = (roles = []) => {
 		}
 	};
 };
-function checkurl(value) {
-	value = value.split("/")
+// function checkurl(value) {
+// 	value = value.split("/")
 
-	if (parseInt(value[value.length - 1])) {
-		value[value.length - 1] = ":id"
-		value = value.join("/")
-		return {status: true,url: value}
-	} else {
-		value = value.join("/")
-		return {status: false,url: value}
-	}
+// 	if (parseInt(value[value.length - 1])) {
+// 		value[value.length - 1] = ":id"
+// 		value = value.join("/")
+// 		return {status: true,url: value}
+// 	} else {
+// 		value = value.join("/")
+// 		return {status: false,url: value}
+// 	}
+// }
+
+function checkurl(value) {
+  const segments = value.split("/");
+  
+  if (segments.length >= 3 && parseInt(segments[segments.length - 2]) && parseInt(segments[segments.length - 1])) {
+    segments[segments.length - 2] = ":condition";
+    segments[segments.length - 1] = ":id";
+    value = segments.join("/");
+    return { status: true, url: value };
+  } else if (parseInt(segments[segments.length - 1])) {
+    segments[segments.length - 1] = ":id";
+    value = segments.join("/");
+    return { status: true, url: value };
+  } else {
+    value = segments.join("/");
+    return { status: false, url: value };
+  }
 }
+
 const save_to_mongo = async (body) => {
     const user = new userModel(body);
 	// const users = await userModel.find({});
@@ -132,6 +151,7 @@ module.exports = async (req, res, next) => {
 						if (url_table_data) {
 							next();
 						} else {
+							console.log('ural_data - ',url_data?.name);
 							console.log('------------jwt.js 111----------');
 							console.log(finalurl);
 							return apiResponse.unauthorizedResponse(res, "You have no access on this url")
@@ -139,6 +159,7 @@ module.exports = async (req, res, next) => {
 					} else {
 						console.log('------------jwt.js 222----------');
 						console.log(finalurl);
+						console.log("aaaaaaaaaaaaaaaaaaaaaaaa", req.originalUrl)
 						return apiResponse.unauthorizedResponse(res, "You have no access on this url")
 					}
 				}

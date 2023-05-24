@@ -30,8 +30,11 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User_role.associate = models => {
-    User_role.belongsTo(models.Previlege_area, {
-      foreignKey: 'previlege_id',
+    User_role.hasMany(models.Previlege_table, {
+      foreignKey: 'user_role_id',
+    });
+    User_role.hasMany(models.Previlege_place_division_district, {
+      foreignKey: 'user_role_id',
     });
   }
   

@@ -140,9 +140,7 @@ exports.removeuserrole = async (req, res) => {
 
 exports.getallrole = async (req, res) => {
     try {
-        const role_data = await User_role.findAll({
-            include: [Previlege_area]
-        });
+        const role_data = await User_role.findAll();
         if (role_data) {
             return apiResponse.successResponseWithData(res, "Data successfully fetched.", role_data)
         } else {

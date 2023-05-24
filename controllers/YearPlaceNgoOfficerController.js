@@ -83,7 +83,7 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
-exports.fetchYearPlaceNgoofficerFront = async (req, res) => {
+exports.fetchYearPlaceNgoofficerProfileHeadingDetailList = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	const allOverallTitle = await Profile_type.findAll({
 		include: [officer_profile_heading],
