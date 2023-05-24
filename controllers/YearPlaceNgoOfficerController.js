@@ -62,6 +62,7 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
 	}
 };
 
+/*
 exports.fetchYearPlaceNgoofficer = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	let roleByplace = await checkUserRoleByPlace(token);
@@ -83,6 +84,43 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
+
+ */
+
+exports.fetchYearPlaceNgoofficer = async (req, res) => {
+	const token = req.headers.authorization.split(' ')[1];
+	let roleByplace = await checkUserRoleByPlace(token);
+	let arr = [];
+
+	if (roleByplace.division.length > 0) {
+		const places = await Place.findAll({
+			attributes: ['id'],
+			where: {
+				division_id: roleByplace.division
+			}
+		});
+
+		const placeIds = places.map(place => place.id);
+		arr.push({ place_id: placeIds });
+	}
+
+	const allOverallTitle = await year_place_ngo_officer.findAll({
+		include: [Place, Officer, Ngo, years],
+		where: arr
+	});
+
+	if (allOverallTitle.length > 0) {
+		return apiResponse.successResponseWithData(
+			res,
+			'year_place_ngo_officer fetch successfully.',
+			allOverallTitle
+		);
+	} else {
+		return apiResponse.ErrorResponse(res, 'No data found');
+	}
+};
+
+
 exports.fetchYearPlaceNgoofficerProfileHeadingDetailList = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	const allOverallTitle = await Profile_type.findAll({
