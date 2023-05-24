@@ -29,20 +29,6 @@ exports.getoveralltitlebyid = async (req, res) => {
     }
 }
 
-exports.getoveralltitlebyparams = async (req, res) => {
-    try {
-        const title_id = req.params.params;
-        const title_data = await Profile_type.findOne({ where: { params: title_id } });
-        if (title_data) {
-            return apiResponse.successResponseWithData(res, "Data successfully fetched.", title_data)
-        } else {
-            return apiResponse.ErrorResponse(res, "No matching query found")
-        }
-
-    } catch (err) {
-        return apiResponse.ErrorResponse(res, err.message)
-    }
-}
 
 
 exports.createOfficerProfileType = async (req, res) => {
