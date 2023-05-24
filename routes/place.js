@@ -69,9 +69,9 @@ router.get(
 	auth,
 	PlaceController.getNgoServedPercent
 );
-router.post('/ngo_jot_add_into_place/', PlaceController.ngoJotAddIntoPlace);
+router.post('/ngo_jot_add_into_place', PlaceController.ngoJotAddIntoPlace);
 router.get(
-	'/all_ngo_jot_add_into_place/',
+	'/all_ngo_jot_add_into_place',
 	PlaceController.allNgoJotAddIntoPlace
 );
 router.get(
