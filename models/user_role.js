@@ -36,6 +36,9 @@ module.exports = (sequelize, DataTypes) => {
     User_role.hasMany(models.Previlege_place_division_district, {
       foreignKey: 'user_role_id',
     });
+    User_role.hasMany(models.User, {
+      foreignKey: 'role_id',
+    });
   }
   
   return User_role;

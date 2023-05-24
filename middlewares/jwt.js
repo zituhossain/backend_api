@@ -151,7 +151,10 @@ module.exports = async (req, res, next) => {
 						if (url_table_data) {
 							next();
 						} else {
-							console.log('ural_data - ',url_data?.name);
+							console.log('url name - ',url_data?.name);
+							console.log('url - ',url_data?.url);
+							console.log('user_role_id - ',user_data.role_id);
+							console.log('url_id - ',url_data.id);
 							console.log('------------jwt.js 111----------');
 							console.log(finalurl);
 							return apiResponse.unauthorizedResponse(res, "You have no access on this url")
