@@ -121,8 +121,6 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 		where: arr
 	});
 
-	console.log('Saku==>', arr);
-
 	if (allOverallTitle.length > 0) {
 		return apiResponse.successResponseWithData(
 			res,

@@ -400,6 +400,7 @@ exports.getplacecommentbydivisionid = async (req, res) => {
 	}
 };
 
+/*
 exports.getallplacecomment = async (req, res) => {
 	try {
 		const place_comment_data = await Place_comment.findAll({
@@ -413,6 +414,54 @@ exports.getallplacecomment = async (req, res) => {
 			);
 		} else {
 			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+*/
+
+exports.getallplacecomment = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+			arr.push({ place_id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		}
+		const place_comment_data = await Place_comment.findAll({
+			include: [Tag, Place],
+			where: arr
+		});
+		if (place_comment_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				place_comment_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No Data found');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
@@ -503,20 +552,20 @@ exports.create_administration_officer = async (req, res) => {
 		const userId = decodedToken._id;
 
 		req.body.created_by = userId;
-			for (const key in req.body) {
-					  if (req.body[key] === 'null') {
-					    req.body[key] = null;
-					  }
-					}
-			const exist_data = await Administration_officer.findAll({
-				where: { email: req.body.email, phone: req.body.phone },
-			});
-			if (exist_data.length > 0) {
-				return apiResponse.ErrorResponse(res, 'Duplicate officer data found.');
-			} else {
-				await Administration_officer.create(req.body);
-				return apiResponse.successResponse(res, 'data successfully saved!!!');
+		for (const key in req.body) {
+			if (req.body[key] === 'null') {
+				req.body[key] = null;
 			}
+		}
+		const exist_data = await Administration_officer.findAll({
+			where: { email: req.body.email, phone: req.body.phone },
+		});
+		if (exist_data.length > 0) {
+			return apiResponse.ErrorResponse(res, 'Duplicate officer data found.');
+		} else {
+			await Administration_officer.create(req.body);
+			return apiResponse.successResponse(res, 'data successfully saved!!!');
+		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
@@ -524,7 +573,7 @@ exports.create_administration_officer = async (req, res) => {
 
 
 
-  
+
 
 exports.getadministration_officerbyplaceid = async (req, res) => {
 	try {
@@ -606,59 +655,59 @@ exports.getadministration_officer = async (req, res) => {
 
 exports.getadministration_officer = async (req, res) => {
 	try {
-	  const token = req.headers.authorization.split(' ')[1];
-	  let roleByplace = await checkUserRoleByPlace(token);
-	  let whereCondition = {};
-  
-	  if (roleByplace.district.length > 0) {
-		whereCondition.district_id = roleByplace.district;
-	  }
-	  if (roleByplace.division.length > 0) {
-		whereCondition.division_id = roleByplace.division;
-	  }
-	  if (roleByplace.place.length > 0) {
-		whereCondition.place_id = roleByplace.place;
-	  }
-  
-	  const administration_officer_data = await Administration_officer.findAll({
-		include: [
-		  {
-			model: Division,
-		  },
-		  {
-			model: District,
-		  },
-		  {
-			model: Place,
-		  },
-		  {
-			model: Administration_officer_type,
-		  },
-		  {
-			model: Administration_office,
-		  },
-		  {
-			model: Ngo,
-		  },
-		],
-		where: whereCondition,
-	  });
-  
-	  if (administration_officer_data.length > 0) {
-		return apiResponse.successResponseWithData(
-		  res,
-		  'Data successfully fetched.',
-		  administration_officer_data
-		);
-	  } else {
-		return apiResponse.ErrorResponse(res, 'No matching query found');
-	  }
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let whereCondition = {};
+
+		if (roleByplace.district.length > 0) {
+			whereCondition.district_id = roleByplace.district;
+		}
+		if (roleByplace.division.length > 0) {
+			whereCondition.division_id = roleByplace.division;
+		}
+		if (roleByplace.place.length > 0) {
+			whereCondition.place_id = roleByplace.place;
+		}
+
+		const administration_officer_data = await Administration_officer.findAll({
+			include: [
+				{
+					model: Division,
+				},
+				{
+					model: District,
+				},
+				{
+					model: Place,
+				},
+				{
+					model: Administration_officer_type,
+				},
+				{
+					model: Administration_office,
+				},
+				{
+					model: Ngo,
+				},
+			],
+			where: whereCondition,
+		});
+
+		if (administration_officer_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				administration_officer_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
 	} catch (err) {
-	  return apiResponse.ErrorResponse(res, err.message);
+		return apiResponse.ErrorResponse(res, err.message);
 	}
-  };
-  
-  
+};
+
+
 
 exports.update_administration_officerbyid = async (req, res) => {
 	try {
@@ -714,18 +763,18 @@ exports.update_administration_officerbyid = async (req, res) => {
 
 				// console.log(req.body);
 				for (const key in req.body) {
-				  if (req.body[key] === 'null') {
-				    req.body[key] = null;
-				  }
+					if (req.body[key] === 'null') {
+						req.body[key] = null;
+					}
 				}
 				// console.log(req.body);
 				//return('die');
 
 				await Administration_officer.update(req.body, { where: { id: id } });
-					return apiResponse.successResponse(
-						res,
-						'data successfully updated!!!'
-					);
+				return apiResponse.successResponse(
+					res,
+					'data successfully updated!!!'
+				);
 			} catch (err) {
 				req.body.updated_by = userId;
 				if (
