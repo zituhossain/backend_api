@@ -92,7 +92,19 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 	let roleByplace = await checkUserRoleByPlace(token);
 	let arr = [];
 
-	if (roleByplace.division.length > 0) {
+	if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {		
+		arr.push({ place_id: roleByplace.place });
+	} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		const places = await Place.findAll({
+			attributes: ['id'],
+			where: {
+				district_id: roleByplace.district
+			}
+		});
+
+		const placeIds = places.map(place => place.id);
+		arr.push({ place_id: placeIds });
+	} else if (roleByplace.division.length > 0) {
 		const places = await Place.findAll({
 			attributes: ['id'],
 			where: {
@@ -108,6 +120,8 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 		include: [Place, Officer, Ngo, years],
 		where: arr
 	});
+
+	console.log('Saku==>', arr);
 
 	if (allOverallTitle.length > 0) {
 		return apiResponse.successResponseWithData(

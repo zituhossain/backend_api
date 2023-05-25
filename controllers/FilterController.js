@@ -24,6 +24,7 @@ exports.divisions = async (req, res) => {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
+/*
 exports.districtById = async (req, res) => {
 	const division_id = req.params.id;
 	const districtsById = await District.findAll({ where: { division_id } });
@@ -35,6 +36,42 @@ exports.districtById = async (req, res) => {
 		);
 	} else {
 		return apiResponse.ErrorResponse(res, 'No data found');
+	}
+};
+*/
+
+
+exports.districtById = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const token = req.headers.authorization.split(' ')[1];
+		const roleByplace = await checkUserRoleByPlace(token);
+
+		const permittedDistrictIds = roleByplace.district; // Get the permitted district IDs from the user's role
+
+		let district_data;
+
+		if (permittedDistrictIds.length > 0) {
+			district_data = await District.findAll({
+				where: { division_id: id, id: permittedDistrictIds } // Fetch districts that match the provided division ID and the permitted district IDs
+			});
+		} else {
+			district_data = await District.findAll({
+				where: { division_id: id } // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+			});
+		}
+
+		if (district_data && district_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				district_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No districts found for the user role and provided division.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
 
