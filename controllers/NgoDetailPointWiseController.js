@@ -13,8 +13,28 @@ exports.fetchalllocalinfluencer = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	let roleByplace = await checkUserRoleByPlace(token);
 	let arr = [];
-	if (roleByplace.place.length > 0) {
+	if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
 		arr.push({ place_id: roleByplace.place });
+	} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		const places = await Place.findAll({
+			attributes: ['id'],
+			where: {
+				district_id: roleByplace.district
+			}
+		});
+
+		const placeIds = places.map(place => place.id);
+		arr.push({ place_id: placeIds });
+	} else if (roleByplace.division.length > 0) {
+		const places = await Place.findAll({
+			attributes: ['id'],
+			where: {
+				division_id: roleByplace.division
+			}
+		});
+
+		const placeIds = places.map(place => place.id);
+		arr.push({ place_id: placeIds });
 	}
 	const allNgoDetails = await ngo_details_info_point_wise.findAll({
 		include: [Place, ngo_details_info],
