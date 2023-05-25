@@ -32,12 +32,29 @@ exports.getallPlace = async (req, res) => {
 		let roleByplace = await checkUserRoleByPlace(token);
 		// console.log(roleByplace)
 		let arr = [];
-		if (roleByplace.district.length > 0) {
-			arr.push({ district_id: roleByplace.district });
-		} else if (roleByplace.division.length > 0) {
-			arr.push({ division_id: roleByplace.division });
-		} else if (roleByplace.place.length > 0) {
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {		
 			arr.push({ id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+	
+			const placeIds = places.map(place => place.id);
+			arr.push({ id: placeIds });
+
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+	
+			const placeIds = places.map(place => place.id);
+			arr.push({ id: placeIds });
 		}
 		// console.log(arr)
 		const place_data = await Place.findAll({
