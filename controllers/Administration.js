@@ -56,15 +56,77 @@ exports.fetchall = async (req, res) => {
 	}
 };
 
+// exports.fetch_admin_office_by_place_id = async (req, res) => {
+// 	try {
+// 		const place_id = req.params.id;
+// 		const value_name = req.params.value;
+// 		let arr = [];
+// 		if (value_name == 'place') {
+// 			arr.push({ place_id: place_id });
+// 		} else if (value_name == 'district') {
+// 			arr.push({ district_id: place_id });
+// 		} else if (value_name == 'division') {
+// 			arr.push({ division_id: place_id });
+// 		}
+
+// 		const admin_office_data = await Administration_office.findAll({
+// 			include: [
+// 				{
+// 					model: Administration_officer,
+// 					include: [
+// 						{
+// 							model: Administration_officer_type,
+// 						},
+// 						{
+// 							model: Ngo,
+// 						},
+// 					],
+// 					where: arr,
+// 				},
+// 			],
+// 			order: [[sequelize.literal('ordering'), 'ASC']],
+// 		});
+// 		if (admin_office_data) {
+// 			return apiResponse.successResponseWithData(
+// 				res,
+// 				'Data fetch successfull.',
+// 				admin_office_data
+// 			);
+// 		} else {
+// 			return apiResponse.ErrorResponse(res, 'No data found!!!');
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.fetch_admin_office_by_place_id = async (req, res) => {
 	try {
 		const place_id = req.params.id;
 		const value_name = req.params.value;
 		let arr = [];
 		if (value_name == 'place') {
+			const district = await District.findOne({
+				attributes: ['id', 'division_id'],
+				where: {
+					id: place_id,
+				},
+			});
+
 			arr.push({ place_id: place_id });
+			arr.push({ district_id: district.id });
+			arr.push({ division_id: district.division_id });
 		} else if (value_name == 'district') {
-			arr.push({ district_id: place_id });
+			const districts = await District.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: place_id,
+				},
+			});
+
+			const districtIds = districts.map((district) => district.id);
+			arr.push({ district_id: districtIds });
+			arr.push({ division_id: place_id });
 		} else if (value_name == 'division') {
 			arr.push({ division_id: place_id });
 		}
@@ -81,15 +143,18 @@ exports.fetch_admin_office_by_place_id = async (req, res) => {
 							model: Ngo,
 						},
 					],
-					where: arr,
+					where: {
+						[Op.or]: arr,
+					},
 				},
 			],
 			order: [[sequelize.literal('ordering'), 'ASC']],
 		});
+
 		if (admin_office_data) {
 			return apiResponse.successResponseWithData(
 				res,
-				'Data fetch successfull.',
+				'Data fetch successful.',
 				admin_office_data
 			);
 		} else {
@@ -400,7 +465,6 @@ exports.getplacecommentbydivisionid = async (req, res) => {
 	}
 };
 
-/*
 exports.getallplacecomment = async (req, res) => {
 	try {
 		const place_comment_data = await Place_comment.findAll({
@@ -414,54 +478,6 @@ exports.getallplacecomment = async (req, res) => {
 			);
 		} else {
 			return apiResponse.ErrorResponse(res, 'No matching query found');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
-*/
-
-exports.getallplacecomment = async (req, res) => {
-	try {
-		const token = req.headers.authorization.split(' ')[1];
-		let roleByplace = await checkUserRoleByPlace(token);
-		let arr = [];
-
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
-			arr.push({ place_id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					district_id: roleByplace.district
-				}
-			});
-
-			const placeIds = places.map(place => place.id);
-			arr.push({ place_id: placeIds });
-		} else if (roleByplace.division.length > 0) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					division_id: roleByplace.division
-				}
-			});
-
-			const placeIds = places.map(place => place.id);
-			arr.push({ place_id: placeIds });
-		}
-		const place_comment_data = await Place_comment.findAll({
-			include: [Tag, Place],
-			where: arr
-		});
-		if (place_comment_data.length > 0) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data successfully fetched.',
-				place_comment_data
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No Data found');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
@@ -522,7 +538,6 @@ exports.place_comment_update = async (req, res) => {
 	}
 };
 
-
 exports.create_administration_officer = async (req, res) => {
 	if (req.file) {
 		const filePath = `uploads/admin_officer_photo/${req.file.filename}`;
@@ -570,10 +585,6 @@ exports.create_administration_officer = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
-
-
-
 
 exports.getadministration_officerbyplaceid = async (req, res) => {
 	try {
@@ -707,8 +718,6 @@ exports.getadministration_officer = async (req, res) => {
 	}
 };
 
-
-
 exports.update_administration_officerbyid = async (req, res) => {
 	try {
 		const id = req.params.id;
@@ -771,10 +780,7 @@ exports.update_administration_officerbyid = async (req, res) => {
 				//return('die');
 
 				await Administration_officer.update(req.body, { where: { id: id } });
-				return apiResponse.successResponse(
-					res,
-					'data successfully updated!!!'
-				);
+				return apiResponse.successResponse(res, 'data successfully updated!!!');
 			} catch (err) {
 				req.body.updated_by = userId;
 				if (
