@@ -3,7 +3,8 @@ const { ngo_details_info, Place, ngo_details_info_point_wise } = require('../mod
 const checkUserRoleByPlace = require('./globalController');
 
 
-exports.fetchalllocalinfluencer = async (req, res) => {
+exports.fetchallPlaceCommentTitle = async (req, res) => {
+    console.log('-----------i');
     // const token = req.headers.authorization.split(' ')[1];
     // let roleByplace = await checkUserRoleByPlace(token)
     // let arr = []
@@ -20,7 +21,7 @@ exports.fetchalllocalinfluencer = async (req, res) => {
     }
 }
 
-exports.getlocalinfluencerbyid = async (req, res) => {
+exports.getPlaceCommentTitleById = async (req, res) => {
     try {
         const ngo_details_id = req.params.id;
         const details_data = await ngo_details_info.findOne({ include: [Place], where: { id: ngo_details_id } });
@@ -50,7 +51,7 @@ exports.getlocalinfluencerbyid = async (req, res) => {
 //     }
 // }
 
-exports.getngodetailwiseinfobyplaceid = async (req, res) => {
+exports.getPlaceCommentTitleByPlaceId = async (req, res) => {
     try {
         const influencer_id = req.params.placeid;
         const influencer_data = await ngo_details_info.findAll({
@@ -80,7 +81,7 @@ exports.getngodetailwiseinfobyplaceid = async (req, res) => {
 
 
 
-exports.getngodetailwiseinfobydistrictid = async (req, res) => {
+exports.getPlaceCommentTitleByDistrictId = async (req, res) => {
     try {
         const district_id = req.params.districtid;
         let influencer_id = [];
@@ -105,7 +106,7 @@ exports.getngodetailwiseinfobydistrictid = async (req, res) => {
     }
 }
 
-exports.getngodetailwiseinfobydivisionid = async (req, res) => {
+exports.getPlaceCommentTitleByDivisionId = async (req, res) => {
     try {
         const division_id = req.params.divisionid;
         let influencer_id = [];
@@ -130,7 +131,7 @@ exports.getngodetailwiseinfobydivisionid = async (req, res) => {
     }
 }
 
-exports.createlocalinfluencer = async (req, res) => {
+exports.createPlaceCommentTitle = async (req, res) => {
     try {
         // const token = req.headers.authorization.split(' ')[1];
         // const decodedToken = jwt.verify(token, secret);
@@ -149,7 +150,7 @@ exports.createlocalinfluencer = async (req, res) => {
 }
 
 
-exports.updatelocalinfluencerbyid = async (req, res) => {
+exports.updatePlaceCommentTitle = async (req, res) => {
     try {
         const ngo_details_id = req.params.id;
         const details_data = await ngo_details_info.findOne({ where: { id: ngo_details_id } });

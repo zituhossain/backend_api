@@ -9,7 +9,7 @@ const secret = process.env.JWT_SECRET;
 const checkUserRoleByPlace = require('./globalController');
 const { Op } = require('sequelize');
 
-exports.fetchalllocalinfluencer = async (req, res) => {
+exports.fetchAllComments = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	let roleByplace = await checkUserRoleByPlace(token);
 	let arr = [];
@@ -51,7 +51,7 @@ exports.fetchalllocalinfluencer = async (req, res) => {
 	}
 };
 
-exports.getlocalinfluencerbyid = async (req, res) => {
+exports.getCommentsById = async (req, res) => {
 	try {
 		const ngo_details_id = req.params.id;
 		const details_data = await ngo_details_info_point_wise.findOne({
@@ -92,7 +92,7 @@ exports.getlocalinfluencerbyid = async (req, res) => {
 //     }
 // }
 
-exports.getNgoDetailPointWisebyplaceid = async (req, res) => {
+exports.getCommentsByPlaceIdAndTitleId = async (req, res) => {
 	try {
 		const placeid = req.params.placeid;
 		const titleId = req.params.titleId; // Updated parameter name
@@ -146,7 +146,7 @@ exports.getNgoDetailPointWisebyplaceid = async (req, res) => {
 // 	}
 // };
 
-exports.createNgoDetailPointWise = async (req, res) => {
+exports.createComments = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
@@ -184,7 +184,7 @@ exports.createNgoDetailPointWise = async (req, res) => {
 	}
 };
 
-exports.updatelocalinfluencerbyid = async (req, res) => {
+exports.updateCommentById = async (req, res) => {
 	try {
 		const ngo_details_id = req.params.id;
 		const details_data = await ngo_details_info_point_wise.findOne({
@@ -207,7 +207,7 @@ exports.updatelocalinfluencerbyid = async (req, res) => {
 	}
 };
 
-exports.deleteNgoDetailPointWiseById = async (req, res) => {
+exports.deleteCommentById = async (req, res) => {
 	const ngo_details_info_point_wises_id = req.params.id;
 	try {
 		const ngo_details_info_point_wises_data =
