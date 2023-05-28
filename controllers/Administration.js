@@ -465,6 +465,7 @@ exports.getplacecommentbydivisionid = async (req, res) => {
 	}
 };
 
+/*
 exports.getallplacecomment = async (req, res) => {
 	try {
 		const place_comment_data = await Place_comment.findAll({
@@ -478,6 +479,54 @@ exports.getallplacecomment = async (req, res) => {
 			);
 		} else {
 			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+*/
+
+exports.getallplacecomment = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+			arr.push({ place_id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		}
+		const place_comment_data = await Place_comment.findAll({
+			include: [Tag, Place],
+			where: arr
+		});
+		if (place_comment_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				place_comment_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No Data found');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
