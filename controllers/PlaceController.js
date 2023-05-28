@@ -30,7 +30,6 @@ exports.getallPlace = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
-		// console.log(roleByplace)
 		let arr = [];
 		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {		
 			arr.push({ id: roleByplace.place });
@@ -1508,10 +1507,38 @@ exports.createUpazila = async (req, res) => {
 
 exports.fetchallUpazila = async (req, res) => {
 	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {		
+			arr.push({ id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+	
+			const placeIds = places.map(place => place.id);
+			arr.push({ id: placeIds });
+
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+	
+			const placeIds = places.map(place => place.id);
+			arr.push({ id: placeIds });
+		}
 		const upazilla_data = await Upazilla.findAll({
 			include: [
 				{
 					model: Place,
+					where: arr
 				},
 			],
 		});
