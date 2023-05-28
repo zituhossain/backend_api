@@ -3,16 +3,51 @@ const { population_year_place, years,Place } = require('../models');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const { Op } = require("sequelize");
+const checkUserRoleByPlace = require('./globalController');
 
 
 exports.fetchall = async (req, res) => {
-    const allOverallTitle = await population_year_place.findAll({
-        include:[years , Place]
-    });
-    if (allOverallTitle) {
-        return apiResponse.successResponseWithData(res, "population_year_place fetch successfully.", allOverallTitle)
-    } else {
-        return apiResponse.ErrorResponse(res, "No data found")
+    try {
+
+        const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+			arr.push({ place_id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		}
+
+        const allOverallTitle = await population_year_place.findAll({
+            include:[years , Place],
+            where: arr
+        });
+        if (allOverallTitle) {
+            return apiResponse.successResponseWithData(res, "population_year_place fetch successfully.", allOverallTitle)
+        } else {
+            return apiResponse.ErrorResponse(res, "No data found")
+        }
+    }catch(err){
+        return apiResponse.ErrorResponse(res,err.message)
     }
 }
 exports.getbyCondition = async (req, res) => {

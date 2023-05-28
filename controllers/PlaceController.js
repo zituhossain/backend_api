@@ -1005,6 +1005,7 @@ exports.updatePlaceCategoryType = async (req, res) => {
 	}
 };
 
+/*
 exports.getPlaceCategoryType = async (req, res) => {
 	try {
 		const [results, metadata] = await sequelize.query(
@@ -1024,6 +1025,77 @@ exports.getPlaceCategoryType = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+*/
+
+exports.getPlaceCategoryType = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+		let whereClause = ''; // Initialize an empty string for the WHERE clause
+
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+			arr.push({ place_id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		}
+
+		// Generate the WHERE clause based on the conditions
+		if (arr.length > 0) {
+			const placeIds = arr.map(obj => obj.place_id);
+			whereClause = `WHERE places.id IN (${placeIds.join(',')})`;
+		}
+
+		const query = `
+			SELECT
+					ngo_category_bs.id AS id,
+					(SELECT name FROM ngo_categories WHERE type = 1 AND id = ngo_category_bs.ngo_category_id) AS categoryname,
+					(SELECT name FROM ngo_categories WHERE type = 0 AND id = ngo_category_bs.ngo_category_type_id) AS typename,
+					places.name AS place_name,
+					places.id AS placeid,
+					places.district_id AS districtid,
+					places.division_id AS divisionid
+			FROM
+					ngo_category_bs
+					INNER JOIN places ON ngo_category_bs.place_id = places.id
+					LEFT JOIN ngo_categories ON ngo_categories.id = ngo_category_bs.ngo_category_id
+			${whereClause}`; // Add the WHERE clause to the query
+
+		const [results, metadata] = await sequelize.query(query);
+
+		if (results.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successful.',
+				results
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 
 exports.deletePlaceCategoryType = async (req, res) => {
 	try {
@@ -1173,9 +1245,23 @@ exports.ngoJotAddIntoPlace = async (req, res) => {
 
 exports.allNgoJotAddIntoPlace = async (req, res) => {
 	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let whereCondition = {};
+
+		if (roleByplace.district.length > 0) {
+			whereCondition.district_id = roleByplace.district;
+		}
+		if (roleByplace.division.length > 0) {
+			whereCondition.division_id = roleByplace.division;
+		}
+		if (roleByplace.place.length > 0) {
+			whereCondition.place_id = roleByplace.place;
+		}
 		const place_data = await ngo_jot_add_into_places.findAll({
 			include: [Place, ngo_jots, Division, District],
 			group: 'place_id',
+			where: whereCondition
 		});
 		return apiResponse.successResponseWithData(
 			res,
