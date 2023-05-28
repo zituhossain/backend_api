@@ -4,14 +4,14 @@ const checkUserRoleByPlace = require('./globalController');
 
 
 exports.fetchalllocalinfluencer = async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
-    let roleByplace = await checkUserRoleByPlace(token)
-    let arr = []
-    if (roleByplace.place.length > 0) {
-        arr.push({ place_id: roleByplace.place })
-    }
+    // const token = req.headers.authorization.split(' ')[1];
+    // let roleByplace = await checkUserRoleByPlace(token)
+    // let arr = []
+    // if (roleByplace.place.length > 0) {
+    //     arr.push({ place_id: roleByplace.place })
+    // }
     const allNgoDetails = await ngo_details_info.findAll({
-        where: arr
+        // where: arr
     });
     if (allNgoDetails) {
         return apiResponse.successResponseWithData(res, "ngo_details_info fetch successfully.", allNgoDetails)
