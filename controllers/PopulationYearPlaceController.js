@@ -61,8 +61,28 @@ exports.getbyCondition = async (req, res) => {
             query = `places.district_id =${req.body.district_id}`;
         else if(req.body.division_id)
             query = `places.division_id=${req.body.division_id}`;
-;
-        const [results, metadata] = await population_year_place.sequelize.query('select sum(pyp.total_population) as total_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female,sum(pyp.minority) as total_minority,sum(pyp.minority1) as total_minority1,sum(pyp.minority2) as total_minority2 from population_year_places pyp left join places on places.id = pyp.place_id where '+query+' and year_id = (select max(id) as year_id from years)');
+        const [results, metadata] = 
+        await population_year_place.sequelize.query(`
+            SELECT 
+  SUM(pyp.total_population) AS total_population, 
+  SUM(pyp.served_population) AS total_served_population, 
+  SUM(pyp.male) AS total_male, 
+  SUM(pyp.female) AS total_female, 
+  SUM(pyp.minority) AS total_minority, 
+  SUM(pyp.minority1) AS total_minority1, 
+  SUM(pyp.minority2) AS total_minority2 
+FROM 
+  population_year_places pyp 
+  LEFT JOIN places ON places.id = pyp.place_id 
+WHERE 
+  `+query+`
+  AND pyp.year_id = (
+    SELECT 
+      MAX(id) AS year_id 
+    FROM 
+      years
+  );
+`);
 
         return apiResponse.successResponseWithData(res,"Data successfully fetched.",results)
     }catch(err){

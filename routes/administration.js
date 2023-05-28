@@ -25,9 +25,9 @@ router.get(
 	AdministrationController.fetchall
 );
 router.get(
-	'/fetch_administration_office_by_place_id/:value/:id',
+	'/fetch_office_by_condition/:value/:id',
 	auth,
-	AdministrationController.fetch_admin_office_by_place_id
+	AdministrationController.fetch_admin_office_by_condition
 );
 router.get(
 	'/delete_administration_office/:id',
@@ -54,7 +54,7 @@ router.get(
 );
 
 router.get(
-	'/fetchall_administration_officer_type_by_officeid/:id',
+	'/fetchall_officer_type_by_officeid/:id',
 	auth,
 	AdministrationController.fetchallAdminTypeById
 );

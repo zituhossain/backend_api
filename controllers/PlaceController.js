@@ -1595,14 +1595,14 @@ exports.deleteSubPlace = async (req, res) => {
 	}
 };
 
-// Upazila Controller
-exports.createUpazila = async (req, res) => {
+// Upazilla Controller
+exports.createUpazilla = async (req, res) => {
 	try {
 		if (req.body.name && req.body.place_id) {
-			const if_upazila_exists = await Upazilla.findOne({
+			const if_upazilla_exists = await Upazilla.findOne({
 				where: { name: req.body.name },
 			});
-			if (if_upazila_exists) {
+			if (if_upazilla_exists) {
 				return apiResponse.ErrorResponse(
 					res,
 					'Upazilla already found in database.'
@@ -1619,7 +1619,7 @@ exports.createUpazila = async (req, res) => {
 	}
 };
 
-exports.fetchallUpazila = async (req, res) => {
+exports.fetchallUpazilla = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
@@ -1670,7 +1670,7 @@ exports.fetchallUpazila = async (req, res) => {
 	}
 };
 
-exports.fetchallUpazilaByPlaceId = async (req, res) => {
+exports.fetchallUpazillaByPlaceId = async (req, res) => {
 	try {
 		const id = req.params.id;
 		const upazilla_data = await Upazilla.findAll({
@@ -1695,7 +1695,7 @@ exports.fetchallUpazilaByPlaceId = async (req, res) => {
 	}
 };
 
-exports.updateUpazila = async (req, res) => {
+exports.updateUpazilla = async (req, res) => {
 	try {
 		const upazilla_id = req.params.id;
 		const upazilla_data = await Upazilla.findOne({
@@ -1718,7 +1718,7 @@ exports.updateUpazila = async (req, res) => {
 	}
 };
 
-exports.deleteUpazila = async (req, res) => {
+exports.deleteUpazilla = async (req, res) => {
 	try {
 		const upazilla_id = req.params.id;
 		const upazilla_data = await Upazilla.findOne({
@@ -1784,7 +1784,7 @@ exports.fetchallUnion = async (req, res) => {
 	}
 };
 
-exports.fetchallUnionByUpazilaId = async (req, res) => {
+exports.fetchallUnionByUpazillaId = async (req, res) => {
 	try {
 		const id = req.params.id;
 		const union_data = await Union.findAll({

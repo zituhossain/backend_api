@@ -100,24 +100,25 @@ router.put('/update_sub_place/:id', auth, PlaceController.updateSubPlace);
 // Sub Place Excel file Upload
 router.post('/sub_place_excel', auth, upload.single('file'), ExcelFileUploadController.upload)
 
-// Upazila Route
-router.post('/create_upazila', auth, PlaceController.createUpazila);
-router.get('/all_upazila', auth, PlaceController.fetchallUpazila);
+// Upazilla Route
+router.get('/all_upazilla', auth, PlaceController.fetchallUpazilla);
+router.post('/create_upazilla', auth, PlaceController.createUpazilla);
+
 router.get(
-	'/all_upazila_by_place_id/:id',
+	'/all_upazilla_by_place_id/:id',
 	auth,
-	PlaceController.fetchallUpazilaByPlaceId
+	PlaceController.fetchallUpazillaByPlaceId
 );
-router.delete('/delete_upazila/:id', auth, PlaceController.deleteUpazila);
-router.put('/update_upazila/:id', auth, PlaceController.updateUpazila);
+router.delete('/delete_upazilla/:id', auth, PlaceController.deleteUpazilla);
+router.put('/update_upazilla/:id', auth, PlaceController.updateUpazilla);
 
 // Union Route
 router.post('/create_union', auth, PlaceController.createUnion);
 router.get('/all_union', auth, PlaceController.fetchallUnion);
 router.get(
-	'/all_union_by_upazila_id/:id',
+	'/all_union_by_upazilla_id/:id',
 	auth,
-	PlaceController.fetchallUnionByUpazilaId
+	PlaceController.fetchallUnionByUpazillaId
 );
 router.delete('/delete_union/:id', auth, PlaceController.deleteUnion);
 router.put('/update_union/:id', auth, PlaceController.updateUnion);

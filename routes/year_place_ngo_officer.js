@@ -39,7 +39,7 @@ router.get(
 	YearPlaceNgoOfficerController.getkormibyxid
 );
 router.get(
-	'/all_year_place_kormi_top/:condition/:id',
+	'/get_kormi_top/:condition/:id',
 	auth,
 	YearPlaceNgoOfficerController.getkormitopbyxid
 );
@@ -49,7 +49,7 @@ router.post(
 	YearPlaceNgoOfficerController.getYearPlaceNgoOfficersWithConditions
 );
 router.get(
-	'/all_year_place_ngo_officer_year/:year/:id',
+	'/by_yearId_and_id/:year/:id',
 	auth,
 	YearPlaceNgoOfficerController.getYearPlaceNgoOfficebyYear
 );

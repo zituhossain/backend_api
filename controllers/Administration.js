@@ -100,7 +100,7 @@ exports.fetchall = async (req, res) => {
 // 	}
 // };
 
-exports.fetch_admin_office_by_place_id = async (req, res) => {
+exports.fetch_admin_office_by_condition = async (req, res) => {
 	try {
 		const place_id = req.params.id;
 		const value_name = req.params.value;
