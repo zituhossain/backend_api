@@ -31,7 +31,7 @@ exports.getallPlace = async (req, res) => {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
 		let arr = [];
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {		
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
 			arr.push({ id: roleByplace.place });
 		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
 			const places = await Place.findAll({
@@ -40,7 +40,7 @@ exports.getallPlace = async (req, res) => {
 					district_id: roleByplace.district
 				}
 			});
-	
+
 			const placeIds = places.map(place => place.id);
 			arr.push({ id: placeIds });
 
@@ -51,7 +51,7 @@ exports.getallPlace = async (req, res) => {
 					division_id: roleByplace.division
 				}
 			});
-	
+
 			const placeIds = places.map(place => place.id);
 			arr.push({ id: placeIds });
 		}
@@ -1367,6 +1367,33 @@ exports.createSubPlace = async (req, res) => {
 
 exports.fetchallSubPlace = async (req, res) => {
 	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+			arr.push({ place_id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		}
 		const sub_place_data = await Sub_place.findAll({
 			include: [
 				{
@@ -1379,6 +1406,7 @@ exports.fetchallSubPlace = async (req, res) => {
 					model: Union,
 				},
 			],
+			where: arr
 		});
 		if (sub_place_data) {
 			return apiResponse.successResponseWithData(
@@ -1510,7 +1538,7 @@ exports.fetchallUpazila = async (req, res) => {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
 		let arr = [];
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {		
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
 			arr.push({ id: roleByplace.place });
 		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
 			const places = await Place.findAll({
@@ -1519,7 +1547,7 @@ exports.fetchallUpazila = async (req, res) => {
 					district_id: roleByplace.district
 				}
 			});
-	
+
 			const placeIds = places.map(place => place.id);
 			arr.push({ id: placeIds });
 
@@ -1530,7 +1558,7 @@ exports.fetchallUpazila = async (req, res) => {
 					division_id: roleByplace.division
 				}
 			});
-	
+
 			const placeIds = places.map(place => place.id);
 			arr.push({ id: placeIds });
 		}
