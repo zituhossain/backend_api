@@ -4,7 +4,6 @@ const checkUserRoleByPlace = require('./globalController');
 
 
 exports.fetchallPlaceCommentTitle = async (req, res) => {
-    console.log('-----------i');
     // const token = req.headers.authorization.split(' ')[1];
     // let roleByplace = await checkUserRoleByPlace(token)
     // let arr = []
