@@ -56,9 +56,13 @@ exports.districtById = async (req, res) => {
 			district_data = await District.findAll({
 				where: { division_id: permittedDivisionId, id: permittedDistrictIds } // Fetch districts that match the provided division ID and the permitted district IDs
 			});
-		} else {
+		} else if (permittedDivisionId.length > 0) {
 			district_data = await District.findAll({
 				where: { division_id: permittedDivisionId } // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+			});
+		} else {
+			district_data = await District.findAll({
+				where: { division_id: id } // Fetch all districts for the provided division ID when no district IDs are set in the user's role
 			});
 		}
 
