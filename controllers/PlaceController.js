@@ -1777,10 +1777,39 @@ exports.createUnion = async (req, res) => {
 
 exports.fetchallUnion = async (req, res) => {
 	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+			arr.push({ place_id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		}
+
 		const union_data = await Union.findAll({
 			include: [
 				{
 					model: Upazilla,
+					where: arr
 				},
 			],
 		});
