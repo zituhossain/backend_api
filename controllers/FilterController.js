@@ -48,16 +48,17 @@ exports.districtById = async (req, res) => {
 		const roleByplace = await checkUserRoleByPlace(token);
 
 		const permittedDistrictIds = roleByplace.district; // Get the permitted district IDs from the user's role
-
+		const permittedDivisionId = roleByplace.division;
+		
 		let district_data;
 
-		if (permittedDistrictIds.length > 0) {
+		if (permittedDivisionId.length > 0 && permittedDistrictIds.length > 0) {
 			district_data = await District.findAll({
-				where: { division_id: id, id: permittedDistrictIds } // Fetch districts that match the provided division ID and the permitted district IDs
+				where: { division_id: permittedDivisionId, id: permittedDistrictIds } // Fetch districts that match the provided division ID and the permitted district IDs
 			});
 		} else {
 			district_data = await District.findAll({
-				where: { division_id: id } // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+				where: { division_id: permittedDivisionId } // Fetch all districts for the provided division ID when no district IDs are set in the user's role
 			});
 		}
 

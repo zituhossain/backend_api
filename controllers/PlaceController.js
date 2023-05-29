@@ -727,6 +727,19 @@ exports.placeDetailsAll = async (req, res) => {
 	let year = d.getFullYear();
 	// const place_id = req.params.id
 	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let whereCondition = {};
+
+		if (roleByplace.district.length > 0) {
+			whereCondition.district_id = roleByplace.district;
+		}
+		if (roleByplace.division.length > 0) {
+			whereCondition.division_id = roleByplace.division;
+		}
+		if (roleByplace.place.length > 0) {
+			whereCondition.place_id = roleByplace.place;
+		}
 		const place_data = await ngo_served_percent_by_palces.findAll({
 			group: 'place_id',
 			include: [
@@ -741,6 +754,7 @@ exports.placeDetailsAll = async (req, res) => {
 					model: Division,
 				},
 			],
+			where: whereCondition
 		});
 		return apiResponse.successResponseWithData(
 			res,
