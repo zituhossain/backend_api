@@ -5,25 +5,49 @@ const secret = process.env.JWT_SECRET;
 const checkUserRoleByPlace = require('./globalController');
 
 exports.fetchalllocalinfluencer = async (req, res) => {
-	const token = req.headers.authorization.split(' ')[1];
-	let roleByplace = await checkUserRoleByPlace(token);
-	// console.log(roleByplace)
-	let arr = [];
-	if (roleByplace.place.length > 0) {
-		arr.push({ place_id: roleByplace.place });
-	}
-	const allLocalInfluencer = await local_influencer.findAll({
-		include: [Place],
-		where: arr,
-	});
-	if (allLocalInfluencer) {
-		return apiResponse.successResponseWithData(
-			res,
-			'local_influencer fetch successfully.',
-			allLocalInfluencer
-		);
-	} else {
-		return apiResponse.ErrorResponse(res, 'No data found');
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+			arr.push({ place_id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ place_id: placeIds });
+		}
+		const allLocalInfluencer = await local_influencer.findAll({
+			include: [Place],
+			where: arr,
+		});
+		if (allLocalInfluencer) {
+			return apiResponse.successResponseWithData(
+				res,
+				'local_influencer fetch successfully.',
+				allLocalInfluencer
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
 
