@@ -1433,6 +1433,42 @@ exports.categoryBColor = async (req, res) => {
 	}
 };
 
+exports.categoryBColorByDivision = async (req, res) => {
+	try {
+		const division = req.params.id
+		let condition = '';
+		if (division) {
+			condition += ` and places.division_id = ${division}`
+		}
+		const [results, metadata] = await sequelize.query(`
+				select 
+			  places.id as id, 
+			  ngo_categories.name as categoryname, 
+			  places.name as name, 
+			  ngo_categories.short_name as categoryShortName, 
+			  ngo_categories.color_code as color_code 
+			from 
+			  places 
+			  INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
+			  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id 
+			where 
+			  ngo_category_bs.status = "colorActive" ${condition}
+			`);
+
+		if (results.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				results
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 // Sub Place Controller
 exports.createSubPlace = async (req, res) => {
 	try {

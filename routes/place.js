@@ -85,6 +85,7 @@ router.get('/categoryAlist', PlaceController.categoryAlist);
 router.get('/categoryBlist', PlaceController.categoryBlist);
 router.get('/categoryBlist/:id', PlaceController.categoryBlistID);
 router.get('/categoryBColor', PlaceController.categoryBColor);
+router.get('/categoryBColorByDivision/:id', PlaceController.categoryBColorByDivision);
 
 // Sub Place Route
 router.post('/create_sub_place', auth, PlaceController.createSubPlace);
