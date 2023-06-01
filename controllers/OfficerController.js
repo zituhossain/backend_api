@@ -141,7 +141,7 @@ exports.getallofficer = async (req, res) => {
 exports.getOfficerInfoById = async (req, res) => {
 	try {
 		const [results, metadata] = await sequelize.query(
-			`select * from ngo_place_info where officer_id = '${req.params.officer_id}' and place_id =${req.params.place_id}`
+			`select * from ngo_place_info where officer_id = '${req.params.officer_id}' and place_id =${req.params.place_id} ORDER BY year DESC`
 		);
 		if (results) {
 			return apiResponse.successResponseWithData(
