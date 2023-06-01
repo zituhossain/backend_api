@@ -982,7 +982,9 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
 };
 
 exports.finalReportGenerateResult = async (req, res) => {
+	console.log('-------------------finalReportGenerateResult-------------------');
 	console.log('req.body.year_id', req.body.year_id);
+
 	let query = '';
 	let default_year = '(select id from years order by id DESC LIMIT 1,1)';
 	if (req.body.year_id != '' && req.body.year_id !== '1000') {
@@ -1025,6 +1027,7 @@ exports.finalReportGenerateResult = async (req, res) => {
 	//         query += ` where year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`
 	//     }
 	// }
+	console.log('query', query);
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT
         places.id AS place_id,
@@ -1039,7 +1042,7 @@ exports.finalReportGenerateResult = async (req, res) => {
             year_place_ngo_officers
         LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
         WHERE
-            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 1
+            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS ngo_officer1,
@@ -1050,7 +1053,7 @@ exports.finalReportGenerateResult = async (req, res) => {
             year_place_ngo_officers
         LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id
         WHERE
-            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 1
+            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS ngo1,
@@ -1060,7 +1063,7 @@ exports.finalReportGenerateResult = async (req, res) => {
         FROM
             year_place_ngo_officers
         WHERE
-            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 1
+            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS served_population1,
@@ -1071,7 +1074,7 @@ exports.finalReportGenerateResult = async (req, res) => {
             year_place_ngo_officers
         LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
         WHERE
-            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 1
+            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS ngo_officer2,
@@ -1082,7 +1085,7 @@ exports.finalReportGenerateResult = async (req, res) => {
             year_place_ngo_officers
         LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id
         WHERE
-            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 1
+            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS ngo2,
@@ -1092,7 +1095,7 @@ exports.finalReportGenerateResult = async (req, res) => {
         FROM
             year_place_ngo_officers
         WHERE
-            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 1
+            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS served_population2
