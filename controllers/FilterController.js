@@ -956,15 +956,24 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
 			query += ` where administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
 		}
 	}
-	if (req.body.admin_office_type_id != '') {
+	if (req.body.admin_officer_type_id != '') {
 		if (query.includes('where')) {
-			query += ` and administration_officer_types.id = '${req.body.admin_office_type_id}'`;
+			query += ` and administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
 		} else {
-			query += ` where administration_officer_types.id = '${req.body.admin_office_type_id}'`;
+			query += ` where administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
 		}
 	}
 	const [alldata, metadata] = await sequelize.query(
-		`select *,administration_officer_types.name as admin_office_type_name,administration_officer_types.id as admin_office_type_id,administration_offices.name as present_office,administration_officers.name as officer_name,administration_offices.name as office_name from administration_officers left join administration_offices on administration_officers.administration_office_id = administration_offices.id left join districts on administration_officers.district_id = districts.id left join administration_officer_types on administration_officers.designation  = administration_officer_types.id` +
+		`select 
+  *, 
+  administration_officer_types.name as designation_name, 
+  administration_officer_types.id as type_id, 
+  administration_offices.name as office_name, 
+  administration_officers.name as officer_name
+from 
+  administration_officers 
+  left join administration_offices on administration_officers.administration_office_id = administration_offices.id 
+  left join administration_officer_types on administration_officers.designation = administration_officer_types.id` +
 		query
 	);
 	if (alldata.length > 0) {
