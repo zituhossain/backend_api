@@ -36,6 +36,29 @@ exports.create_ngo = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+exports.fetchById = async (req, res) => {
+	const ngo_id = req.params.id;
+	console.log('---------------------------------');
+	console.log(ngo_id);
+	try {
+		const ngo_data = await Ngo.findOne({ where: { id: ngo_id } });
+		console.log(ngo_data.name);
+		console.log(ngo_data.length);
+		if (ngo_data) {
+			console.log(ngo_data);
+
+			return apiResponse.successResponseWithData(
+				res,
+				'fetchById- Data fetch successfull.',
+				ngo_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'fetchById - No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
 
 exports.fetchall_by_place_id = async (req, res) => {
 	const ngo_id = req.params.id;

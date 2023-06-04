@@ -141,7 +141,7 @@ exports.places = async (req, res) => {
 };
 
 /*
-exports.finalReportGenerate = async (req, res) => {
+exports.finalReportGenerateCategory = async (req, res) => {
 	let query = '';
 	if (req.body.year_id !== '') {
 		const get_year = await years.findOne({ where: { id: req.body.year_id } });
@@ -232,7 +232,7 @@ exports.finalReportGenerate = async (req, res) => {
 };
 */
 
-exports.finalReportGenerate = async (req, res) => {
+exports.finalReportGenerateCategory = async (req, res) => {
 	// let query = `SELECT ngo_place_info.*,
 	// (SELECT officers.name from year_place_ngo_officers LEFT JOIN officers 
 	// ON(officers.id = year_place_ngo_officers.officer_id) LEFT JOIN years 
@@ -242,89 +242,99 @@ exports.finalReportGenerate = async (req, res) => {
 	// ngo_place_info.officer_name AS ngo_officer_one
 	// FROM ngo_place_info where ngo_place_info.year = (select Max(name) from years) AND ngo_place_info.ypno_status = 1`;
 
-	let query = `SELECT ngo_place_info.*,
-		(SELECT officers.name from year_place_ngo_officers LEFT JOIN officers 
-		ON(officers.id = year_place_ngo_officers.officer_id) LEFT JOIN years 
-		ON(years.id = year_place_ngo_officers.year_id)
-		WHERE years.name =(SELECT years.name 
-						   FROM years ORDER BY id DESC LIMIT 1,1) AND year_place_ngo_officers.rank = 1 AND year_place_ngo_officers.place_id = ngo_place_info.place_id LIMIT 1) AS ngo_officer,
-	ngo_place_info.officer_name AS ngo_officer_one                       
-	FROM ngo_place_info 
-	where ngo_place_info.year = (SELECT Max(name) FROM years) AND ngo_place_info.ypno_status = 1 AND (SELECT officers.name from year_place_ngo_officers LEFT JOIN officers 
-		ON(officers.id = year_place_ngo_officers.officer_id) LEFT JOIN years 
-		ON(years.id = year_place_ngo_officers.year_id)
-		WHERE years.name =(SELECT years.name 
-						   FROM years ORDER BY id DESC LIMIT 1,1) AND year_place_ngo_officers.rank = 1 AND year_place_ngo_officers.place_id = ngo_place_info.place_id LIMIT 1) IS NOT NULL`;
 
-	if (req.body.division_id !== '') {
-		const get_division = await Division.findOne({
-			where: { id: req.body.division_id },
-		});
-		if (query.includes('where')) {
-			query += ` and division_name = '${get_division.name_bg}'`;
-		} else {
-			query += ` where division_name = '${get_division.name_bg}'`;
+	let mainQuery = `
+	SELECT 
+	places.id as place_id,
+	places.name AS place_name,
+	places.area AS place_area,
+    ngo_categories.short_name AS category_name,
+	IFNULL(npi2.officer_id, NULL) AS officer_id,
+    IFNULL(npi2.officer_name, NULL) AS ngo_officer,
+	IFNULL(npi2.ngo_name , NULL) AS ngo_name,
+    IFNULL(
+        (SELECT officer_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1 AND ypno_status = 0
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS winner_name,
+     IFNULL(
+        (SELECT ngo_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1 AND ypno_status = 0
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS winner_ngo
+FROM places 
+LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
+LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
+LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id 
+	AND npi2.year = (SELECT MAX(name) FROM years) 
+    AND npi2.ypno_status = 1
+	`;
+
+
+	let query = ''
+	if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
+		if (query.includes('WHERE')) {
+			query += ` AND npi2.ngo_id = '${req.body.ngo_id}'`;
+		}else{
+			query += ` WHERE npi2.ngo_id = '${req.body.ngo_id}'`;
 		}
-	} else {
-		query
+	}
+	if (req.body.division_id !== '') {
+		if (query.includes('WHERE')) {
+			query += ` and npi2.division_id = '${req.body.division_id}'`;
+		}else{
+			query += ` WHERE npi2.division_id = '${req.body.division_id}'`;
+		}
+		
 	}
 	if (req.body.district_id !== '') {
-		const get_district = await District.findOne({
-			where: { id: req.body.district_id },
-		});
-		if (query.includes('where')) {
-			query += ` and district_name = '${get_district.name_bg}'`;
-		} else {
-			query += ` where district_name = '${get_district.name_bg}'`;
+		if (query.includes('WHERE')) {
+			query += ` and npi2.district_id = '${req.body.district_id}'`;
+		}else{
+			query += ` WHERE npi2.district_id = '${req.body.district_id}'`;
 		}
-	} else {
-		query
+		
 	}
-
 	if (req.body.place_id !== '') {
-		const get_place = await Place.findOne({ where: { id: req.body.place_id } });
-		if (query.includes('where')) {
-			query += ` and place_name = '${get_place.name}'`;
-		} else {
-			query += ` where place_name = '${get_place.name}'`;
+		if (query.includes('WHERE')) {
+			query += ` and npi2.place_id = '${req.body.place_id}'`;
+		}else{
+			query += ` WHERE npi2.place_id = '${req.body.place_id}'`;
 		}
-	} else {
-		query
+		
 	}
 
-	if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
-		const get_ngo = await Ngo.findOne({ where: { id: req.body.ngo_id } });
-		if (query.includes('where')) {
-			query += ` and ngo_name = '${get_ngo.name}'`
-		} else {
-			query += ` where ngo_name = '${get_ngo.name}'`;
-		}
-	} else {
-		query
-	}
-
-	if (
-		req.body.category &&
+	if (req.body.category &&
 		req.body.category !== '' &&
-		req.body.category !== null
-	) {
-		if (query.includes('where')) {
-			query += ` and categoryb_id = '${req.body.category}'`;
-		} else {
-			query += ` where categoryb_id = '${req.body.category}'`;
+		req.body.category !== null) {
+		if (query.includes('WHERE')) {
+			query += ` AND ngo_categories.id = '${req.body.category}'`;
+		}else{
+			query += ` WHERE ngo_categories.id = '${req.body.category}'`;
 		}
-	} else {
-		query
+		
 	}
+
+	mainQuery = mainQuery+query+` ORDER BY place_id`;
+
+	
+
+	
 	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
-	console.log('query', query);
+	//console.log('query', mainQuery);
 	const [alldata, metadata] = await sequelize.query(
-		query
+		mainQuery
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
 		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
-		console.log('ReportCategory', reportGenerateInfo);
+		//console.log('ReportCategory', reportGenerateInfo);
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',

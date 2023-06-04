@@ -26,6 +26,7 @@ router.post(
 	multer({ storage }).single('myFile'),
 	NgoController.update_ngo
 );
+router.get('/get_by_id/:id', auth, NgoController.fetchById);
 router.get('/get_by_place_id/:id', auth, NgoController.fetchall_by_place_id);
 router.get('/get_all_ngo', auth, NgoController.fetchall_ngo);
 router.get('/get_other_ngo', NgoController.fetchOtherNgo);
