@@ -60,6 +60,7 @@ router.get(
 );
 router.get(
 	'/get_all_counter_info',
+	auth,
 	YearPlaceNgoOfficerController.getAllCountInformation
 );
 router.post(

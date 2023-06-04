@@ -1,8 +1,8 @@
 const express = require('express');
 const PlaceController = require('../controllers/PlaceController');
-const ExcelFileUploadController = require('../controllers/ExcelFileUploadController')
+const ExcelFileUploadController = require('../controllers/ExcelFileUploadController');
 const auth = require('../middlewares/jwt');
-const upload = require("../middlewares/upload");
+const upload = require('../middlewares/upload');
 const router = express.Router();
 
 router.get('/all_place', auth, PlaceController.getallPlace);
@@ -32,15 +32,22 @@ router.delete(
 );
 router.get('/get_place_category_type', PlaceController.getPlaceCategoryType);
 
-
 router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/place_details', PlaceController.placeDetailsAll);
 
-router.get('/place_history/:id', PlaceController.placeHistory);
-router.get('/place_history_district/:id', PlaceController.placeHistoryDistrict);
-router.get('/place_history_division/:id', PlaceController.placeHistoryDivision);
+router.get('/place_history/:id', auth, PlaceController.placeHistory);
+router.get(
+	'/place_history_district/:id',
+	auth,
+	PlaceController.placeHistoryDistrict
+);
+router.get(
+	'/place_history_division/:id',
+	auth,
+	PlaceController.placeHistoryDivision
+);
 
-router.get('/all_place_history', PlaceController.AllPlaceHistory);
+router.get('/all_place_history', auth, PlaceController.AllPlaceHistory);
 
 router.get('/get_district/:id', auth, PlaceController.getDistrict);
 router.get('/get_division/:id', auth, PlaceController.getDivision);
@@ -84,8 +91,11 @@ router.delete('/ngo_jot_delete_by_id/:id', PlaceController.ngoJotDeleteById);
 router.get('/categoryAlist', PlaceController.categoryAlist);
 router.get('/categoryBlist', PlaceController.categoryBlist);
 router.get('/categoryBlist/:id', PlaceController.categoryBlistID);
-router.get('/categoryBColor', PlaceController.categoryBColor);
-router.get('/categoryBColorByDivision/:id', PlaceController.categoryBColorByDivision);
+router.get('/categoryBColor', auth, PlaceController.categoryBColor);
+router.get(
+	'/categoryBColorByDivision/:id',
+	PlaceController.categoryBColorByDivision
+);
 
 // Sub Place Route
 router.post('/create_sub_place', auth, PlaceController.createSubPlace);
@@ -99,7 +109,12 @@ router.delete('/delete_sub_place/:id', auth, PlaceController.deleteSubPlace);
 router.put('/update_sub_place/:id', auth, PlaceController.updateSubPlace);
 
 // Sub Place Excel file Upload
-router.post('/sub_place_excel', auth, upload.single('file'), ExcelFileUploadController.upload)
+router.post(
+	'/sub_place_excel',
+	auth,
+	upload.single('file'),
+	ExcelFileUploadController.upload
+);
 
 // Upazilla Route
 router.get('/all_upazilla', auth, PlaceController.fetchallUpazilla);
