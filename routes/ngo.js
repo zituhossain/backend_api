@@ -33,6 +33,7 @@ router.get('/get_other_ngo', NgoController.fetchOtherNgo);
 router.get('/get_ngo_categoris', NgoController.fetchNgoCategoris);
 router.get('/get_ngo_type', NgoController.fetchNgoType);
 router.get('/get_ngo_categoris_count', NgoController.fetchNgoCategorisCount);
+router.get('/get_ngo_categoris_count_by_division/:id', NgoController.fetchNgoCategorisCountByDivision);
 router.get('/get_ngo_list_by_place/:id', NgoController.fetchall_ngo_by_place);
 router.get('/get_year_ngo_place_list', NgoController.fetchall_year_place_ngo);
 router.get(
