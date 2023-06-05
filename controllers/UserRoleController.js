@@ -722,28 +722,3 @@ function incrementLastCounter(name, maxId) {
 	// If the last part is not a valid counter, add the maxId to the name
 	return `${name} ${maxId + 1}`;
 }
-
-exports.getRoleByUser = async (req, res) => {
-	try {
-		const token = req.headers.authorization.split(' ')[1];
-		const decodedToken = jwt.verify(token, secret);
-		const userId = decodedToken._id;
-		console.log('userid', userId);
-		const user_data = await User.findOne({ where: { id: userId } });
-
-		// Check if the user exists and has a role_id
-		if (user_data && user_data.role_id) {
-			const role_id = user_data.role_id;
-			console.log('zitu', role_id);
-			return apiResponse.successResponse(
-				res,
-				'Role ID retrieved successfully.',
-				role_id
-			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'Unable to find user or role_id.');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};

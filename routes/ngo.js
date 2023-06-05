@@ -32,7 +32,11 @@ router.get('/get_all_ngo', auth, NgoController.fetchall_ngo);
 router.get('/get_other_ngo', NgoController.fetchOtherNgo);
 router.get('/get_ngo_categoris', NgoController.fetchNgoCategoris);
 router.get('/get_ngo_type', NgoController.fetchNgoType);
-router.get('/get_ngo_categoris_count', NgoController.fetchNgoCategorisCount);
+router.get(
+	'/get_ngo_categoris_count',
+	auth,
+	NgoController.fetchNgoCategorisCount
+);
 router.get(
 	'/get_ngo_categoris_count_by_division/:id',
 	NgoController.fetchNgoCategorisCountByDivision
