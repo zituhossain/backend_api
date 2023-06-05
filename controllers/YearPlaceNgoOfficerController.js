@@ -763,7 +763,7 @@ console.log(query);
 		const [results, metadata] = await sequelize.query(
 			`SELECT *
 FROM ngo_place_info2
-`+query+` ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order ASC, -ypno_view_order ASC, -ngo_view_order DESC, officer_id;`
+`+query+` ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
 		);
 
 		if (results) {
