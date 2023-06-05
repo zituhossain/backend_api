@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const { Op } = require("sequelize");
 
 
-exports.fetchallTitle = async (req, res) => {
+exports.fetchallHeading = async (req, res) => {
     const allOverallTitle = await officer_profile_heading.findAll({
         include: [Profile_type],
         // where:{id: user.role_id}
@@ -17,7 +17,7 @@ exports.fetchallTitle = async (req, res) => {
     }
 }
 
-exports.getoveralltitlebyid = async (req, res) => {
+exports.getProfileHeadingById = async (req, res) => {
     try {
         const title_id = req.params.id;
         const title_data = await officer_profile_heading.findOne({ where: { id: title_id } });

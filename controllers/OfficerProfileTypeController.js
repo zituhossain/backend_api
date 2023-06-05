@@ -14,7 +14,7 @@ exports.fetchallTitle = async (req, res) => {
     }
 }
 
-exports.getoveralltitlebyid = async (req, res) => {
+exports.getOfficerProfileTypeById = async (req, res) => {
     try {
         const title_id = req.params.id;
         const title_data = await Profile_type.findOne({ where: { id: title_id } });
