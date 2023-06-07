@@ -51,75 +51,75 @@ exports.createofficer = async (req, res) => {
 exports.filterImageName = async (req, res) => {
 	console.log('---------------------filterImageName--------------');
 	try {
-		// Assuming you are using a database library such as Sequelize or Mongoose
-		// and have a model called "Officer" representing your table
-		const data = await Officer.findAll(); // Fetch the Officer data
-
-		// Iterate over the data and update each field that contains spaces
-		for (let i = 0; i < data?.length; i++) {
-			const field = data[i]?.image; // Replace "image" with your actual field name
-			console.log(data[i]?.image);
-			if (field)
-				if (field.includes(' ')) {
-					const updatedField = field.replace(/[\s\u200B-\u200D\uFEFF]/g, '_');
-
-					console.log('filter====>', updatedField);
-
-					// Assuming you have an update method in your model to update the field
-					await Officer.update(
-						{ image: updatedField },
-						{ where: { id: data[i].id } }
-					);
-				}
+	  const data = await Officer.findAll();
+	  const specialCharacterRegex = /[^\w\s\u0980-\u09FF/]/g; // Regex to match special characters except "/"
+  
+	  for (let i = 0; i < data?.length; i++) {
+		const field = data[i]?.image;
+		console.log(data[i]?.image);
+  
+		if (field && (field.includes(' ') || specialCharacterRegex.test(field))) {
+		  let updatedField = field.replace(/[\s\u200B-\u200D\uFEFF]/g, '_');
+  
+		  const fileExtensionRegex = /\.[^.]+$/; // Regex to match file extension
+		  const fileNameWithoutExtension = updatedField.replace(fileExtensionRegex, '');
+		  const fileExtension = field.match(fileExtensionRegex)[0];
+  
+		  const updatedFileName = fileNameWithoutExtension.replace(specialCharacterRegex, '').replace(/\s/g, '_') + fileExtension;
+  
+		  console.log('filter====>', updatedFileName);
+  
+		  await Officer.update(
+			{ image: updatedFileName },
+			{ where: { id: data[i].id } }
+		  );
 		}
-
-		return res
-			.status(200)
-			.json({ message: 'Field data filtered successfully' });
+	  }
+  
+	  return res.status(200).json({ message: 'Field data filtered successfully' });
 	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ error: 'Internal server error' });
+	  console.error(error);
+	  return res.status(500).json({ error: 'Internal server error' });
 	}
-};
-
+  };
+  
+  
 exports.filterLocalDirectoryImageName = async (req, res) => {
 	try {
-		const directoryPath = base_dir_config.base_dir + 'uploads/officer/';
-		console.log('i m here');
-		// Read the directory contents
-		fs.readdir(directoryPath, async (err, files) => {
-			if (err) {
-				console.error(err);
-				return res.status(500).json({ error: 'Internal server error' });
-			}
-
-			// Iterate over the files and filter the image names
-			for (let i = 0; i < files.length; i++) {
-				const file = files[i];
-				const filePath = path.join(directoryPath, file);
-
-				// Check if the file is an image (you can modify the check based on your image file extensions)
-				if (
-					fs.statSync(filePath).isFile() &&
-					/\.(jpg|jpeg|png|gif)$/i.test(file)
-				) {
-					const updatedFileName = file.replace(/\s/g, '_');
-					const updatedFilePath = path.join(directoryPath, updatedFileName);
-
-					// Rename the file with the updated name
-					fs.renameSync(filePath, updatedFilePath);
-				}
-			}
-
-			return res
-				.status(200)
-				.json({ message: 'Image files filtered successfully' });
-		});
+	  const directoryPath = base_dir_config.base_dir + 'uploads/officer/';
+	  console.log('I am here');
+  
+	  fs.readdir(directoryPath, async (err, files) => {
+		if (err) {
+		  console.error(err);
+		  return res.status(500).json({ error: 'Internal server error' });
+		}
+  
+		const fileExtensionRegex = /\.[^.]+$/; // Regex to match file extension
+		const specialCharacterRegex = /[^\w\s\u0980-\u09FF]/g; // Regex to match special characters
+  
+		for (let i = 0; i < files.length; i++) {
+		  const file = files[i];
+		  const filePath = path.join(directoryPath, file);
+  
+		  if (fs.statSync(filePath).isFile() && /\.(jpg|jpeg|png|gif)$/i.test(file)) {
+			const fileNameWithoutExtension = file.replace(fileExtensionRegex, ''); // Remove file extension from file name
+			const fileExtension = file.match(fileExtensionRegex)[0]; // Get file extension
+  
+			const updatedFileName = fileNameWithoutExtension.replace(specialCharacterRegex, '').replace(/\s/g, '_') + fileExtension;
+			const updatedFilePath = path.join(directoryPath, updatedFileName);
+  
+			fs.renameSync(filePath, updatedFilePath);
+		  }
+		}
+  
+		return res.status(200).json({ message: 'Image files filtered successfully' });
+	  });
 	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ error: 'Internal server error' });
+	  console.error(error);
+	  return res.status(500).json({ error: 'Internal server error' });
 	}
-};
+  };
 
 exports.getallofficer = async (req, res) => {
 	try {
