@@ -58,19 +58,19 @@ exports.filterImageName = async (req, res) => {
 		// Iterate over the data and update each field that contains spaces
 		for (let i = 0; i < data?.length; i++) {
 			const field = data[i]?.image; // Replace "image" with your actual field name
-console.log(data[i]?.image);
-			if(field)	
-			if (field.includes(' ')) {
-				const updatedField = field.replace(/[\s\u200B-\u200D\uFEFF]/g, '_');
+			console.log(data[i]?.image);
+			if (field)
+				if (field.includes(' ')) {
+					const updatedField = field.replace(/[\s\u200B-\u200D\uFEFF]/g, '_');
 
-				console.log('filter====>', updatedField);
+					console.log('filter====>', updatedField);
 
-				// Assuming you have an update method in your model to update the field
-				await Officer.update(
-					{ image: updatedField },
-					{ where: { id: data[i].id } }
-				);
-			}
+					// Assuming you have an update method in your model to update the field
+					await Officer.update(
+						{ image: updatedField },
+						{ where: { id: data[i].id } }
+					);
+				}
 		}
 
 		return res
@@ -85,7 +85,7 @@ console.log(data[i]?.image);
 exports.filterLocalDirectoryImageName = async (req, res) => {
 	try {
 		const directoryPath = base_dir_config.base_dir + 'uploads/officer/';
-console.log('i m here');
+		console.log('i m here');
 		// Read the directory contents
 		fs.readdir(directoryPath, async (err, files) => {
 			if (err) {
@@ -141,8 +141,11 @@ exports.getallofficer = async (req, res) => {
 exports.getOfficerInfoById = async (req, res) => {
 	try {
 		const [results, metadata] = await sequelize.query(
-			`select * from ngo_place_info where officer_id = '${req.params.officer_id}' and place_id =${req.params.place_id} ORDER BY year DESC`
+			`select * from ngo_place_info where officer_id = '${req.params.condition}' and place_id =${req.params.id} ORDER BY year DESC`
 		);
+		// const [results, metadata] = await sequelize.query(
+		// 	`select * from ngo_place_info where officer_id = '${req.params.officer_id}' and place_id =${req.params.place_id} ORDER BY year DESC`
+		// );
 		if (results) {
 			return apiResponse.successResponseWithData(
 				res,
@@ -184,8 +187,10 @@ var decryptHash = (value) => {
 };
 
 exports.getOfficerHeadingById = async (req, res) => {
-	const officer_id = req.params.officer_id;
-	const place_id = req.params.place_id;
+	const officer_id = req.params.condition;
+	const place_id = req.params.id;
+	// const officer_id = req.params.officer_id;
+	// const place_id = req.params.place_id;
 
 	try {
 		let [results, metadata] = await sequelize.query(`		

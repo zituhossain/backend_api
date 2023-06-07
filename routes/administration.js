@@ -25,7 +25,7 @@ router.get(
 	AdministrationController.fetchall
 );
 router.get(
-	'/fetch_office_by_condition/:value/:id',
+	'/fetch_office_by_condition/:condition/:id',
 	auth,
 	AdministrationController.fetch_admin_office_by_condition
 );

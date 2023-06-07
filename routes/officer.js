@@ -41,13 +41,23 @@ router.post(
 	auth,
 	OfficerController.filterLocalDirectoryImageName
 );
+// router.get(
+// 	'/getOfficerInfo/:officer_id/:place_id',
+// 	auth,
+// 	OfficerController.getOfficerInfoById
+// );
 router.get(
-	'/getOfficerInfo/:officer_id/:place_id',
+	'/getOfficerInfo/:condition/:id',
 	auth,
 	OfficerController.getOfficerInfoById
 );
+// router.get(
+// 	'/getOfficerHeadingById/:officer_id/:place_id',
+// 	auth,
+// 	OfficerController.getOfficerHeadingById
+// );
 router.get(
-	'/getOfficerHeadingById/:officer_id/:place_id',
+	'/getOfficerHeadingById/:condition/:id',
 	auth,
 	OfficerController.getOfficerHeadingById
 );

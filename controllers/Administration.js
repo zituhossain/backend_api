@@ -103,7 +103,7 @@ exports.fetchall = async (req, res) => {
 exports.fetch_admin_office_by_condition = async (req, res) => {
 	try {
 		const place_id = req.params.id;
-		const value_name = req.params.value;
+		const value_name = req.params.condition;
 		let arr = [];
 		if (value_name == 'place') {
 			const district = await District.findOne({
@@ -492,32 +492,40 @@ exports.getallplacecomment = async (req, res) => {
 		let roleByplace = await checkUserRoleByPlace(token);
 		let arr = [];
 
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+		if (
+			(roleByplace.division.length > 0 &&
+				roleByplace.district.length > 0 &&
+				roleByplace.place.length > 0) ||
+			roleByplace.place.length > 0
+		) {
 			arr.push({ place_id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		} else if (
+			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
+			roleByplace.district.length > 0
+		) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					district_id: roleByplace.district
-				}
+					district_id: roleByplace.district,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ place_id: placeIds });
 		} else if (roleByplace.division.length > 0) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					division_id: roleByplace.division
-				}
+					division_id: roleByplace.division,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ place_id: placeIds });
 		}
 		const place_comment_data = await Place_comment.findAll({
 			include: [Tag, Place],
-			where: arr
+			where: arr,
 		});
 		if (place_comment_data.length > 0) {
 			return apiResponse.successResponseWithData(
