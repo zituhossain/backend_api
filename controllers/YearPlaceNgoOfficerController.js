@@ -696,6 +696,17 @@ exports.getkormitopbyxid = async (req, res) => {
 					results[i].sarbik_desc = '';
 					final_arr.push(results[i]);
 				}
+
+				if (results[i]?.sarbik_desc2 !== null) {
+					console.log('results[i].sarbik_desc2', results[i].sarbik_desc2);
+					let decrypted_data = decryptHash(results[i]?.sarbik_desc2);
+					results[i].sarbik_desc2 = decrypted_data;
+					console.log('results[i].sarbik_desc2', results[i].sarbik_desc2);
+					//final_arr.push(results[i]);
+				} else {
+					results[i].sarbik_des2 = '';
+					//final_arr.push(results[i]);
+				}
 			}
 			//console.log('resultsresultsresultsresultsresults', results);
 			return apiResponse.successResponseWithData(
