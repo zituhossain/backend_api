@@ -76,12 +76,10 @@ const authenticate = (roles = []) => {
 
 function checkurl(value) {
 	const segments = value.split('/');
-	console.log('segment', segments);
-	console.log('segment2', segments[segments.length - 2]);
 
 	if (
-		(segments.length >= 3 && parseInt(segments[segments.length - 2])) ||
-		(segments[segments.length - 2] && parseInt(segments[segments.length - 1]))
+		segments.length >= 3 && parseInt(segments[segments.length - 2])
+		&& parseInt(segments[segments.length - 1])
 	) {
 		segments[segments.length - 2] = ':condition';
 		segments[segments.length - 1] = ':id';
