@@ -74,19 +74,42 @@ const authenticate = (roles = []) => {
 // 	}
 // }
 
+// function checkurl(value) {
+// 	const segments = value.split('/');
+
+// 	if (
+// 		segments.length >= 3 && parseInt(segments[segments.length - 2])
+// 		&& parseInt(segments[segments.length - 1])
+// 	) {
+// 		segments[segments.length - 2] = ':condition';
+// 		segments[segments.length - 1] = ':id';
+// 		value = segments.join('/');
+// 		return { status: true, url: value };
+// 	} else if (parseInt(segments[segments.length - 1])) {
+// 		segments[segments.length - 1] = ':id';
+// 		value = segments.join('/');
+// 		return { status: true, url: value };
+// 	} else {
+// 		value = segments.join('/');
+// 		return { status: false, url: value };
+// 	}
+// }
+
 function checkurl(value) {
 	const segments = value.split('/');
 
-	if (
-		segments.length >= 3 && parseInt(segments[segments.length - 2])
-		&& parseInt(segments[segments.length - 1])
-	) {
-		segments[segments.length - 2] = ':condition';
-		segments[segments.length - 1] = ':id';
-		value = segments.join('/');
-		return { status: true, url: value };
-	} else if (parseInt(segments[segments.length - 1])) {
-		segments[segments.length - 1] = ':id';
+	if (segments.length >= 3) {
+		const conditionSegment = segments[segments.length - 2];
+		const idSegment = segments[segments.length - 1];
+
+		if (parseInt(idSegment)) {
+			segments[segments.length - 1] = ':id';
+		}
+
+		if (!isNaN(Number(conditionSegment))) {
+			segments[segments.length - 2] = ':condition';
+		}
+
 		value = segments.join('/');
 		return { status: true, url: value };
 	} else {
@@ -94,29 +117,6 @@ function checkurl(value) {
 		return { status: false, url: value };
 	}
 }
-
-// function checkurl(value) {
-// 	const segments = value.split('/');
-// 	const conditionSegment = segments[segments.length - 2];
-// 	const idSegment = segments[segments.length - 1];
-
-// 	const conditionRegex = /^[a-zA-Z]+$/; // Regular expression to match alphabetic characters
-// 	console.log('seg=', segments[segments.length - 2]);
-// 	if (
-// 		segments.length >= 3 &&
-// 		conditionRegex.test(conditionSegment) &&
-// 		/^\d+$/.test(idSegment)
-// 	) {
-// 		segments[segments.length - 2] = ':condition';
-
-// 		segments[segments.length - 1] = ':id';
-// 	} else if (/^\d+$/.test(idSegment)) {
-// 		segments[segments.length - 1] = ':id';
-// 	}
-
-// 	value = segments.join('/');
-// 	return { status: true, url: value };
-// }
 
 const save_to_mongo = async (body) => {
 	const user = new userModel(body);
@@ -156,11 +156,13 @@ module.exports = async (req, res, next) => {
 	};
 	createLog(logdata);
 	try {
-		// console.log("aaaaaaaaaaaaaaaaaaaaaaaa", req.originalUrl)
+		console.log('originalUrl', req.originalUrl);
 		let validate_url = checkurl(req.originalUrl);
+		console.log('validate_url', validate_url);
 		let finalurl = req.originalUrl;
 		if (validate_url.status) {
 			finalurl = validate_url.url;
+			console.log('finalurl===', finalurl);
 		}
 		if (userId && decodedToken.phone === '') {
 			throw 'Invalid user ID';
