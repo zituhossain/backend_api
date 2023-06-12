@@ -298,7 +298,7 @@ exports.getNgoPopularOfficer = async (req, res) => {
   officers.*, 
   ngos.name as ngoname, 
   year_place_ngo_officers.ngo_id, 
-  year_place_ngo_officers.event_type
+  year_place_ngo_officers.event_type as ypno_event_type
 from 
   officers 
   left join year_place_ngo_officers on officers.id = year_place_ngo_officers.officer_id 
