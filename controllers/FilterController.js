@@ -1061,7 +1061,7 @@ exports.finalReportGenerateResult = async (req, res) => {
             year_place_ngo_officers
         LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
         WHERE
-            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
+            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.event_type = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS ngo_officer1,
@@ -1072,7 +1072,7 @@ exports.finalReportGenerateResult = async (req, res) => {
             year_place_ngo_officers
         LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id
         WHERE
-            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
+            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.event_type = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS ngo1,
@@ -1082,7 +1082,7 @@ exports.finalReportGenerateResult = async (req, res) => {
         FROM
             year_place_ngo_officers
         WHERE
-            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
+            rank = 1 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.event_type = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS served_population1,
@@ -1093,7 +1093,7 @@ exports.finalReportGenerateResult = async (req, res) => {
             year_place_ngo_officers
         LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
         WHERE
-            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
+            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.event_type = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS ngo_officer2,
@@ -1104,7 +1104,7 @@ exports.finalReportGenerateResult = async (req, res) => {
             year_place_ngo_officers
         LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id
         WHERE
-            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
+            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.event_type = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS ngo2,
@@ -1114,7 +1114,7 @@ exports.finalReportGenerateResult = async (req, res) => {
         FROM
             year_place_ngo_officers
         WHERE
-            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.status = 0
+            rank = 2 AND year_place_ngo_officers.place_id = places.id ${year_query} AND year_place_ngo_officers.event_type = 0
         GROUP BY
             year_place_ngo_officers.ngo_id
     ) AS served_population2

@@ -425,20 +425,13 @@ var generateHash = (value) => {
 exports.createYearPlaceNgoofficer = async (req, res) => {
 
 	try {
-		// const jot_data = await Ngo.findOne({
-		// 	where: {
-		// 		id: req.body.ngo_id,
-		// 	},
-		// });
 
-		// const eventTypeData = await year_place_ngo_officer.findOne({
-		// 	where: {
-		// 		place_id: req.body.place_id,
-		// 		year_id: req.body.year_id,
-		// 		even_type: req.body.event_type,
-		// 		ngo_id: req.body.ngo_id,
-		// 	},
-		// });
+		const jot_data = await Ngo.findOne({
+			where: {
+				id: req.body.ngo_id,
+			},
+		});
+		console.log(jot_data);
 
 		const status_data = await year_place_ngo_officer.findOne({
 			where: {
@@ -460,51 +453,51 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 		// 	'------------------createYearPlaceNgoofficer----------------',
 		// 	rank_data
 		// );
-		if(!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1) || req.body.event_type===1) {
-			if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null || req.body.event_type===1) {
-				const get_data = await year_place_ngo_officer.findOne({
-					where: {
-						place_id: req.body.place_id,
-						year_id: req.body.year_id,
-						ngo_id: req.body.ngo_id,
-						officer_id: req.body.officer_id,
-					},
-				});
-				
-				if (!get_data || req.body.event_type===1) {
-					if (Object.keys(req.body).length === 0) {
-						return apiResponse.ErrorResponse(res, 'placeID missing');
-					}else {
-						const ypno = await year_place_ngo_officer.create(req.body);
-						const headingsList = req.body.headingsList;
-						const headingsValueList = req.body.headingsValueList;
-						const [results, metadata] =
+		if(!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1)) {
+		if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null) {
+			const get_data = await year_place_ngo_officer.findOne({
+				where: {
+					place_id: req.body.place_id,
+					year_id: req.body.year_id,
+					ngo_id: req.body.ngo_id,
+					officer_id: req.body.officer_id,
+				},
+			});
+			if (!get_data) {
+				if (Object.keys(req.body).length === 0) {
+					return apiResponse.ErrorResponse(res, 'placeID missing');
+				} else {
+					const ypno = await year_place_ngo_officer.create(req.body);
+					const headingsList = req.body.headingsList;
+					const headingsValueList = req.body.headingsValueList;
+					const [results, metadata] =
 						await sequelize.query(`SELECT officers_heading_descriptions.*
             FROM officers_heading_descriptions LEFT JOIN year_place_ngo_officers on officers_heading_descriptions.officer_id = year_place_ngo_officers.officer_id AND officers_heading_descriptions.year_id = year_place_ngo_officers.year_id  WHERE year_place_ngo_officers.officer_id = ${req.body.officer_id} and year_place_ngo_officers.year_id=${req.body.year_id}`);
 					// console.log(results);
-						if (results.length === 0) {
-							headingsValueList.length > 0 &&
+					if (results.length === 0) {
+						headingsValueList.length > 0 &&
 							headingsValueList.map(async (res, index) => {
 
-								if (res?.headings_value && res?.headings_value!=='') {
-										let hashedContent = generateHash(res?.headings_value ?? '');
+							if (res?.headings_value && res?.headings_value!=='') {
+								let hashedContent = generateHash(res?.headings_value ?? '');
 
-										const description = {
-											id: res.id,
-											officer_id: req.body.officer_id,
-											year_id: req.body.year_id,
-											heading_id: res.heading_id,
-											desc: hashedContent,
-										};
-										if(res.id===null){
-											console.log('---------------new addition----------');
-											//console.log(description)
-											await officers_heading_description.create(description);
-										}
+								const description = {
+									id: res.id,
+									officer_id: req.body.officer_id,
+									year_id: req.body.year_id,
+									heading_id: res.heading_id,
+									desc: hashedContent,
+								};
+								if(res.id===null){
+									console.log('---------------new addition----------');
+									//console.log(description)
+									await officers_heading_description.create(description);
 								}
+							}
+
 
 							});
-						}
+					}
 					// console.log('ypno', ypno)
 					return apiResponse.successResponse(
 						res,
@@ -529,8 +522,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 				'একই স্থানে, একই বছরে দুইজন চূড়ান্ত হতে পারবেন না।'
 			);
 	}
-
-	}catch (err) {
+	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
@@ -571,8 +563,8 @@ exports.updateoveralltitlebyid = async (req, res) => {
 			console.log(status_data);
 			console.log('--------------update--------------bs---',req.body.status,'------------sd--',status_data.status,'-------',req.params.id);
 	//return;
-			if (!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1) || req.body.event_type===1) {
-			if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null || req.body.event_type===1) {
+			if (!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1)) {
+			if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null ) {
 				// const get_data = await year_place_ngo_officer.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id, ngo_id: req.body.ngo_id, officer_id: req.body.officer_id } });
 				// if (!get_data) {
 				if (req.body.place_id) {
@@ -594,6 +586,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
 					headingsValueList.length > 0 &&
 						headingsValueList.map(async (res, index) => {
 
+//console.log(res);
 							if (res?.headings_value && res?.headings_value!=='') {
 								let hashedContent = generateHash(res?.headings_value ?? '');
 

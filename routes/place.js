@@ -5,6 +5,7 @@ const auth = require('../middlewares/jwt');
 const upload = require('../middlewares/upload');
 const router = express.Router();
 
+router.get('/place_list', auth, PlaceController.getPlaceList);
 router.get('/all_place', auth, PlaceController.getallPlace);
 router.get('/all_division', auth, PlaceController.getallDivision);
 router.get('/all_district', auth, PlaceController.getallDistrict);

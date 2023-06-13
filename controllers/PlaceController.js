@@ -26,6 +26,54 @@ const {
 } = require('../models');
 const { where } = require('sequelize');
 var Sequelize = require('sequelize');
+
+exports.getPlaceList = async (req,res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+		let arr = [];
+		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+			arr.push({ id: roleByplace.place });
+		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ id: placeIds });
+
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division
+				}
+			});
+
+			const placeIds = places.map(place => place.id);
+			arr.push({ id: placeIds });
+		}
+		// console.log(arr)
+		const place_data = await Place.findAll({
+			order: [['id', 'ASC']],
+			where: arr,
+		});
+		if (place_data) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				place_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'Place table is empty.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
 exports.getallPlace = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
@@ -846,53 +894,65 @@ exports.AllPlaceHistory = async (req, res) => {
 		//'SELECT GROUP_CONCAT(DISTINCT(ngo_id)) as ngoID,GROUP_CONCAT(DISTINCT(ngos.name) ORDER BY ngos.id ASC) as ngo_list,GROUP_CONCAT(DISTINCT(ngos.short_name)) as ngo_short_name,GROUP_CONCAT(DISTINCT(ngos.color_code) ORDER BY ngos.id ASC) as color_list,years.name as year_id,years.bn_term as term,(SELECT GROUP_CONCAT(cnt) cnt FROM ( SELECT COUNT(*) cnt,year_id FROM year_place_ngo_officers ypno where rank=1 GROUP BY ypno.ngo_id,year_id )as totla WHERE totla.year_id = year_place_ngo_officers.year_id) as percent_list FROM `year_place_ngo_officers` LEFT join ngos on ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN years on year_place_ngo_officers.year_id = years.id where rank=1 AND years.type=0 GROUP by year_id order by year_place_ngo_officers.year_id desc',
 		const place_data = await year_place_ngo_officer.sequelize.query(
 			`SELECT 
-  ngoID, 
-  ngo_list, 
-  ngo_short_name, 
-  color_list, 
-  year_id, 
-  term, 
-  percent_list 
-FROM (
-  SELECT 
-    GROUP_CONCAT(DISTINCT ngo_id ORDER BY ngos.id ASC) AS ngoID, 
-    GROUP_CONCAT(DISTINCT ngos.name ORDER BY ngos.id ASC) AS ngo_list, 
-    GROUP_CONCAT(DISTINCT ngos.short_name ORDER BY ngos.id ASC) AS ngo_short_name, 
-    GROUP_CONCAT(DISTINCT ngos.color_code ORDER BY ngos.id ASC) AS color_list, 
-    years.name AS year_id, 
-    years.bn_term AS term, 
-    (
-      SELECT 
-        GROUP_CONCAT(cnt ORDER BY ngos.id ASC) 
-      FROM (
-        SELECT 
-          COUNT(*) AS cnt, 
-          year_id,
-          ng.id
-        FROM 
-          year_place_ngo_officers ypno 
-          LEFT JOIN ngos AS ng ON ng.id = ypno.ngo_id 
-        WHERE 
-          rank = 1 
-        GROUP BY 
-          ypno.ngo_id, 
-          year_id
-      ) AS total 
-      WHERE 
-        total.year_id = year_place_ngo_officers.year_id
-    ) AS percent_list 
-  FROM 
-    year_place_ngo_officers 
-    LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id 
-    LEFT JOIN years ON year_place_ngo_officers.year_id = years.id 
-  WHERE 
-    rank = 1 
-    AND years.type = 0 
-  GROUP BY 
-    year_id 
-) AS subquery
+  ypno_year_id, 
+  GROUP_CONCAT(
+    ypno_ngo_id 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngoID, 
+  GROUP_CONCAT(
+    ngo_name 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngo_list, 
+  GROUP_CONCAT(
+    ngo_short_name 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngo_short_name, 
+  GROUP_CONCAT(
+    ngo_color_code 
+    ORDER BY 
+      ngo_id ASC
+  ) AS color_list,
+  year_name,  
+  year_bn_name, 
+  year_bn_term, 
+  GROUP_CONCAT(
+    ngoRank1Counter 
+    ORDER BY 
+      ngo_id ASC
+  ) AS percent_list 
+FROM 
+  (
+    SELECT 
+      ypno.year_id as ypno_year_id, 
+      ypno.ngo_id as ypno_ngo_id, 
+      ngos.id as ngo_id,
+      ngos.name as ngo_name, 
+      ngos.short_name as ngo_short_name, 
+      ngos.color_code as ngo_color_code, 
+      years.name as year_name, 
+      years.bn_name as year_bn_name,
+      years.bn_term as year_bn_term, 
+      COUNT(*) AS ngoRank1Counter 
+    FROM 
+      year_place_ngo_officers ypno 
+      LEFT JOIN ngos on ngos.id = ypno.ngo_id 
+      LEFT JOIN years on years.id = ypno.year_id 
+    WHERE 
+      rank = 1 
+      AND years.type = 0 
+    GROUP BY 
+      year_id, 
+      ypno_ngo_id 
+    ORDER BY 
+      ngo_id ASC -- Add an ORDER BY clause here
+      ) AS subquery 
+GROUP BY 
+  ypno_year_id 
 ORDER BY 
-  year_id DESC;`,
+  ypno_year_id DESC;`,
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -912,59 +972,68 @@ exports.placeHistoryDistrict = async (req, res) => {
 		//`SELECT GROUP_CONCAT(DISTINCT(year_place_ngo_officers.ngo_id)) as ngoID,GROUP_CONCAT(DISTINCT(ngos.name) order by ngos.id asc) as ngo_list,GROUP_CONCAT(DISTINCT(ngos.short_name)) as ngo_short_name,GROUP_CONCAT(DISTINCT(ngos.color_code) order by ngos.id asc) as color_list,years.name as year_id,years.bn_term as term,(SELECT GROUP_CONCAT(cnt) cnt FROM ( SELECT COUNT(*) cnt,year_id,place_id  FROM year_place_ngo_officers ypno left join places on places.id = ypno.place_id left join districts on districts.id = places.district_id where rank=1 and district_id=${dis_id} GROUP BY ypno.ngo_id,year_id )as totla WHERE totla.year_id = year_place_ngo_officers.year_id ) as percent_list FROM year_place_ngo_officers LEFT join ngos on ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN years on year_place_ngo_officers.year_id = years.id left join places on places.id = year_place_ngo_officers.place_id left join districts on districts.id = places.district_id where rank=1 and district_id=${dis_id}  GROUP by year_id DESC`
 		const [results, metadata] = await year_place_ngo_officer.sequelize.query(
 			`SELECT 
-  ngoID, 
-  ngo_list, 
-  ngo_short_name, 
-  color_list, 
-  year_id, 
-  term, 
-  percent_list 
-FROM (
-  SELECT 
-    GROUP_CONCAT(DISTINCT year_place_ngo_officers.ngo_id ORDER BY ngos.id ASC) AS ngoID,
-    GROUP_CONCAT(DISTINCT ngos.name ORDER BY ngos.id ASC) AS ngo_list, 
-    GROUP_CONCAT(DISTINCT ngos.short_name ORDER BY ngos.id ASC) AS ngo_short_name, 
-    GROUP_CONCAT(DISTINCT ngos.color_code ORDER BY ngos.id ASC) AS color_list, 
-    years.name AS year_id, 
-    years.bn_term AS term, 
-    (
-      SELECT 
-        GROUP_CONCAT(cnt ORDER BY ngos.id ASC) 
-      FROM (
-        SELECT 
-          COUNT(*) AS cnt, 
-          year_id,
-          ng.id
-        FROM 
-          year_place_ngo_officers ypno 
-          LEFT JOIN ngos AS ng ON ng.id = ypno.ngo_id 
-          LEFT JOIN places on places.id = ypno.place_id 
-          LEFT JOIN districts on districts.id = places.district_id 
-        WHERE 
-          rank = 1 
-          AND districts.id=${dis_id}
-        GROUP BY 
-          ypno.ngo_id, 
-          year_id
-      ) AS total 
-      WHERE 
-        total.year_id = year_place_ngo_officers.year_id
-    ) AS percent_list 
-  FROM 
-    year_place_ngo_officers 
-    LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id 
-    LEFT JOIN years ON year_place_ngo_officers.year_id = years.id 
-    LEFT JOIN places  ON places.id = year_place_ngo_officers.place_id 
-    LEFT JOIN districts ON districts.id = places.district_id 
-  WHERE 
-    rank = 1 
-    AND years.type = 0 
-    AND districts.id = ${dis_id}
-  GROUP BY 
-    year_id 
-) AS subquery
+  ypno_year_id, 
+  GROUP_CONCAT(
+    ypno_ngo_id 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngoID, 
+  GROUP_CONCAT(
+    ngo_name 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngo_list, 
+  GROUP_CONCAT(
+    ngo_short_name 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngo_short_name, 
+  GROUP_CONCAT(
+    ngo_color_code 
+    ORDER BY 
+      ngo_id ASC
+  ) AS color_list,
+  year_name,  
+  year_bn_name, 
+  year_bn_term, 
+  GROUP_CONCAT(
+    ngoRank1Counter 
+    ORDER BY 
+      ngo_id ASC
+  ) AS percent_list 
+FROM 
+  (
+    SELECT 
+      ypno.year_id as ypno_year_id, 
+      ypno.ngo_id as ypno_ngo_id, 
+      ngos.id as ngo_id,
+      ngos.name as ngo_name, 
+      ngos.short_name as ngo_short_name, 
+      ngos.color_code as ngo_color_code, 
+      years.name as year_name, 
+      years.bn_name as year_bn_name,
+      years.bn_term as year_bn_term, 
+      COUNT(*) AS ngoRank1Counter 
+    FROM 
+      year_place_ngo_officers ypno 
+      LEFT JOIN ngos on ngos.id = ypno.ngo_id 
+      LEFT JOIN years on years.id = ypno.year_id 
+      LEFT JOIN places on places.id = ypno.place_id 
+      LEFT JOIN districts on districts.id = places.district_id 
+    WHERE 
+      rank = 1 
+      AND years.type = 0 
+      AND districts.id = ${dis_id}
+    GROUP BY 
+      year_id, 
+      ypno_ngo_id 
+    ORDER BY 
+      ngo_id ASC -- Add an ORDER BY clause here
+      ) AS subquery 
+GROUP BY 
+  ypno_year_id 
 ORDER BY 
-  year_id DESC;`
+  ypno_year_id DESC;`
 		);
 
 		return apiResponse.successResponseWithData(
@@ -982,59 +1051,68 @@ exports.placeHistoryDivision = async (req, res) => {
 	try {
 		const [results, metadata] = await year_place_ngo_officer.sequelize
 			.query(`SELECT 
-  ngoID, 
-  ngo_list, 
-  ngo_short_name, 
-  color_list, 
-  year_id, 
-  term, 
-  percent_list 
-FROM (
-  SELECT 
-    GROUP_CONCAT(DISTINCT year_place_ngo_officers.ngo_id ORDER BY ngos.id ASC) AS ngoID,
-    GROUP_CONCAT(DISTINCT ngos.name ORDER BY ngos.id ASC) AS ngo_list, 
-    GROUP_CONCAT(DISTINCT ngos.short_name ORDER BY ngos.id ASC) AS ngo_short_name, 
-    GROUP_CONCAT(DISTINCT ngos.color_code ORDER BY ngos.id ASC) AS color_list, 
-    years.name AS year_id, 
-    years.bn_term AS term, 
-    (
-      SELECT 
-        GROUP_CONCAT(cnt ORDER BY ngos.id ASC) 
-      FROM (
-        SELECT 
-          COUNT(*) AS cnt, 
-          year_id,
-          ng.id
-        FROM 
-          year_place_ngo_officers ypno 
-          LEFT JOIN ngos AS ng ON ng.id = ypno.ngo_id 
-          LEFT JOIN places on places.id = ypno.place_id 
-          LEFT JOIN divisions on divisions.id = places.division_id 
-        WHERE 
-          rank = 1 
-          AND divisions.id = ${dis_id}
-        GROUP BY 
-          ypno.ngo_id, 
-          year_id
-      ) AS total 
-      WHERE 
-        total.year_id = year_place_ngo_officers.year_id
-    ) AS percent_list 
-  FROM 
-    year_place_ngo_officers 
-    LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id 
-    LEFT JOIN years ON year_place_ngo_officers.year_id = years.id 
-    LEFT JOIN places  ON places.id = year_place_ngo_officers.place_id 
-    LEFT JOIN divisions ON divisions.id = places.division_id 
-  WHERE 
-    rank = 1 
-    AND years.type = 0 
-    AND divisions.id = ${dis_id}
-  GROUP BY 
-    year_id 
-) AS subquery
+  ypno_year_id, 
+  GROUP_CONCAT(
+    ypno_ngo_id 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngoID, 
+  GROUP_CONCAT(
+    ngo_name 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngo_list, 
+  GROUP_CONCAT(
+    ngo_short_name 
+    ORDER BY 
+      ngo_id ASC
+  ) AS ngo_short_name, 
+  GROUP_CONCAT(
+    ngo_color_code 
+    ORDER BY 
+      ngo_id ASC
+  ) AS color_list,
+  year_name,  
+  year_bn_name, 
+  year_bn_term, 
+  GROUP_CONCAT(
+    ngoRank1Counter 
+    ORDER BY 
+      ngo_id ASC
+  ) AS percent_list 
+FROM 
+  (
+    SELECT 
+      ypno.year_id as ypno_year_id, 
+      ypno.ngo_id as ypno_ngo_id, 
+      ngos.id as ngo_id,
+      ngos.name as ngo_name, 
+      ngos.short_name as ngo_short_name, 
+      ngos.color_code as ngo_color_code, 
+      years.name as year_name, 
+      years.bn_name as year_bn_name,
+      years.bn_term as year_bn_term, 
+      COUNT(*) AS ngoRank1Counter 
+    FROM 
+      year_place_ngo_officers ypno 
+      LEFT JOIN ngos on ngos.id = ypno.ngo_id 
+      LEFT JOIN years on years.id = ypno.year_id 
+      LEFT JOIN places on places.id = ypno.place_id 
+      LEFT JOIN divisions on divisions.id = places.division_id 
+    WHERE 
+      rank = 1 
+      AND years.type = 0 
+      AND divisions.id = ${dis_id}
+    GROUP BY 
+      year_id, 
+      ypno_ngo_id 
+    ORDER BY 
+      ngo_id ASC -- Add an ORDER BY clause here
+      ) AS subquery 
+GROUP BY 
+  ypno_year_id 
 ORDER BY 
-  year_id DESC;`);
+  ypno_year_id DESC;`);
 
 		return apiResponse.successResponseWithData(
 			res,
