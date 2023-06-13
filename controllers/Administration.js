@@ -106,27 +106,51 @@ exports.fetch_admin_office_by_condition = async (req, res) => {
 		const value_name = req.params.condition;
 		let arr = [];
 		if (value_name == 'place') {
-			const district = await District.findOne({
-				attributes: ['id', 'division_id'],
+			const res = await Place.findOne({
+				attributes: ['id', 'district_id', 'division_id'],
+				where: {
+					id: place_id,
+				},
+			});
+			//arr.push({ place_id: place_id });
+			//arr.push({ district_id: res.district_id },{place_id: null});
+			//arr.push({ division_id: res.division_id },{district_id: null},{place_id: null});
+
+			arr.push({ place_id: place_id });
+			arr.push({
+			  [Op.or]: [
+			    { [Op.and]: [{ district_id: res.district_id }, { place_id: null }] },
+			    { [Op.and]: [{ division_id: res.division_id },{district_id: null},{place_id: null}] },
+			  ],
+			})
+
+
+
+		} else if (value_name == 'district') {
+			// const res = await Place.findAll({
+			// 	attributes: ['id'],
+			// 	where: {
+			// 		district_id: place_id,
+			// 	},
+			// });
+
+			// const placeIds = res.map((place) => place.id);
+			// arr.push({ place_id: placeIds });
+
+			const res = await District.findOne({
+				attributes: ['id','division_id'],
 				where: {
 					id: place_id,
 				},
 			});
 
-			arr.push({ place_id: place_id });
-			arr.push({ district_id: district.id });
-			arr.push({ division_id: district.division_id });
-		} else if (value_name == 'district') {
-			const districts = await District.findAll({
-				attributes: ['id'],
-				where: {
-					division_id: place_id,
-				},
-			});
-
-			const districtIds = districts.map((district) => district.id);
-			arr.push({ district_id: districtIds });
-			arr.push({ division_id: place_id });
+			arr.push({ district_id: place_id });
+			arr.push({
+			  [Op.or]: [
+			    { [Op.and]: [{ division_id: res.division_id },{district_id: null}] },
+			  ],
+			})
+			//arr.push({ division_id: res.division_id },{district_id: null});
 		} else if (value_name == 'division') {
 			arr.push({ division_id: place_id });
 		}
@@ -382,16 +406,48 @@ exports.getplacecommentbyid = async (req, res) => {
 		if (place_comment_data.length > 0) {
 			return apiResponse.successResponseWithData(
 				res,
-				'Data successfully fetched.',
+				'getplacecommentbyid-Administration Comments by place fetched successfully',
 				place_comment_data
 			);
 		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
+			return apiResponse.ErrorResponse(res, 'getplacecommentbyid- No data for Administration Comment by place');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+
+
+// exports.getplacecommentbyid = async (req, res) => {
+//   try {
+//     const place_id = req.params.id;
+//     const place_comment_data = await Tag.findAll({
+//       include: [
+//         {
+//           model: Place_comment,
+//           where: { place_id: place_id },
+//         },
+//       ],
+//     });
+//     if (place_comment_data.length > 0) {
+//       return apiResponse.successResponseWithData(
+//         res,
+//         'getplacecommentbyid-Administration Comments by place fetched successfully',
+//         place_comment_data
+//       );
+//     } else {
+//       return apiResponse.successResponseWithData(
+//         res,
+//         'getplacecommentbyid- No data for Administration Comment by place',
+//         []
+//       );
+//     }
+//   } catch (err) {
+//     return apiResponse.ErrorResponse(res, err.message);
+//   }
+// };
+
 
 exports.getplacecommentbydistrictid = async (req, res) => {
 	try {
