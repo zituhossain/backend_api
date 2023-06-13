@@ -431,14 +431,14 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 		// 	},
 		// });
 
-		// const eventTypeData = await year_place_ngo_officer.findOne({
-		// 	where: {
-		// 		place_id: req.body.place_id,
-		// 		year_id: req.body.year_id,
-		// 		even_type: req.body.event_type,
-		// 		ngo_id: req.body.ngo_id,
-		// 	},
-		// });
+		const eventTypeData = await year_place_ngo_officer.findOne({
+			where: {
+				place_id: req.body.place_id,
+				year_id: req.body.year_id,
+				event_type: req.body.event_type,
+				ngo_id: req.body.ngo_id,
+			},
+		});
 
 		const status_data = await year_place_ngo_officer.findOne({
 			where: {
@@ -460,8 +460,8 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 		// 	'------------------createYearPlaceNgoofficer----------------',
 		// 	rank_data
 		// );
-		if(!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1) || req.body.event_type===1) {
-			if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null || req.body.event_type===1) {
+		if(!status_data || req.body.status !== 1  || (status_data.status!==1 && req.body.status === 1) || req.body.event_type===1 || (eventTypeData?.event_type !==req.body?.event_type)) {
+			if (!rank_data || (rank_data.rank !== req.body.rank) || req.body.rank === 0 || req.body.rank===null || req.body.event_type===1 || (eventTypeData?.event_type !==req.body?.event_type)) {
 				const get_data = await year_place_ngo_officer.findOne({
 					where: {
 						place_id: req.body.place_id,
@@ -471,7 +471,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 					},
 				});
 				
-				if (!get_data || req.body.event_type===1) {
+				if (!get_data || req.body.event_type===1 || eventTypeData?.event_type !==req.body?.event_type) {
 					if (Object.keys(req.body).length === 0) {
 						return apiResponse.ErrorResponse(res, 'placeID missing');
 					}else {
@@ -803,7 +803,7 @@ console.log(query);
 		const [results, metadata] = await sequelize.query(
 			`SELECT *
 FROM ngo_place_info2
-`+query+` ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
+`+query+` AND ypno_rank<1 ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
 		);
 
 		if (results) {

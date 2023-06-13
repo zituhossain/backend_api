@@ -918,6 +918,7 @@ exports.AllPlaceHistory = async (req, res) => {
   year_name,  
   year_bn_name, 
   year_bn_term, 
+  year_type,
   GROUP_CONCAT(
     ngoRank1Counter 
     ORDER BY 
@@ -935,6 +936,7 @@ FROM
       years.name as year_name, 
       years.bn_name as year_bn_name,
       years.bn_term as year_bn_term, 
+      years.type as year_type, 
       COUNT(*) AS ngoRank1Counter 
     FROM 
       year_place_ngo_officers ypno 
@@ -996,6 +998,7 @@ exports.placeHistoryDistrict = async (req, res) => {
   year_name,  
   year_bn_name, 
   year_bn_term, 
+  year_type,
   GROUP_CONCAT(
     ngoRank1Counter 
     ORDER BY 
@@ -1013,6 +1016,7 @@ FROM
       years.name as year_name, 
       years.bn_name as year_bn_name,
       years.bn_term as year_bn_term, 
+      years.type as year_type, 
       COUNT(*) AS ngoRank1Counter 
     FROM 
       year_place_ngo_officers ypno 
@@ -1075,6 +1079,7 @@ exports.placeHistoryDivision = async (req, res) => {
   year_name,  
   year_bn_name, 
   year_bn_term, 
+  year_type,
   GROUP_CONCAT(
     ngoRank1Counter 
     ORDER BY 
@@ -1092,6 +1097,7 @@ FROM
       years.name as year_name, 
       years.bn_name as year_bn_name,
       years.bn_term as year_bn_term, 
+      years.type as year_type, 
       COUNT(*) AS ngoRank1Counter 
     FROM 
       year_place_ngo_officers ypno 
