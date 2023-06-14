@@ -27,33 +27,40 @@ const {
 const { where } = require('sequelize');
 var Sequelize = require('sequelize');
 
-exports.getPlaceList = async (req,res) => {
+exports.getPlaceList = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
 		let arr = [];
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+		if (
+			(roleByplace.division.length > 0 &&
+				roleByplace.district.length > 0 &&
+				roleByplace.place.length > 0) ||
+			roleByplace.place.length > 0
+		) {
 			arr.push({ id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		} else if (
+			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
+			roleByplace.district.length > 0
+		) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					district_id: roleByplace.district
-				}
+					district_id: roleByplace.district,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ id: placeIds });
-
 		} else if (roleByplace.division.length > 0) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					division_id: roleByplace.division
-				}
+					division_id: roleByplace.division,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ id: placeIds });
 		}
 		// console.log(arr)
@@ -73,34 +80,41 @@ exports.getPlaceList = async (req,res) => {
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 exports.getallPlace = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
 		let arr = [];
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+		if (
+			(roleByplace.division.length > 0 &&
+				roleByplace.district.length > 0 &&
+				roleByplace.place.length > 0) ||
+			roleByplace.place.length > 0
+		) {
 			arr.push({ id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		} else if (
+			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
+			roleByplace.district.length > 0
+		) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					district_id: roleByplace.district
-				}
+					district_id: roleByplace.district,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ id: placeIds });
-
 		} else if (roleByplace.division.length > 0) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					division_id: roleByplace.division
-				}
+					division_id: roleByplace.division,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ id: placeIds });
 		}
 		// console.log(arr)
@@ -153,7 +167,7 @@ exports.getallDivision = async (req, res) => {
 
 		if (divisionIds.length > 0) {
 			division_data = await Division.findAll({
-				where: { id: divisionIds } // Fetch divisions that match the IDs in the user's role
+				where: { id: divisionIds }, // Fetch divisions that match the IDs in the user's role
 			});
 		} else {
 			division_data = await Division.findAll(); // Fetch all divisions if no division IDs are set in the user's role
@@ -172,7 +186,6 @@ exports.getallDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
 
 exports.getDivision = async (req, res) => {
 	try {
@@ -301,7 +314,9 @@ exports.updatePlace = async (req, res) => {
 exports.getDistrictmap = async (req, res) => {
 	try {
 		const id = req.params.id;
-		const district_data = await District.findOne({ where: { id: req.params.id } });
+		const district_data = await District.findOne({
+			where: { id: req.params.id },
+		});
 		if (district_data) {
 			return apiResponse.successResponseWithData(
 				res,
@@ -309,7 +324,10 @@ exports.getDistrictmap = async (req, res) => {
 				district_data
 			);
 		} else {
-			return apiResponse.ErrorResponse(res, 'getDistrictmap District table is empty.');
+			return apiResponse.ErrorResponse(
+				res,
+				'getDistrictmap District table is empty.'
+			);
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
@@ -368,11 +386,11 @@ exports.getDistrictByDivision = async (req, res) => {
 
 		if (permittedDistrictIds.length > 0) {
 			district_data = await District.findAll({
-				where: { division_id: id, id: permittedDistrictIds } // Fetch districts that match the provided division ID and the permitted district IDs
+				where: { division_id: id, id: permittedDistrictIds }, // Fetch districts that match the provided division ID and the permitted district IDs
 			});
 		} else {
 			district_data = await District.findAll({
-				where: { division_id: id } // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+				where: { division_id: id }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
 			});
 		}
 
@@ -383,7 +401,10 @@ exports.getDistrictByDivision = async (req, res) => {
 				district_data
 			);
 		} else {
-			return apiResponse.ErrorResponse(res, 'No districts found for the user role and provided division.');
+			return apiResponse.ErrorResponse(
+				res,
+				'No districts found for the user role and provided division.'
+			);
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
@@ -698,7 +719,7 @@ exports.placeDetails = async (req, res) => {
 							model: ngo_categories,
 							as: 'type',
 						},
-					]
+					],
 				},
 				{
 					model: ngo_served_percent_by_palces,
@@ -802,7 +823,7 @@ exports.placeDetailsAll = async (req, res) => {
 					model: Division,
 				},
 			],
-			where: whereCondition
+			where: whereCondition,
 		});
 		return apiResponse.successResponseWithData(
 			res,
@@ -817,23 +838,23 @@ exports.placeDetailsAll = async (req, res) => {
 exports.placeHistory = async (req, res) => {
 	const place_id = req.params.id;
 	try {
-		console.log('---------------hiimhere')
+		console.log('---------------hiimhere');
 		const place_data = await sequelize.query(
-			// 	`SELECT 
-			// 	GROUP_CONCAT(IFNULL(population_year_places.served_population, 0)) as total_serve_population, 
-			// 	years.bn_name as year_id, 
-			// 	years.bn_term as term, 
-			// 	GROUP_CONCAT(ngos.name) as ngo_list, 
-			// 	GROUP_CONCAT(ngos.color_code) as color_list, 
-			// 	GROUP_CONCAT(percent_served) as percent_list, 
-			// 	GROUP_CONCAT(IFNULL(ypno.served_population, 0)) population_list, 
-			// 	GROUP_CONCAT(ypno.rank) rank_list, 
-			// 	GROUP_CONCAT(officers.name) as officer_list 
-			//   FROM year_place_ngo_officers ypno 
-			//   INNER JOIN population_year_places ON (ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id) 
-			//   INNER join ngos on ngos.id = ypno.ngo_id 
-			//   INNER join years on years.id = ypno.year_id 
-			//   INNER JOIN officers ON ypno.officer_id = officers.id  
+			// 	`SELECT
+			// 	GROUP_CONCAT(IFNULL(population_year_places.served_population, 0)) as total_serve_population,
+			// 	years.bn_name as year_id,
+			// 	years.bn_term as term,
+			// 	GROUP_CONCAT(ngos.name) as ngo_list,
+			// 	GROUP_CONCAT(ngos.color_code) as color_list,
+			// 	GROUP_CONCAT(percent_served) as percent_list,
+			// 	GROUP_CONCAT(IFNULL(ypno.served_population, 0)) population_list,
+			// 	GROUP_CONCAT(ypno.rank) rank_list,
+			// 	GROUP_CONCAT(officers.name) as officer_list
+			//   FROM year_place_ngo_officers ypno
+			//   INNER JOIN population_year_places ON (ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id)
+			//   INNER join ngos on ngos.id = ypno.ngo_id
+			//   INNER join years on years.id = ypno.year_id
+			//   INNER JOIN officers ON ypno.officer_id = officers.id
 			//   WHERE ypno.place_id =` +
 			// 		place_id +
 			// 		' GROUP BY ypno.year_id,ypno.place_id ORDER BY ypno.year_id desc',
@@ -870,14 +891,17 @@ exports.placeHistory = async (req, res) => {
 				LEFT JOIN officers on officers.id = ypno.officer_id
 				LEFT JOIN population_year_places as pyp on ypno.year_id = pyp.year_id AND ypno.place_id = pyp.place_id
 			WHERE
-				places.id = `+ place_id + `
+				places.id = ` +
+				place_id +
+				`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
 			ORDER BY
-			years.id desc, ypno.rank ASC;`, { type: sequelize.QueryTypes.SELECT }
+			years.id desc, ypno.rank ASC;`,
+			{ type: sequelize.QueryTypes.SELECT }
 		);
-		console.log('---------------imhere')
-		console.log(place_data)
+		console.log('---------------imhere');
+		console.log(place_data);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -893,68 +917,8 @@ exports.AllPlaceHistory = async (req, res) => {
 	try {
 		//'SELECT GROUP_CONCAT(DISTINCT(ngo_id)) as ngoID,GROUP_CONCAT(DISTINCT(ngos.name) ORDER BY ngos.id ASC) as ngo_list,GROUP_CONCAT(DISTINCT(ngos.short_name)) as ngo_short_name,GROUP_CONCAT(DISTINCT(ngos.color_code) ORDER BY ngos.id ASC) as color_list,years.name as year_id,years.bn_term as term,(SELECT GROUP_CONCAT(cnt) cnt FROM ( SELECT COUNT(*) cnt,year_id FROM year_place_ngo_officers ypno where rank=1 GROUP BY ypno.ngo_id,year_id )as totla WHERE totla.year_id = year_place_ngo_officers.year_id) as percent_list FROM `year_place_ngo_officers` LEFT join ngos on ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN years on year_place_ngo_officers.year_id = years.id where rank=1 AND years.type=0 GROUP by year_id order by year_place_ngo_officers.year_id desc',
 		const place_data = await year_place_ngo_officer.sequelize.query(
-			`SELECT 
-  ypno_year_id, 
-  GROUP_CONCAT(
-    ypno_ngo_id 
-    ORDER BY 
-      ngo_id ASC
-  ) AS ngoID, 
-  GROUP_CONCAT(
-    ngo_name 
-    ORDER BY 
-      ngo_id ASC
-  ) AS ngo_list, 
-  GROUP_CONCAT(
-    ngo_short_name 
-    ORDER BY 
-      ngo_id ASC
-  ) AS ngo_short_name, 
-  GROUP_CONCAT(
-    ngo_color_code 
-    ORDER BY 
-      ngo_id ASC
-  ) AS color_list,
-  year_name,  
-  year_bn_name, 
-  year_bn_term, 
-  year_type,
-  GROUP_CONCAT(
-    ngoRank1Counter 
-    ORDER BY 
-      ngo_id ASC
-  ) AS percent_list 
-FROM 
-  (
-    SELECT 
-      ypno.year_id as ypno_year_id, 
-      ypno.ngo_id as ypno_ngo_id, 
-      ngos.id as ngo_id,
-      ngos.name as ngo_name, 
-      ngos.short_name as ngo_short_name, 
-      ngos.color_code as ngo_color_code, 
-      years.name as year_name, 
-      years.bn_name as year_bn_name,
-      years.bn_term as year_bn_term, 
-      years.type as year_type, 
-      COUNT(*) AS ngoRank1Counter 
-    FROM 
-      year_place_ngo_officers ypno 
-      LEFT JOIN ngos on ngos.id = ypno.ngo_id 
-      LEFT JOIN years on years.id = ypno.year_id 
-    WHERE 
-      rank = 1 
-      AND years.type = 0 
-    GROUP BY 
-      year_id, 
-      ypno_ngo_id 
-    ORDER BY 
-      ngo_id ASC -- Add an ORDER BY clause here
-      ) AS subquery 
-GROUP BY 
-  ypno_year_id 
-ORDER BY 
-  ypno_year_id DESC;`,
+			// `SELECT ypno_year_id, GROUP_CONCAT( ypno_ngo_id ORDER BY ngo_id ASC ) AS ngoID, GROUP_CONCAT( ngo_name ORDER BY ngo_id ASC ) AS ngo_list, GROUP_CONCAT( ngo_short_name ORDER BY ngo_id ASC ) AS ngo_short_name, GROUP_CONCAT( ngo_color_code ORDER BY ngo_id ASC ) AS color_list, year_name, year_bn_name, year_bn_term, year_type, GROUP_CONCAT( ngoRank1Counter ORDER BY ngo_id ASC ) AS percent_list FROM ( SELECT ypno.year_id as ypno_year_id, ypno.ngo_id as ypno_ngo_id, ngos.id as ngo_id, ngos.name as ngo_name, ngos.short_name as ngo_short_name, ngos.color_code as ngo_color_code, years.name as year_name, years.bn_name as year_bn_name, years.bn_term as year_bn_term, years.type as year_type, COUNT(*) AS ngoRank1Counter FROM year_place_ngo_officers ypno LEFT JOIN ngos on ngos.id = ypno.ngo_id LEFT JOIN years on years.id = ypno.year_id WHERE rank = 1 AND years.type = 0 GROUP BY year_id, ypno_ngo_id ORDER BY ngo_id ASC -- Add an ORDER BY clause here ) AS subquery GROUP BY ypno_year_id ORDER BY ypno_year_id DESC;`,
+			'SELECT ngo_id, ngos.name as ngo_name, ngos.short_name, ngos.color_code, years.name, years.id as year_id, years.bn_term,years.type as year_type, COUNT(ngo_id) as percent FROM year_place_ngo_officers LEFT JOIN ngos ON(ngos.id = year_place_ngo_officers.ngo_id) LEFT JOIN years ON(years.id = year_place_ngo_officers.year_id) WHERE year_place_ngo_officers.rank = 1 AND years.type = 0 GROUP BY year_place_ngo_officers.ngo_id, year_place_ngo_officers.year_id ORDER BY year_place_ngo_officers.year_id DESC;',
 			{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 		);
 
@@ -1170,7 +1134,6 @@ exports.addNgoServedPercent = async (req, res) => {
 }
 exports.addNgoServedPercent = async (req, res) => {
 	try {
-
 		console.log(req.body.ngos);
 		let ngos = req.body.ngos;
 		for (i = 0; i < ngos.length; i++) {
@@ -1185,7 +1148,11 @@ exports.addNgoServedPercent = async (req, res) => {
 
 			// if the record exists, update the percent value
 			if (existingRecord) {
-				if (ngos[i].percent === 0 || ngos[i].percent === null || ngos[i].percent === '') {
+				if (
+					ngos[i].percent === 0 ||
+					ngos[i].percent === null ||
+					ngos[i].percent === ''
+				) {
 					await existingRecord.destroy();
 				} else {
 					existingRecord.percent = ngos[i].percent;
@@ -1204,7 +1171,10 @@ exports.addNgoServedPercent = async (req, res) => {
 			}
 		}
 
-		return apiResponse.successResponse(res, 'addNgoServedPercent - Data successfully saved.');
+		return apiResponse.successResponse(
+			res,
+			'addNgoServedPercent - Data successfully saved.'
+		);
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
@@ -1286,34 +1256,41 @@ exports.getPlaceCategoryType = async (req, res) => {
 		let arr = [];
 		let whereClause = ''; // Initialize an empty string for the WHERE clause
 
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+		if (
+			(roleByplace.division.length > 0 &&
+				roleByplace.district.length > 0 &&
+				roleByplace.place.length > 0) ||
+			roleByplace.place.length > 0
+		) {
 			arr.push({ place_id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		} else if (
+			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
+			roleByplace.district.length > 0
+		) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					district_id: roleByplace.district
-				}
+					district_id: roleByplace.district,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ place_id: placeIds });
-
 		} else if (roleByplace.division.length > 0) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					division_id: roleByplace.division
-				}
+					division_id: roleByplace.division,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ place_id: placeIds });
 		}
 
 		// Generate the WHERE clause based on the conditions
 		if (arr.length > 0) {
-			const placeIds = arr.map(obj => obj.place_id);
+			const placeIds = arr.map((obj) => obj.place_id);
 			whereClause = `WHERE places.id IN (${placeIds.join(',')})`;
 		}
 
@@ -1347,7 +1324,6 @@ exports.getPlaceCategoryType = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
 
 exports.deletePlaceCategoryType = async (req, res) => {
 	try {
@@ -1513,7 +1489,7 @@ exports.allNgoJotAddIntoPlace = async (req, res) => {
 		const place_data = await ngo_jot_add_into_places.findAll({
 			include: [Place, ngo_jots, Division, District],
 			group: 'place_id',
-			where: whereCondition
+			where: whereCondition,
 		});
 		return apiResponse.successResponseWithData(
 			res,
@@ -1673,10 +1649,10 @@ exports.categoryBColor = async (req, res) => {
 
 exports.categoryBColorByDivision = async (req, res) => {
 	try {
-		const division = req.params.id
+		const division = req.params.id;
 		let condition = '';
 		if (division) {
-			condition += ` and places.division_id = ${division}`
+			condition += ` and places.division_id = ${division}`;
 		}
 		const [results, metadata] = await sequelize.query(`
 				select 
@@ -1744,28 +1720,35 @@ exports.fetchallSubPlace = async (req, res) => {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
 		let arr = [];
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+		if (
+			(roleByplace.division.length > 0 &&
+				roleByplace.district.length > 0 &&
+				roleByplace.place.length > 0) ||
+			roleByplace.place.length > 0
+		) {
 			arr.push({ place_id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		} else if (
+			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
+			roleByplace.district.length > 0
+		) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					district_id: roleByplace.district
-				}
+					district_id: roleByplace.district,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ place_id: placeIds });
-
 		} else if (roleByplace.division.length > 0) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					division_id: roleByplace.division
-				}
+					division_id: roleByplace.division,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ place_id: placeIds });
 		}
 		const sub_place_data = await Sub_place.findAll({
@@ -1780,7 +1763,7 @@ exports.fetchallSubPlace = async (req, res) => {
 					model: Union,
 				},
 			],
-			where: arr
+			where: arr,
 		});
 		if (sub_place_data) {
 			return apiResponse.successResponseWithData(
@@ -1912,35 +1895,42 @@ exports.fetchallUpazilla = async (req, res) => {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
 		let arr = [];
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+		if (
+			(roleByplace.division.length > 0 &&
+				roleByplace.district.length > 0 &&
+				roleByplace.place.length > 0) ||
+			roleByplace.place.length > 0
+		) {
 			arr.push({ id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		} else if (
+			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
+			roleByplace.district.length > 0
+		) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					district_id: roleByplace.district
-				}
+					district_id: roleByplace.district,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ id: placeIds });
-
 		} else if (roleByplace.division.length > 0) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					division_id: roleByplace.division
-				}
+					division_id: roleByplace.division,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ id: placeIds });
 		}
 		const upazilla_data = await Upazilla.findAll({
 			include: [
 				{
 					model: Place,
-					where: arr
+					where: arr,
 				},
 			],
 		});
@@ -2054,28 +2044,35 @@ exports.fetchallUnion = async (req, res) => {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
 		let arr = [];
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
+		if (
+			(roleByplace.division.length > 0 &&
+				roleByplace.district.length > 0 &&
+				roleByplace.place.length > 0) ||
+			roleByplace.place.length > 0
+		) {
 			arr.push({ place_id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
+		} else if (
+			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
+			roleByplace.district.length > 0
+		) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					district_id: roleByplace.district
-				}
+					district_id: roleByplace.district,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ place_id: placeIds });
-
 		} else if (roleByplace.division.length > 0) {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
-					division_id: roleByplace.division
-				}
+					division_id: roleByplace.division,
+				},
 			});
 
-			const placeIds = places.map(place => place.id);
+			const placeIds = places.map((place) => place.id);
 			arr.push({ place_id: placeIds });
 		}
 
@@ -2083,7 +2080,7 @@ exports.fetchallUnion = async (req, res) => {
 			include: [
 				{
 					model: Upazilla,
-					where: arr
+					where: arr,
 				},
 			],
 		});
