@@ -21,11 +21,12 @@ const storage = multer.diskStorage({
 		cb(null, base_dir_config.base_dir + 'uploads/officer/');
 	},
 	filename: (req, file, cb) => {
-		// Replace spaces in req.body.name with underscores
-		const name = req.body.name.replace(/\s+/g, '_');
-		const filename = `${name}_${file.originalname}`;
+		const timestamp = Date.now();
+		const originalFilename = file.originalname;
+		const fileExtension = originalFilename.split('.').pop();
+		const filename = `${timestamp}.${fileExtension}`;
 		cb(null, filename);
-	},
+	}
 });
 
 router.post(
