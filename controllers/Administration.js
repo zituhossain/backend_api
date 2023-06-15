@@ -410,7 +410,7 @@ exports.getplacecommentbyid = async (req, res) => {
 				place_comment_data
 			);
 		} else {
-			return apiResponse.ErrorResponse(res, 'getplacecommentbyid- No data for Administration Comment by place');
+			return apiResponse.successResponseWithData(res, 'getplacecommentbyid- No data for Administration Comment by place',[]);
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
