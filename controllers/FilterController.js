@@ -1048,6 +1048,28 @@ exports.finalReportGenerateResult = async (req, res) => {
 	//         query += ` where year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`
 	//     }
 	// }
+// this query will show result even with multiple entry
+// SELECT
+//     places.id AS place_id,
+//     places.name AS place_name,
+//     places.area AS place_area,
+//     places.division_id AS division_id,
+//     places.district_id AS district_id,
+//     officers1.name AS ngo_officer1,
+//     ngos1.name AS ngo1,
+//     ypno1.served_population AS served_population1,
+//     officers2.name AS ngo_officer2,
+//     ngos2.name AS ngo2,
+//     ypno2.served_population AS served_population2
+// FROM places
+// LEFT JOIN year_place_ngo_officers AS ypno1 ON ypno1.place_id = places.id AND ypno1.rank = 1 AND ypno1.year_id = ${req.body.year_id} AND ypno1.event_type = 0
+// LEFT JOIN officers AS officers1 ON officers1.id = ypno1.officer_id
+// LEFT JOIN ngos AS ngos1 ON ngos1.id = ypno1.ngo_id
+// LEFT JOIN year_place_ngo_officers AS ypno2 ON ypno2.place_id = places.id AND ypno2.rank = 2 AND ypno2.year_id = ${req.body.year_id} AND ypno2.event_type = 0
+// LEFT JOIN officers AS officers2 ON officers2.id = ypno2.officer_id
+// LEFT JOIN ngos AS ngos2 ON ngos2.id = ypno2.ngo_id;
+
+
 	console.log('query', query);
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT

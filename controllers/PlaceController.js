@@ -840,30 +840,7 @@ exports.placeHistory = async (req, res) => {
 	try {
 		console.log('---------------hiimhere');
 		const place_data = await sequelize.query(
-			// 	`SELECT
-			// 	GROUP_CONCAT(IFNULL(population_year_places.served_population, 0)) as total_serve_population,
-			// 	years.bn_name as year_id,
-			// 	years.bn_term as term,
-			// 	GROUP_CONCAT(ngos.name) as ngo_list,
-			// 	GROUP_CONCAT(ngos.color_code) as color_list,
-			// 	GROUP_CONCAT(percent_served) as percent_list,
-			// 	GROUP_CONCAT(IFNULL(ypno.served_population, 0)) population_list,
-			// 	GROUP_CONCAT(ypno.rank) rank_list,
-			// 	GROUP_CONCAT(officers.name) as officer_list
-			//   FROM year_place_ngo_officers ypno
-			//   INNER JOIN population_year_places ON (ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id)
-			//   INNER join ngos on ngos.id = ypno.ngo_id
-			//   INNER join years on years.id = ypno.year_id
-			//   INNER JOIN officers ON ypno.officer_id = officers.id
-			//   WHERE ypno.place_id =` +
-			// 		place_id +
-			// 		' GROUP BY ypno.year_id,ypno.place_id ORDER BY ypno.year_id desc',
-			// 	{ type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 
-			// 'SELECT GROUP_CONCAT(population_year_places.served_population) as total_serve_population, years.bn_name as year_id,years.bn_term as term,GROUP_CONCAT(ngos.name) as ngo_list,GROUP_CONCAT(ngos.color_code) as color_list,GROUP_CONCAT(percent_served) as percent_list, GROUP_CONCAT(ypno.served_population) population_list, GROUP_CONCAT(ypno.rank) rank_list, GROUP_CONCAT(officers.name) as officer_list FROM `year_place_ngo_officers` ypno INNER JOIN population_year_places ON (ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id) LEFT join ngos on ngos.id = ypno.ngo_id LEFT join years on years.id = ypno.year_id LEFT JOIN officers ON ypno.officer_id = officers.id  where ypno.place_id =' +
-			// 	place_id +
-			// 	' GROUP BY ypno.year_id,ypno.place_id ORDER BY ypno.year_id desc',
-			// { type: year_place_ngo_officer.sequelize.QueryTypes.SELECT }
 			`SELECT
 			years.id as year_id,
 			years.bn_name as bn_name,
