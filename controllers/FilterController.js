@@ -561,12 +561,12 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
     MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.ngo_name END) AS ngo_name2,
     (SELECT officer_name
      FROM ngo_place_info2
-     WHERE place_id = subquery.place_id AND year < 2023 AND ypno_rank = 1
+     WHERE place_id = subquery.place_id AND year <= 2023 AND ypno_rank = 1
      ORDER BY year DESC
      LIMIT 1) AS winner_name,
     (SELECT ngo_name
      FROM ngo_place_info2
-     WHERE place_id = subquery.place_id AND year < 2023 AND ypno_rank = 1
+     WHERE place_id = subquery.place_id AND year <= 2023 AND ypno_rank = 1
      ORDER BY year DESC
      LIMIT 1) AS winner_ngo_name
 FROM (
