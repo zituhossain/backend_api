@@ -981,7 +981,6 @@ FROM
   LEFT JOIN places ON places.id = ypno.place_id
 WHERE 
   ypno.rank = 1 
-  AND years.type = 0 
   AND places.district_id=${dis_id}
 GROUP BY 
   ypno.ngo_id, 
