@@ -472,30 +472,30 @@ exports.getPlacesByDivision = async (req, res) => {
 		}
 
 		const [results, metadata] = await sequelize.query(`
-			SELECT 
-				places.id AS place_id,
-				places.name AS place_name,
-				places.ngo_id AS place_ngo_id,
-				places.area AS place_area,
-				ngos.name AS ngo_name,
-				ngo_categories.color_code AS categoryb_color,
-				ngo_categories.short_name AS categoryb_name,
-				ngo_categories.type AS categoryb_type,
-				cat_type.type AS type_type,
-				cat_type.short_name AS type_short_name,
-				cat_type.name AS type_name
-			FROM
-				places
-				LEFT JOIN ngos ON ngos.id = places.ngo_id
-				LEFT JOIN ngo_category_bs ON ngo_category_bs.place_id = places.id
-					AND ngo_category_bs.status = "colorActive"
-				LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
-				LEFT JOIN ngo_categories cat_type ON ngo_category_bs.ngo_category_type_id = cat_type.id
-			WHERE
-				places.division_id IN (${divisions}) -- Use the IN operator to specify multiple division IDs
-			GROUP BY
-				places.id
-		`);
+		SELECT 
+		  places.id AS place_id,
+		  places.name AS place_name,
+		  places.ngo_id AS place_ngo_id,
+		  places.area AS place_area,
+		  ngos.name AS ngo_name,
+		  ngo_categories.color_code AS categoryb_color,
+		  ngo_categories.short_name AS categoryb_name,
+		  ngo_categories.type AS categoryb_type,
+		  cat_type.type AS type_type,
+		  cat_type.short_name AS type_short_name,
+		  cat_type.name AS type_name
+		FROM
+		  places
+		  LEFT JOIN ngos ON ngos.id = places.ngo_id
+		  LEFT JOIN ngo_category_bs ON ngo_category_bs.place_id = places.id
+			AND ngo_category_bs.status = "colorActive"
+		  LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
+		  LEFT JOIN ngo_categories cat_type ON ngo_category_bs.ngo_category_type_id = cat_type.id
+		WHERE
+		  places.division_id = ${id} AND places.division_id IN (${divisions}) -- Add condition for the specific division ID
+		GROUP BY
+		  places.id
+	  `);
 
 		if (results) {
 			return apiResponse.successResponseWithData(
@@ -510,6 +510,7 @@ exports.getPlacesByDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
 
 exports.getPlacesByDistrict = async (req, res) => {
 	try {
@@ -921,8 +922,8 @@ exports.placeHistory = async (req, res) => {
 				LEFT JOIN population_year_places as pyp on ypno.year_id = pyp.year_id AND ypno.place_id = pyp.place_id
 			WHERE
 				places.id = ` +
-				place_id +
-				`
+			place_id +
+			`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
 			ORDER BY
