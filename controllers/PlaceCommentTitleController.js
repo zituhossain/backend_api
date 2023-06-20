@@ -50,99 +50,99 @@ exports.getPlaceCommentTitleById = async (req, res) => {
 //     }
 // }
 
-// exports.getPlaceCommentTitleByPlaceId = async (req, res) => {
-//     try {
-//         const influencer_id = req.params.placeid;
-//         const influencer_data = await ngo_details_info.findAll({
-//             order: [
-//                 ['view_order', 'ASC'],
-//                 ['id', 'ASC'],
-//                 [ngo_details_info_point_wise, "view_order", "ASC"],
-//                 [ngo_details_info_point_wise, "id", "ASC"]
-//             ],
-//             include: [{
-//                 model: ngo_details_info_point_wise,
-//                 where: { place_id: influencer_id },
-//                 required: false
-//             }]
-//         });
-//         if (influencer_data) {
-//             return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
-//         } else {
-//             return apiResponse.ErrorResponse(res, "No matching query found")
-//         }
-
-//     } catch (err) {
-//         return apiResponse.ErrorResponse(res, err.message)
-//     }
-// }
-
-const { Op } = require('sequelize');
-
 exports.getPlaceCommentTitleByPlaceId = async (req, res) => {
     try {
-        const placeId = req.params.placeid;
-        const token = req.headers.authorization.split(' ')[1];
-        const roleByplace = await checkUserRoleByPlace(token);
-
-        let authorizedPlaceIds = [];
-
-        if (roleByplace.division.length > 0) {
-            const places = await Place.findAll({
-                attributes: ['id'],
-                where: {
-                    division_id: roleByplace.division,
-                },
-            });
-            authorizedPlaceIds = places.map((place) => place.id);
-        } else {
-            const places = await Place.findAll({
-                attributes: ['id'],
-            });
-            authorizedPlaceIds = places.map((place) => place.id);
-        }
-
-        if (!authorizedPlaceIds.includes(Number(placeId))) {
-            return apiResponse.ErrorResponse(res, 'No matching query found');
-        }
-
+        const influencer_id = req.params.placeid;
         const influencer_data = await ngo_details_info.findAll({
             order: [
                 ['view_order', 'ASC'],
                 ['id', 'ASC'],
-                [ngo_details_info_point_wise, 'view_order', 'ASC'],
-                [ngo_details_info_point_wise, 'id', 'ASC'],
+                [ngo_details_info_point_wise, "view_order", "ASC"],
+                [ngo_details_info_point_wise, "id", "ASC"]
             ],
-            include: [
-                {
-                    model: ngo_details_info_point_wise,
-                    required: false,
-                    include: [
-                        {
-                            model: Place,
-                            where: {
-                                id: placeId,
-                                division_id: roleByplace.division,
-                            },
-                        },
-                    ],
-                },
-            ],
+            include: [{
+                model: ngo_details_info_point_wise,
+                where: { place_id: influencer_id },
+                required: false
+            }]
         });
-
-        if (influencer_data.length > 0) {
-            return apiResponse.successResponseWithData(
-                res,
-                'Data successfully fetched.',
-                influencer_data
-            );
+        if (influencer_data) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
         } else {
-            return apiResponse.ErrorResponse(res, 'No matching query found');
+            return apiResponse.ErrorResponse(res, "No matching query found")
         }
+
     } catch (err) {
-        return apiResponse.ErrorResponse(res, err.message);
+        return apiResponse.ErrorResponse(res, err.message)
     }
-};
+}
+
+const { Op } = require('sequelize');
+
+// exports.getPlaceCommentTitleByPlaceId = async (req, res) => {
+//     try {
+//         const placeId = req.params.placeid;
+//         const token = req.headers.authorization.split(' ')[1];
+//         const roleByplace = await checkUserRoleByPlace(token);
+
+//         let authorizedPlaceIds = [];
+
+//         if (roleByplace.division.length > 0) {
+//             const places = await Place.findAll({
+//                 attributes: ['id'],
+//                 where: {
+//                     division_id: roleByplace.division,
+//                 },
+//             });
+//             authorizedPlaceIds = places.map((place) => place.id);
+//         } else {
+//             const places = await Place.findAll({
+//                 attributes: ['id'],
+//             });
+//             authorizedPlaceIds = places.map((place) => place.id);
+//         }
+
+//         if (!authorizedPlaceIds.includes(Number(placeId))) {
+//             return apiResponse.ErrorResponse(res, 'No matching query found');
+//         }
+
+//         const influencer_data = await ngo_details_info.findAll({
+//             order: [
+//                 ['view_order', 'ASC'],
+//                 ['id', 'ASC'],
+//                 [ngo_details_info_point_wise, 'view_order', 'ASC'],
+//                 [ngo_details_info_point_wise, 'id', 'ASC'],
+//             ],
+//             include: [
+//                 {
+//                     model: ngo_details_info_point_wise,
+//                     required: false,
+//                     include: [
+//                         {
+//                             model: Place,
+//                             where: {
+//                                 id: placeId,
+//                                 division_id: roleByplace.division,
+//                             },
+//                         },
+//                     ],
+//                 },
+//             ],
+//         });
+
+//         if (influencer_data.length > 0) {
+//             return apiResponse.successResponseWithData(
+//                 res,
+//                 'Data successfully fetched.',
+//                 influencer_data
+//             );
+//         } else {
+//             return apiResponse.ErrorResponse(res, 'No matching query found');
+//         }
+//     } catch (err) {
+//         return apiResponse.ErrorResponse(res, err.message);
+//     }
+// };
 
 
 

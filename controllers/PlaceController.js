@@ -1593,6 +1593,24 @@ exports.categoryBlistID = async (req, res) => {
 
 exports.categoryBColor = async (req, res) => {
 	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+
+		let query = '';
+
+		if (roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length) {
+			query += ` and places.id in (${roleByplace.place})`
+		}
+		if (roleByplace.division.length > 0 && roleByplace.district.length > 0) {
+			query += ` and places.district_id in (${roleByplace.district})`
+		}
+		if (roleByplace.division.length > 0) {
+			query += ` and places.division_id in (${roleByplace.division})`
+		}
+
+		console.log('<========Saku========>')
+		console.log('hhhhhhh',query, roleByplace.division)
+
 		const [results, metadata] = await sequelize.query(`
 				select 
 			  places.id as id, 
@@ -1605,8 +1623,8 @@ exports.categoryBColor = async (req, res) => {
 			  INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
 			  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id 
 			where 
-			  ngo_category_bs.status = "colorActive"
-			`);
+			  ngo_category_bs.status = "colorActive" 
+			` + query);
 
 		if (results.length > 0) {
 			return apiResponse.successResponseWithData(
