@@ -470,6 +470,51 @@ exports.NgoCounter = async (req, res) => {
 	}
 };
 
+exports.PlaceCountByNgoId = async (req, res) => {
+	try {
+		const [results, metadata] = await Ngo.sequelize.query(
+			`SELECT COUNT(place_id) AS place_count
+			FROM (
+			  SELECT ngo_id, place_id, MAX(percent) max_popularity
+			  FROM ngo_served_percent_by_palces
+			  WHERE percent IS NOT NULL
+			  GROUP BY place_id
+			) AS subquery
+			WHERE ngo_id = ${req.params.id}`
+		);
+
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			results
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
+
+exports.PlaceCountByNgo40 = async (req, res) => {
+	try {
+		const [results, metadata] = await Ngo.sequelize.query(
+			`SELECT COUNT(place_id) AS place_count
+			FROM (
+			  SELECT place_id, percent
+			  FROM ngo_served_percent_by_palces
+			  WHERE percent > 10 AND ngo_id = 40
+			  GROUP BY place_id
+			) AS subquery;`
+		);
+
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			results
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
+
 // SELECT ( SELECT COUNT(*) FROM places WHERE places.ngo_id = "6" ) AS catACount, ( SELECT COUNT(*) FROM ngo_category_bs where ngo_category_bs.ngo_category_id="1" AND ngo_category_bs.status="colorActive" ) AS catBA FROM dual
 
 // Select (select count(*) FROM places WHERE places.ngo_id = "6") as Count1, (select count(*) FROM ngo_category_bs where ngo_category_id="1" AND status="colorActive") as Count2 , (select count(*) FROM ngo_category_bs where ngo_category_id="4" AND status="colorActive") as Count3

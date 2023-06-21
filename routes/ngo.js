@@ -54,5 +54,7 @@ router.get(
 // router.get('/get_ngo_type_by_place/:id', NgoController.fetchNgoTypeByPlace);
 router.get('/delete_by_id/:id', auth, NgoController.delete_by_id);
 router.get('/ngoCounter', auth, NgoController.NgoCounter);
+router.get('/placecount_by_ngo_id/:id', auth, NgoController.PlaceCountByNgoId);
+router.get('/placecount_by_ngo_40', auth, NgoController.PlaceCountByNgo40);
 
 module.exports = router;
