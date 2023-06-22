@@ -554,25 +554,7 @@ exports.PopularOfficerCount = async (req, res) => {
 exports.MaxCategoryDivision = async (req, res) => {
 	try {
 		const [results, metadata] = await Ngo.sequelize.query(
-			`select short_name, division_name, category_count
-			from (SELECT ngo_cat.short_name short_name, divi.name_bg division_name, divi.name, count(*)
-			 category_count
-			FROM ngo_categories ngo_cat, ngo_category_bs ngo_pl, places pl, divisions divi
-			where ngo_cat.id = ngo_pl.ngo_category_id
-			and ngo_pl.place_id = pl.id
-			and divi.id = pl.division_id
-			GROUP BY divi.name, ngo_cat.short_name) vw
-			where (short_name, category_count) IN (
-				select short_name, max(category_count)
-				from (SELECT ngo_cat.short_name short_name, divi.name_bg division_name, divi.name, count(*)
-			 category_count
-				FROM ngo_categories ngo_cat, ngo_category_bs ngo_pl, places pl, divisions divi
-				where ngo_cat.id = ngo_pl.ngo_category_id
-				and ngo_pl.place_id = pl.id
-				and divi.id = pl.division_id
-				GROUP BY divi.name, ngo_cat.short_name) vw
-				GROUP BY short_name
-			);`
+			`SELECT category_id, division_name, category_count FROM( SELECT ngo_cat.id AS category_id, ngo_cat.short_name AS short_name, divi.name_bg AS division_name, divi.name, COUNT(*) AS category_count FROM ngo_categories ngo_cat, ngo_category_bs ngo_pl, places pl, divisions divi WHERE ngo_cat.id = ngo_pl.ngo_category_id AND ngo_pl.place_id = pl.id AND divi.id = pl.division_id GROUP BY divi.name, ngo_cat.short_name) vw WHERE (short_name, category_count) IN ( SELECT short_name, MAX(category_count) FROM ( SELECT ngo_cat.id AS category_id, ngo_cat.short_name AS short_name, divi.name_bg AS division_name, divi.name, COUNT(*) AS category_count FROM ngo_categories ngo_cat, ngo_category_bs ngo_pl, places pl, divisions divi WHERE ngo_cat.id = ngo_pl.ngo_category_id AND ngo_pl.place_id = pl.id AND divi.id = pl.division_id GROUP BY divi.name, ngo_cat.short_name ) vw GROUP BY short_name );`
 		);
 
 		return apiResponse.successResponseWithData(
