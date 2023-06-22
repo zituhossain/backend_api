@@ -8,6 +8,7 @@ const {
 	year_place_ngo_officer,
 	Ngo,
 	years,
+	ngo_served_percent_by_palces,
 	sequelize,
 } = require('../models');
 const CryptoJS = require('crypto-js');
@@ -246,20 +247,28 @@ exports.finalReportGenerateCategory = async (req, res) => {
 	// 				   FROM years ORDER BY id DESC LIMIT 1,1) AND year_place_ngo_officers.rank = 1 AND year_place_ngo_officers.place_id = ngo_place_info.place_id LIMIT 1) AS ngo_officer,
 	// ngo_place_info.officer_name AS ngo_officer_one
 	// FROM ngo_place_info where ngo_place_info.year = (select Max(name) from years) AND ngo_place_info.ypno_status = 1`;
-
+	console.log('-----------------------finalReportGenerateCategory----------');
+	let currentNgoId;
+	if(req.body.ngo_id=='' || req.body.ngo_id==null)
+	currentNgoId = 6;
+	else
+		currentNgoId = req.body.ngo_id;
+	console.log('currentNgoId ',currentNgoId);
 	let mainQuery = `
 	SELECT 
 	places.id as place_id,
 	places.name AS place_name,
 	places.area AS place_area,
-    ngo_categories.short_name AS category_name,
+    IFNULL(ngo_categories.short_name, NULL) AS category_name,
+    IFNULL(nspbp.percent, NULL) AS ngo_popularity_percent,
+    IFNULL(npi2.ngo_id, NULL) AS ypno_ngo_id,
 	IFNULL(npi2.officer_id, NULL) AS officer_id,
     IFNULL(npi2.officer_name, NULL) AS ngo_officer,
 	IFNULL(npi2.ngo_name , NULL) AS ngo_name,
     IFNULL(
         (SELECT officer_name
          FROM ngo_place_info2
-         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1 AND ypno_status = 0
+         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1
          ORDER BY year DESC
          LIMIT 1),
         NULL
@@ -267,35 +276,28 @@ exports.finalReportGenerateCategory = async (req, res) => {
      IFNULL(
         (SELECT ngo_name
          FROM ngo_place_info2
-         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1 AND ypno_status = 0
+         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1
          ORDER BY year DESC
          LIMIT 1),
         NULL
-    ) AS winner_ngo,
-	IFNULL(
-        (SELECT ypno_popularity
-         FROM ngo_place_info2
-         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1 AND ypno_status = 0
-         ORDER BY ypno_popularity DESC
-         LIMIT 1),
-        NULL
-    ) AS popularity
+    ) AS winner_ngo
 FROM places 
 LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
 LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
+LEFT JOIN ngo_served_percent_by_palces AS nspbp on places.id = nspbp.place_id AND nspbp.ngo_id= `+currentNgoId+`
 LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id 
-	AND npi2.year = (SELECT MAX(name) FROM years) 
+	AND npi2.year = 2023 
     AND npi2.ypno_status = 1
-	`;
+    AND npi2.ngo_id=`+currentNgoId;
 
 	let query = '';
-	if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
-		if (query.includes('WHERE')) {
-			query += ` AND npi2.ngo_id = '${req.body.ngo_id}'`;
-		} else {
-			query += ` WHERE npi2.ngo_id = '${req.body.ngo_id}'`;
-		}
-	}
+	// if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
+	// 	if (query.includes('WHERE')) {
+	// 		query += ` AND npi2.ngo_id = '${req.body.ngo_id}'`;
+	// 	} else {
+	// 		query += ` WHERE npi2.ngo_id = '${req.body.ngo_id}'`;
+	// 	}
+	// }
 	if (req.body.division_id !== '') {
 		if (query.includes('WHERE')) {
 			query += ` and npi2.division_id = '${req.body.division_id}'`;
@@ -338,13 +340,14 @@ LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
 		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
-		//console.log('ReportCategory', reportGenerateInfo);
+		console.log('success query: ', mainQuery);
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
 			alldata
 		);
 	} else {
+		console.log('faile queyr: ',mainQuery);
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
