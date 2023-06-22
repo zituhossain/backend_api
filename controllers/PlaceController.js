@@ -187,9 +187,22 @@ exports.getallDivision = async (req, res) => {
 	}
 };
 
+
 exports.getDivision = async (req, res) => {
 	try {
-		const division_data = await Division.findByPk(req.params.id);
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+
+		let division_data;
+
+		if (roleByplace.division.length > 0) {
+			division_data = await Division.findOne({
+				where: { id: req.params.id, id: roleByplace.division }, // Fetch the division that matches the ID in the user's role
+			});
+		} else {
+			division_data = await Division.findByPk(req.params.id); // Fetch the division by ID if no division IDs are set in the user's role
+		}
+
 		if (division_data) {
 			return apiResponse.successResponseWithData(
 				res,
@@ -197,12 +210,32 @@ exports.getDivision = async (req, res) => {
 				division_data
 			);
 		} else {
-			return apiResponse.ErrorResponse(res, 'Division table is empty.');
+			// return apiResponse.ErrorResponse(res, 'Division table is empty.');
+			return apiResponse.unauthorizedResponse(res, 'Unauthorized access to place');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+
+// exports.getDivision = async (req, res) => {
+// 	try {
+// 		const division_data = await Division.findByPk(req.params.id);
+// 		if (division_data) {
+// 			return apiResponse.successResponseWithData(
+// 				res,
+// 				'Data successfully fetched.',
+// 				division_data
+// 			);
+// 		} else {
+// 			return apiResponse.ErrorResponse(res, 'Division table is empty.');
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.getDistrict = async (req, res) => {
 	try {
 		const district_data = await District.findByPk(req.params.id);
@@ -752,12 +785,16 @@ exports.addCategoryB = async (req, res) => {
 
 exports.placeDetails = async (req, res) => {
 	try {
+		const token = req.headers.authorization.split(' ')[1];
+		const roleByplace = await checkUserRoleByPlace(token);
+
 		const yearRow = await years.findOne({
 			order: [['name', 'DESC']],
 		});
 
-		let year = yearRow.id;
+		const year = yearRow.id;
 		const place_id = req.params.id;
+
 		const place_data = await Place.findOne({
 			where: { id: place_id },
 			include: [
@@ -802,7 +839,42 @@ exports.placeDetails = async (req, res) => {
 			],
 		});
 
-		//Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
+		if (roleByplace.division.length > 0 || roleByplace.district.length > 0 || roleByplace.place.length > 0) {
+			const authorizedDivisions = roleByplace.division;
+			const authorizedDistricts = roleByplace.district;
+			const authorizedPlaces = roleByplace.place;
+
+			if (
+				authorizedDivisions.includes(place_data.division_id) ||
+				authorizedDistricts.includes(place_data.district_id) ||
+				authorizedPlaces.includes(place_data.id)
+			) {
+				if (place_data.ngoServedPercentByPalce) {
+					place_data.ngoServedPercentByPalce = place_data.ngoServedPercentByPalce.sort((a, b) => {
+						if (
+							a.ngo?.view_order < b.ngo?.view_order &&
+							a.ngo?.view_order !== null &&
+							b.ngo?.view_order !== null
+						) {
+							return -1;
+						} else if (
+							a.ngo?.view_order > b.ngo?.view_order &&
+							a.ngo?.view_order !== null &&
+							b.ngo?.view_order !== null
+						) {
+							return 1;
+						} else {
+							if (a.ngo?.view_order == null) return 1;
+							if (b.ngo?.view_order == null) return -1;
+						}
+					});
+				}
+
+				return apiResponse.successResponseWithData(res, 'Data successfully fetched.', place_data);
+			} else {
+				return apiResponse.unauthorizedResponse(res, 'Unauthorized access to place');
+			}
+		}
 		if (place_data?.ngoServedPercentByPalce) {
 			place_data.ngoServedPercentByPalce =
 				place_data?.ngoServedPercentByPalce.sort((a, b) => {
@@ -832,9 +904,9 @@ exports.placeDetails = async (req, res) => {
 						if (b.ngo?.view_order == null) return -1;
 					}
 				});
+
+
 		}
-		console.log('----------jkafdf------------------------------');
-		console.log(place_data);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -844,6 +916,102 @@ exports.placeDetails = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+
+// exports.placeDetails = async (req, res) => {
+// 	try {
+// 		const yearRow = await years.findOne({
+// 			order: [['name', 'DESC']],
+// 		});
+
+// 		let year = yearRow.id;
+// 		const place_id = req.params.id;
+// 		const place_data = await Place.findOne({
+// 			where: { id: place_id },
+// 			include: [
+// 				{
+// 					model: ngo_category_b,
+// 					as: 'categoryB',
+// 					include: [
+// 						{
+// 							model: ngo_categories,
+// 							as: 'category',
+// 						},
+// 						{
+// 							model: ngo_categories,
+// 							as: 'type',
+// 						},
+// 					],
+// 				},
+// 				{
+// 					model: ngo_served_percent_by_palces,
+// 					as: 'ngoServedPercentByPalce',
+// 					include: [
+// 						{
+// 							model: Ngo,
+// 							as: 'ngo',
+// 						},
+// 					],
+// 					order: [
+// 						Sequelize.fn('isnull', Sequelize.col('view_orders')),
+// 						['ngo', 'view_order', 'ASC'],
+// 					],
+// 				},
+// 				{
+// 					model: year_place_ngo_officer,
+// 					as: 'year_place_ngo_officer',
+// 					where: {
+// 						year_id: year,
+// 						rank: 1,
+// 					},
+// 					required: false,
+// 					include: [Officer, Ngo, years],
+// 				},
+// 			],
+// 		});
+
+// 		//Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
+// 		if (place_data?.ngoServedPercentByPalce) {
+// 			place_data.ngoServedPercentByPalce =
+// 				place_data?.ngoServedPercentByPalce.sort((a, b) => {
+// 					if (
+// 						a.ngo?.view_order < b.ngo?.view_order &&
+// 						a.ngo?.view_order !== null &&
+// 						b.ngo?.view_order !== null
+// 					) {
+// 						// console.log('if');
+// 						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+// 						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+// 						return -1;
+// 					} else if (
+// 						a.ngo?.view_order > b.ngo?.view_order &&
+// 						a.ngo?.view_order !== null &&
+// 						b.ngo?.view_order !== null
+// 					) {
+// 						// console.log('else if');
+// 						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+// 						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+// 						return 1;
+// 					} else {
+// 						// console.log('else');
+// 						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+// 						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+// 						if (a.ngo?.view_order == null) return 1;
+// 						if (b.ngo?.view_order == null) return -1;
+// 					}
+// 				});
+// 		}
+// 		console.log('----------jkafdf------------------------------');
+// 		console.log(place_data);
+// 		return apiResponse.successResponseWithData(
+// 			res,
+// 			'Data successfully fetched.',
+// 			place_data
+// 		);
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
 
 exports.placeDetailsAll = async (req, res) => {
 	const d = new Date();
@@ -1609,7 +1777,7 @@ exports.categoryBColor = async (req, res) => {
 		}
 
 		console.log('<========Saku========>')
-		console.log('hhhhhhh',query, roleByplace.division)
+		console.log('hhhhhhh', query, roleByplace.division)
 
 		const [results, metadata] = await sequelize.query(`
 				select 

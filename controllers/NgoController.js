@@ -19,7 +19,7 @@ exports.create_ngo = async (req, res) => {
 	try {
 		const filePath = `uploads/logo/${req.file.filename}`;
 		req.body.logo = filePath;
-	} catch (err) {}
+	} catch (err) { }
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
@@ -155,7 +155,7 @@ exports.fetchNgoCategorisCount = async (req, res) => {
 	try {
 		// const [results, metadata] =
 		// 	await sequelize.query(`SELECT short_name,count(ngo_categories.id) as place_count from ngo_categories LEFT join ngo_category_bs on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status="colorActive" GROUP by ngo_categories.id
-        // `);
+		// `);
 
 		const [results, metadata] =
 			await sequelize.query(`SELECT 
@@ -225,68 +225,68 @@ GROUP by
 {
 	/*
 exports.fetchall_ngo_by_place = async (req, res) => {
-    const place_id = req.params.id;
-    try {
-        // const ngo_data = await Officer.findAll({
-        //     // attributes:['Ngo'],
-        //     where:{place_id,
-        //         ngo_id: {
-        //             [Op.ne]: null
-        //         }
-        //     },
-        //     include: [{
-        //         model: Ngo
-        //       }],
-        //     group:['ngo_id']
-        // });
-        // const [year_id, metadata] = await sequelize.query(`SELECT max(id) as id FROM years npi`);
-        // const ngo_data = await year_place_ngo_officer.findAll({
-        //     where: {
-        //         place_id,
-        //         ngo_id: {
-        //             [Op.ne]: null
-        //         }, year_id: year_id[0].id
-        //     },
-        //     include: [{
-        //         model: Ngo
-        //     },
-        //     {
-        //         model: Place, where: { id: place_id }
-        //     },
-        //     {
-        //         model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
-        //     }],
-        //     group: ['ngo_id']
-        // });
-        const ngo_data = await Ngo.findAll({
-            // where: {
-            //     place_id,
-            //     ngo_id: {
-            //         [Op.ne]: null
-            //     }, year_id: year_id[0].id
-            // },
-            // include: [{
-            //     model: Ngo
-            // },
-            // {
-            //     model: Place, where: { id: place_id }
-            // },
-            // {
-            //     model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
-            // }],
-            // group: ['ngo_id']
-        });
+	const place_id = req.params.id;
+	try {
+		// const ngo_data = await Officer.findAll({
+		//     // attributes:['Ngo'],
+		//     where:{place_id,
+		//         ngo_id: {
+		//             [Op.ne]: null
+		//         }
+		//     },
+		//     include: [{
+		//         model: Ngo
+		//       }],
+		//     group:['ngo_id']
+		// });
+		// const [year_id, metadata] = await sequelize.query(`SELECT max(id) as id FROM years npi`);
+		// const ngo_data = await year_place_ngo_officer.findAll({
+		//     where: {
+		//         place_id,
+		//         ngo_id: {
+		//             [Op.ne]: null
+		//         }, year_id: year_id[0].id
+		//     },
+		//     include: [{
+		//         model: Ngo
+		//     },
+		//     {
+		//         model: Place, where: { id: place_id }
+		//     },
+		//     {
+		//         model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
+		//     }],
+		//     group: ['ngo_id']
+		// });
+		const ngo_data = await Ngo.findAll({
+			// where: {
+			//     place_id,
+			//     ngo_id: {
+			//         [Op.ne]: null
+			//     }, year_id: year_id[0].id
+			// },
+			// include: [{
+			//     model: Ngo
+			// },
+			// {
+			//     model: Place, where: { id: place_id }
+			// },
+			// {
+			//     model: ngo_served_percent_by_palces, where: { place_id: place_id }, required: false
+			// }],
+			// group: ['ngo_id']
+		});
 
-        if (ngo_data.length > 0) {
-            return apiResponse.successResponseWithData(res, "Data fetch successfull.", ngo_data)
+		if (ngo_data.length > 0) {
+			return apiResponse.successResponseWithData(res, "Data fetch successfull.", ngo_data)
 
-        } else {
-            return apiResponse.ErrorResponse(res, "No data found!!!")
-        }
+		} else {
+			return apiResponse.ErrorResponse(res, "No data found!!!")
+		}
 
-    } catch (err) {
-        return apiResponse.ErrorResponse(res, err.message)
-    }
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message)
+	}
 }
 */
 }
@@ -329,7 +329,7 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 				placeid: Number(place_id),
 				percent,
 				ngoServedPercentByPlaceId,
-				
+
 			});
 		});
 
@@ -409,7 +409,7 @@ exports.update_ngo = async (req, res) => {
 	try {
 		const filePath = `uploads/logo/${req.file.filename}`;
 		req.body.logo = filePath;
-	} catch (err) {}
+	} catch (err) { }
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
@@ -503,6 +503,76 @@ exports.PlaceCountByNgo40 = async (req, res) => {
 			  WHERE percent > 10 AND ngo_id = 40
 			  GROUP BY place_id
 			) AS subquery;`
+		);
+
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			results
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
+
+exports.PopularOfficerCount = async (req, res) => {
+	try {
+		const [results, metadata] = await Ngo.sequelize.query(
+			`SELECT
+			SUM(officer_count) AS total_officer_count
+		  FROM
+			(
+			  SELECT
+				year_place_ngo_officers.place_id,
+				COUNT(*) AS officer_count
+			  FROM
+				officers
+				LEFT JOIN year_place_ngo_officers ON officers.id = year_place_ngo_officers.officer_id
+				LEFT JOIN ngos ON year_place_ngo_officers.ngo_id = ngos.id
+			  WHERE
+				rank = 1
+				AND year_place_ngo_officers.ngo_id != 6
+				AND year_place_ngo_officers.year_id = (
+				  SELECT MAX(year_id)
+				  FROM year_place_ngo_officers
+				)
+			  GROUP BY
+				year_place_ngo_officers.place_id
+			) AS subquery;`
+		);
+
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			results
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
+
+exports.MaxCategoryDivision = async (req, res) => {
+	try {
+		const [results, metadata] = await Ngo.sequelize.query(
+			`select short_name, division_name, category_count
+			from (SELECT ngo_cat.short_name short_name, divi.name_bg division_name, divi.name, count(*)
+			 category_count
+			FROM ngo_categories ngo_cat, ngo_category_bs ngo_pl, places pl, divisions divi
+			where ngo_cat.id = ngo_pl.ngo_category_id
+			and ngo_pl.place_id = pl.id
+			and divi.id = pl.division_id
+			GROUP BY divi.name, ngo_cat.short_name) vw
+			where (short_name, category_count) IN (
+				select short_name, max(category_count)
+				from (SELECT ngo_cat.short_name short_name, divi.name_bg division_name, divi.name, count(*)
+			 category_count
+				FROM ngo_categories ngo_cat, ngo_category_bs ngo_pl, places pl, divisions divi
+				where ngo_cat.id = ngo_pl.ngo_category_id
+				and ngo_pl.place_id = pl.id
+				and divi.id = pl.division_id
+				GROUP BY divi.name, ngo_cat.short_name) vw
+				GROUP BY short_name
+			);`
 		);
 
 		return apiResponse.successResponseWithData(
