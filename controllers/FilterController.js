@@ -300,23 +300,23 @@ LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id
 	// }
 	if (req.body.division_id !== '') {
 		if (query.includes('WHERE')) {
-			query += ` and npi2.division_id = '${req.body.division_id}'`;
+			query += ` and places.division_id = '${req.body.division_id}'`;
 		} else {
-			query += ` WHERE npi2.division_id = '${req.body.division_id}'`;
+			query += ` WHERE places.division_id = '${req.body.division_id}'`;
 		}
 	}
 	if (req.body.district_id !== '') {
 		if (query.includes('WHERE')) {
-			query += ` and npi2.district_id = '${req.body.district_id}'`;
+			query += ` and places.district_id = '${req.body.district_id}'`;
 		} else {
-			query += ` WHERE npi2.district_id = '${req.body.district_id}'`;
+			query += ` WHERE places.district_id = '${req.body.district_id}'`;
 		}
 	}
 	if (req.body.place_id !== '') {
 		if (query.includes('WHERE')) {
-			query += ` and npi2.place_id = '${req.body.place_id}'`;
+			query += ` and places.place_id = '${req.body.place_id}'`;
 		} else {
-			query += ` WHERE npi2.place_id = '${req.body.place_id}'`;
+			query += ` WHERE places.place_id = '${req.body.place_id}'`;
 		}
 	}
 
