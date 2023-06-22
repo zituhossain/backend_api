@@ -888,7 +888,98 @@ GROUP BY
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
+exports.masterReport = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
 
+		let query = '';
+		let resYear = await years.findOne({
+			where: { id: req.body.year_id },
+		});
+		let yvalue = resYear.name;
+		console.log(yvalue);
+
+		query += yvalue;
+
+		if (roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length) {
+			query += ` AND place_id IN (${roleByplace.place})`;
+		}
+		if (roleByplace.division.length > 0 && roleByplace.district.length > 0) {
+			query += ` AND district_id IN (${roleByplace.district})`;
+		}
+		if (roleByplace.division.length > 0) {
+			query += ` AND division_id IN (${roleByplace.division})`;
+		}
+
+		if (req.body.division_id != '') {
+			query += ` AND division_id = '${req.body.division_id}'`;
+		}
+		if (req.body.district_id != '') {
+			query += ` AND district_id = '${req.body.district_id}'`;
+		}
+		if (req.body.place_id != '') {
+			query += ` AND place_id = '${req.body.place_id}'`;
+		}
+
+		console.log('-----------------------adfaf----------------------');
+		console.log(query);
+
+		const [alldata, metadata] = await sequelize.query(`
+			SELECT
+				subquery.place_id,
+				subquery.place_name,
+				MAX(subquery.place_area) AS place_area,
+				MAX(subquery.categoryb_name) AS categoryb_name,
+				MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.officer_name END) AS ngo_officer_one,
+				MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.ngo_name END) AS ngo_name1,
+				MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.officer_name END) AS ngo_officer_two,
+				MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.ngo_name END) AS ngo_name2,
+				(SELECT officer_name
+					FROM ngo_place_info2
+					WHERE place_id = subquery.place_id AND year <= 2023 AND ypno_rank = 1
+					ORDER BY year DESC
+					LIMIT 1) AS winner_name,
+				(SELECT ngo_name
+					FROM ngo_place_info2
+					WHERE place_id = subquery.place_id AND year <= 2023 AND ypno_rank = 1
+					ORDER BY year DESC
+					LIMIT 1) AS winner_ngo_name
+			FROM (
+				SELECT
+					place_id,
+					place_name,
+					place_area,
+					categoryb_name,
+					officer_name,
+					ngo_name,
+					ngo_jot_id
+				FROM ngo_place_info2
+				WHERE ypno_status = 1 AND year = ` +
+			query +
+			`
+				ORDER BY place_id, ngo_jot_id
+			) subquery
+			GROUP BY subquery.place_id, subquery.place_name
+			ORDER BY subquery.place_id;
+		`);
+
+		if (alldata.length > 0) {
+			const userId = report.getUserId(req);
+			const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
+			//console.log('ReportPossibilityJot', reportGenerateInfo);
+			return apiResponse.successResponseWithData(
+				res,
+				'all_data fetch successfully.',
+				alldata
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
 var decryptHash = (value) => {
 	// return CryptoJS.enc.Base64.parse(value).toString(CryptoJS.enc.Utf8);
 	const passphrase = '123';

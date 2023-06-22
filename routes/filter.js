@@ -28,6 +28,11 @@ router.post(
 	FilterController.finalReportGeneratePossibilityJot
 );
 router.post(
+	'/masterReport',
+	auth,
+	FilterController.masterReport
+);
+router.post(
 	'/finalReportGenerate_double',
 	FilterController.finalReportGenerateDoubleNGO
 );
