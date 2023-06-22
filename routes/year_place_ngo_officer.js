@@ -83,5 +83,10 @@ router.get(
 	auth,
 	YearPlaceNgoOfficerController.getNgoFinalOfficer
 );
+router.get(
+	'/get_poribortito_officer',
+	auth,
+	YearPlaceNgoOfficerController.getNgoPoribortitoOfficer
+);
 
 module.exports = router;
