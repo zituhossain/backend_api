@@ -473,14 +473,17 @@ exports.NgoCounter = async (req, res) => {
 exports.PlaceCountByNgoId = async (req, res) => {
 	try {
 		const [results, metadata] = await Ngo.sequelize.query(
-			`SELECT COUNT(place_id) AS place_count
-			FROM (
-			  SELECT ngo_id, place_id, MAX(percent) max_popularity
-			  FROM ngo_served_percent_by_palces
-			  WHERE percent IS NOT NULL
-			  GROUP BY place_id
-			) AS subquery
-			WHERE ngo_id = ${req.params.id}`
+			`SELECT COUNT(*) AS place_count
+FROM (
+    SELECT ngo_id, place_id, percent
+    FROM ngo_served_percent_by_palces
+    WHERE (place_id, percent) IN (
+        SELECT place_id, MAX(percent)
+        FROM ngo_served_percent_by_palces
+        GROUP BY place_id
+    )
+) AS subquery
+WHERE ngo_id = ${req.params.id}`
 		);
 
 		return apiResponse.successResponseWithData(
