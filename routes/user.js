@@ -96,4 +96,6 @@ router.get(
 	UserRoleController.deleteplacerole
 );
 
+router.get('/export-role/:id', auth, UserRoleController.roleExport);
+
 module.exports = router;

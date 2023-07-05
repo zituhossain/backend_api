@@ -722,3 +722,37 @@ function incrementLastCounter(name, maxId) {
 	// If the last part is not a valid counter, add the maxId to the name
 	return `${name} ${maxId + 1}`;
 }
+
+
+// Export Role
+const fs = require('fs');
+const path = require('path');
+
+exports.roleExport = async (req, res) => {
+	try {
+	  const role_id = req.params.id;
+	  const role_data = await User_role.findOne({ where: { id: role_id } });
+  
+	  if (role_data) {
+		const previlegeData = await Previlege_table.findAll({
+		  where: { user_role_id: role_id },
+		});
+  
+		if (previlegeData && previlegeData.length > 0) {
+		  // Save the result data in a JSON file
+		  const filename = role_data.name;
+		  const jsonData = JSON.stringify(previlegeData, null, 2);
+		  const filePath = path.join(__dirname, '../uploads/role_file', `${filename}.json`);
+		  fs.writeFileSync(filePath, jsonData);
+  
+		  return apiResponse.successResponse(res, 'File export successfully!');
+		} else {
+		  return apiResponse.ErrorResponse(res, 'No matching privilege found.');
+		}
+	  } else {
+		return apiResponse.ErrorResponse(res, 'No matching role found.');
+	  }
+	} catch (err) {
+	  return apiResponse.ErrorResponse(res, err.message);
+	}
+  };
