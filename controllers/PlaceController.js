@@ -187,7 +187,6 @@ exports.getallDivision = async (req, res) => {
 	}
 };
 
-
 exports.getDivision = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
@@ -211,13 +210,15 @@ exports.getDivision = async (req, res) => {
 			);
 		} else {
 			// return apiResponse.ErrorResponse(res, 'Division table is empty.');
-			return apiResponse.unauthorizedResponse(res, 'Unauthorized access to place');
+			return apiResponse.unauthorizedResponse(
+				res,
+				'Unauthorized access to place'
+			);
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
 
 // exports.getDivision = async (req, res) => {
 // 	try {
@@ -541,7 +542,6 @@ exports.getPlacesByDivision = async (req, res) => {
 	}
 };
 
-
 exports.getPlacesByDistrict = async (req, res) => {
 	try {
 		const id = req.params.id;
@@ -834,7 +834,11 @@ exports.placeDetails = async (req, res) => {
 			],
 		});
 
-		if (roleByplace.division.length > 0 || roleByplace.district.length > 0 || roleByplace.place.length > 0) {
+		if (
+			roleByplace.division.length > 0 ||
+			roleByplace.district.length > 0 ||
+			roleByplace.place.length > 0
+		) {
 			const authorizedDivisions = roleByplace.division;
 			const authorizedDistricts = roleByplace.district;
 			const authorizedPlaces = roleByplace.place;
@@ -845,29 +849,37 @@ exports.placeDetails = async (req, res) => {
 				authorizedPlaces.includes(place_data.id)
 			) {
 				if (place_data.ngoServedPercentByPalce) {
-					place_data.ngoServedPercentByPalce = place_data.ngoServedPercentByPalce.sort((a, b) => {
-						if (
-							a.ngo?.view_order < b.ngo?.view_order &&
-							a.ngo?.view_order !== null &&
-							b.ngo?.view_order !== null
-						) {
-							return -1;
-						} else if (
-							a.ngo?.view_order > b.ngo?.view_order &&
-							a.ngo?.view_order !== null &&
-							b.ngo?.view_order !== null
-						) {
-							return 1;
-						} else {
-							if (a.ngo?.view_order == null) return 1;
-							if (b.ngo?.view_order == null) return -1;
-						}
-					});
+					place_data.ngoServedPercentByPalce =
+						place_data.ngoServedPercentByPalce.sort((a, b) => {
+							if (
+								a.ngo?.view_order < b.ngo?.view_order &&
+								a.ngo?.view_order !== null &&
+								b.ngo?.view_order !== null
+							) {
+								return -1;
+							} else if (
+								a.ngo?.view_order > b.ngo?.view_order &&
+								a.ngo?.view_order !== null &&
+								b.ngo?.view_order !== null
+							) {
+								return 1;
+							} else {
+								if (a.ngo?.view_order == null) return 1;
+								if (b.ngo?.view_order == null) return -1;
+							}
+						});
 				}
 
-				return apiResponse.successResponseWithData(res, 'Data successfully fetched.', place_data);
+				return apiResponse.successResponseWithData(
+					res,
+					'Data successfully fetched.',
+					place_data
+				);
 			} else {
-				return apiResponse.unauthorizedResponse(res, 'Unauthorized access to place');
+				return apiResponse.unauthorizedResponse(
+					res,
+					'Unauthorized access to place'
+				);
 			}
 		}
 		if (place_data?.ngoServedPercentByPalce) {
@@ -899,8 +911,6 @@ exports.placeDetails = async (req, res) => {
 						if (b.ngo?.view_order == null) return -1;
 					}
 				});
-
-
 		}
 		return apiResponse.successResponseWithData(
 			res,
@@ -911,7 +921,6 @@ exports.placeDetails = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
 
 // exports.placeDetails = async (req, res) => {
 // 	try {
@@ -1085,8 +1094,8 @@ exports.placeHistory = async (req, res) => {
 				LEFT JOIN population_year_places as pyp on ypno.year_id = pyp.year_id AND ypno.place_id = pyp.place_id
 			WHERE
 				places.id = ` +
-			place_id +
-			`
+				place_id +
+				`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
 			ORDER BY
@@ -1761,20 +1770,25 @@ exports.categoryBColor = async (req, res) => {
 
 		let query = '';
 
-		if (roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length) {
-			query += ` and places.id in (${roleByplace.place})`
+		if (
+			roleByplace.division.length > 0 &&
+			roleByplace.district.length > 0 &&
+			roleByplace.place.length
+		) {
+			query += ` and places.id in (${roleByplace.place})`;
 		}
 		if (roleByplace.division.length > 0 && roleByplace.district.length > 0) {
-			query += ` and places.district_id in (${roleByplace.district})`
+			query += ` and places.district_id in (${roleByplace.district})`;
 		}
 		if (roleByplace.division.length > 0) {
-			query += ` and places.division_id in (${roleByplace.division})`
+			query += ` and places.division_id in (${roleByplace.division})`;
 		}
 
-		console.log('<========Saku========>')
-		console.log('hhhhhhh', query, roleByplace.division)
+		console.log('<========Saku========>');
+		console.log('hhhhhhh', query, roleByplace.division);
 
-		const [results, metadata] = await sequelize.query(`
+		const [results, metadata] = await sequelize.query(
+			`
 				select 
 			  places.id as id, 
 			  ngo_categories.name as categoryname, 
@@ -1787,7 +1801,8 @@ exports.categoryBColor = async (req, res) => {
 			  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id 
 			where 
 			  ngo_categories.type = 1 
-			` + query);
+			` + query
+		);
 
 		if (results.length > 0) {
 			return apiResponse.successResponseWithData(
@@ -2135,6 +2150,21 @@ exports.updateUpazilla = async (req, res) => {
 		const upazilla_data = await Upazilla.findOne({
 			where: { id: upazilla_id },
 		});
+		const sub_place_data = await Sub_place.findAll({
+			where: { upazilla_id: upazilla_id },
+		});
+
+		if (sub_place_data) {
+			if (req.body.place_id) {
+				await Sub_place.update(
+					{ place_id: req.body.place_id },
+					{ where: { upazilla_id: upazilla_id } }
+				);
+			}
+		} else {
+			return apiResponse.ErrorResponse(res, 'name is missing.');
+		}
+
 		if (upazilla_data) {
 			if (req.body.name && req.body.place_id && req.body.name !== '') {
 				await Upazilla.update(req.body, {
@@ -2285,6 +2315,27 @@ exports.updateUnion = async (req, res) => {
 		const union_data = await Union.findOne({
 			where: { id: union_id },
 		});
+
+		const sub_place_data = await Sub_place.findAll({
+			where: { union_id: union_id },
+		});
+
+		const place_data = await Upazilla.findOne({
+			where: { id: union_data.upazilla_id },
+		});
+		console.log('place_data', place_data);
+
+		if (sub_place_data) {
+			if (req.body.upazilla_id) {
+				await Sub_place.update(
+					{ place_id: place_data.place_id, upazilla_id: req.body.upazilla_id },
+					{ where: { union_id: union_id, upazilla_id: union_data.upazilla_id } }
+				);
+			}
+		} else {
+			return apiResponse.ErrorResponse(res, 'name is missing.');
+		}
+
 		if (union_data) {
 			if (req.body.name && req.body.upazilla_id && req.body.name !== '') {
 				await Union.update(req.body, {
