@@ -452,16 +452,15 @@ exports.getDistrictByDivision = async (req, res) => {
 // 	try {
 // 		const id = req.params.id;
 // 		const [results, metadata] = await sequelize.query(
-// 			//`select places.name,places.ngo_id,officers.name as officer_name,places.id as place_id,officers.image,officers.id as officer_id,ngos.name as ngo_name,places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id left join ngos on ngos.id = ypno.ngo_id left join ngos place_ngo on  place_ngo.id = places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = places.id AND ngo_category_bs.status="colorActive" left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where places.division_id = ${id} GROUP BY places.id`
 // 			`select
 //   places.id as place_id,
 //   places.name as place_name,
 //   places.ngo_id as place_ngo_id,
 //   places.area as place_area,
 //   ngos.name as ngo_name,
-//   ngo_categories.color_code as categoryb_color,
-//   ngo_categories.short_name as categoryb_name,
-//   ngo_categories.type as categoryb_type,
+//   ngo_categories.color_code as category_color,
+//   ngo_categories.short_name as category_short_name,
+//   ngo_categories.type as category_type,
 //   cat_type.type as type_type,
 //   cat_type.short_name as type_short_name,
 //   cat_type.name as type_name
@@ -469,7 +468,6 @@ exports.getDistrictByDivision = async (req, res) => {
 //   places
 //   LEFT JOIN ngos on ngos.id = places.ngo_id
 //   LEFT JOIN ngo_category_bs on ngo_category_bs.place_id = places.id
-//   AND ngo_category_bs.status = "colorActive"
 //   LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id
 //   LEFT JOIN ngo_categories cat_type on ngo_category_bs.ngo_category_type_id = cat_type.id
 // where
@@ -511,9 +509,9 @@ exports.getPlacesByDivision = async (req, res) => {
 		  places.ngo_id AS place_ngo_id,
 		  places.area AS place_area,
 		  ngos.name AS ngo_name,
-		  ngo_categories.color_code AS categoryb_color,
-		  ngo_categories.short_name AS categoryb_name,
-		  ngo_categories.type AS categoryb_type,
+		  ngo_categories.color_code AS category_color,
+		  ngo_categories.short_name AS category_short_name,
+		  ngo_categories.type AS category_type,
 		  cat_type.type AS type_type,
 		  cat_type.short_name AS type_short_name,
 		  cat_type.name AS type_name
@@ -521,9 +519,8 @@ exports.getPlacesByDivision = async (req, res) => {
 		  places
 		  LEFT JOIN ngos ON ngos.id = places.ngo_id
 		  LEFT JOIN ngo_category_bs ON ngo_category_bs.place_id = places.id
-			AND ngo_category_bs.status = "colorActive"
-		  LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
-		  LEFT JOIN ngo_categories cat_type ON ngo_category_bs.ngo_category_type_id = cat_type.id
+		  LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id AND ngo_categories.type=1
+		  LEFT JOIN ngo_categories cat_type ON ngo_category_bs.ngo_category_type_id = cat_type.id  AND ngo_categories.type=0
 		WHERE
 		  places.division_id = ${id} AND places.division_id IN (${divisions}) -- Add condition for the specific division ID
 		GROUP BY
@@ -549,16 +546,15 @@ exports.getPlacesByDistrict = async (req, res) => {
 	try {
 		const id = req.params.id;
 		const [results, metadata] = await sequelize.query(
-			//`select places.name,places.ngo_id,officers.name as officer_name,places.id as place_id,officers.image,officers.id as officer_id,ngos.name as ngo_name,places.area,place_ngo.short_name,place_ngo.color_code,ngo_categories.color_code as categoryb_color,ngo_categories.short_name as categoryb_name from places LEFT JOIN year_place_ngo_officers ypno on ypno.place_id = places.id LEFT JOIN officers on officers.id = ypno.officer_id left join ngos on ngos.id = ypno.ngo_id left join ngos place_ngo on  place_ngo.id = places.ngo_id left join ngo_category_bs on ngo_category_bs.place_id = places.id left join ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id where places.district_id = ${id} GROUP BY places.id`
 			`select 
   places.id as place_id, 
   places.name as place_name, 
   places.ngo_id as place_ngo_id, 
   places.area as place_area, 
   ngos.name as ngo_name,
-  ngo_categories.color_code as categoryb_color, 
-  ngo_categories.short_name as categoryb_name,
-  ngo_categories.type as categoryb_type,
+  ngo_categories.color_code as category_color, 
+  ngo_categories.short_name as category_short_name,
+  ngo_categories.type as category_type,
   cat_type.type as type_type,
   cat_type.short_name as type_short_name,
   cat_type.name as type_name  
@@ -566,9 +562,8 @@ from
   places
   LEFT JOIN ngos on ngos.id = places.ngo_id
   LEFT JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
-  AND ngo_category_bs.status = "colorActive" 
-  LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id 
-  LEFT JOIN ngo_categories cat_type on ngo_category_bs.ngo_category_type_id = cat_type.id 
+  LEFT JOIN ngo_categories on ngo_category_bs.ngo_category_id = ngo_categories.id AND ngo_categories.type=1
+  LEFT JOIN ngo_categories cat_type on ngo_category_bs.ngo_category_type_id = cat_type.id AND ngo_categories.type=0
 where 
   places.district_id = ${id} 
 GROUP BY 
@@ -1722,7 +1717,7 @@ exports.categoryBlist = async (req, res) => {
 	try {
 		const [results, metadata] =
 			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, places.id as placeid , places.district_id as districtid , places.division_id as divisionid,
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_categories.type =1`);
 
 		if (results.length > 0) {
 			return apiResponse.successResponseWithData(
@@ -1791,7 +1786,7 @@ exports.categoryBColor = async (req, res) => {
 			  INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
 			  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id 
 			where 
-			  ngo_category_bs.status = "colorActive" 
+			  ngo_categories.type = 1 
 			` + query);
 
 		if (results.length > 0) {
@@ -1827,7 +1822,7 @@ exports.categoryBColorByDivision = async (req, res) => {
 			  INNER JOIN ngo_category_bs on ngo_category_bs.place_id = places.id 
 			  INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id 
 			where 
-			  ngo_category_bs.status = "colorActive" ${condition}
+			  ngo_categories.type = 1 ${condition}
 			`);
 
 		if (results.length > 0) {

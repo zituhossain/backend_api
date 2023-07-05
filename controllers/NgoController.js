@@ -153,10 +153,6 @@ exports.fetchNgoType = async (req, res) => {
 
 exports.fetchNgoCategorisCount = async (req, res) => {
 	try {
-		// const [results, metadata] =
-		// 	await sequelize.query(`SELECT short_name,count(ngo_categories.id) as place_count from ngo_categories LEFT join ngo_category_bs on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status="colorActive" GROUP by ngo_categories.id
-		// `);
-
 		const [results, metadata] =
 			await sequelize.query(`SELECT 
   short_name, 
@@ -166,7 +162,7 @@ from
   ngo_categories 
   LEFT join ngo_category_bs on ngo_categories.id = ngo_category_bs.ngo_category_id 
 where 
-  -- ngo_category_bs.status = "colorActive" AND
+  -- ngo_categories.type = 1 AND
   ngo_category_bs.ngo_category_id = ngo_categories.id
 GROUP by 
   ngo_categories.id;`);
@@ -186,10 +182,6 @@ GROUP by
 
 exports.fetchNgoCategorisCountByDivision = async (req, res) => {
 	try {
-		// const [results, metadata] =
-		// 	await sequelize.query(`SELECT short_name,count(ngo_categories.id) as place_count from ngo_categories LEFT join ngo_category_bs on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status="colorActive" GROUP by ngo_categories.id
-		// `);
-
 		const division = req.params.id
 		let condition = '';
 		if (division) {
@@ -457,7 +449,7 @@ exports.delete_by_id = async (req, res) => {
 exports.NgoCounter = async (req, res) => {
 	try {
 		const [results, metadata] = await Ngo.sequelize.query(
-			'Select (select count(*) FROM places WHERE places.ngo_id = "6") as Count1, (select count(*) FROM ngo_category_bs where ngo_category_id="1" AND status="colorActive") as Count2 , (select count(*) FROM ngo_category_bs where ngo_category_id="4" AND status="colorActive") as Count3'
+			'Select (select count(*) FROM places WHERE places.ngo_id = "6") as Count1, (select count(*) FROM ngo_category_bs where ngo_category_id="1") as Count2 , (select count(*) FROM ngo_category_bs where ngo_category_id="4") as Count3'
 		);
 
 		return apiResponse.successResponseWithData(
@@ -569,7 +561,3 @@ exports.MaxCategoryDivision = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 }
-
-// SELECT ( SELECT COUNT(*) FROM places WHERE places.ngo_id = "6" ) AS catACount, ( SELECT COUNT(*) FROM ngo_category_bs where ngo_category_bs.ngo_category_id="1" AND ngo_category_bs.status="colorActive" ) AS catBA FROM dual
-
-// Select (select count(*) FROM places WHERE places.ngo_id = "6") as Count1, (select count(*) FROM ngo_category_bs where ngo_category_id="1" AND status="colorActive") as Count2 , (select count(*) FROM ngo_category_bs where ngo_category_id="4" AND status="colorActive") as Count3

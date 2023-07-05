@@ -210,9 +210,9 @@ exports.finalReportGenerateCategory = async (req, res) => {
 		req.body.category !== null
 	) {
 		if (query.includes('where')) {
-			query += ` and categoryb_id = '${req.body.category}'`;
+			query += ` and category_id = '${req.body.category}'`;
 		} else {
-			query += ` where categoryb_id = '${req.body.category}'`;
+			query += ` where category_id = '${req.body.category}'`;
 		}
 	}
 	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
@@ -248,6 +248,146 @@ exports.finalReportGenerateCategory = async (req, res) => {
 	// ngo_place_info.officer_name AS ngo_officer_one
 	// FROM ngo_place_info where ngo_place_info.year = (select Max(name) from years) AND ngo_place_info.ypno_status = 1`;
 	console.log('-----------------------finalReportGenerateCategory----------');
+	let currentNgoId;
+	if(req.body.ngo_id=='' || req.body.ngo_id==null)
+	currentNgoId = 6;
+	else
+		currentNgoId = req.body.ngo_id;
+	console.log('currentNgoId ',currentNgoId);
+	let mainQuery = `
+	SELECT 
+	places.id as place_id,
+	places.name AS place_name,
+	places.area AS place_area,
+    IFNULL(ngo_categories.short_name, NULL) AS category_name,
+    IFNULL(nspbp.percent, NULL) AS ngo_popularity_percent,
+    IFNULL(npi2.ngo_id, NULL) AS ypno_ngo_id,
+	IFNULL(npi2.officer_id, NULL) AS officer_id,
+    IFNULL(npi2.officer_name, NULL) AS ngo_officer,
+	IFNULL(npi2.ngo_name , NULL) AS ngo_name,
+    IFNULL(
+        (SELECT officer_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS winner_name,
+     IFNULL(
+        (SELECT ngo_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS winner_ngo
+FROM places 
+LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
+LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
+LEFT JOIN ngo_served_percent_by_palces AS nspbp on places.id = nspbp.place_id AND nspbp.ngo_id= `+currentNgoId+`
+LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id 
+	AND npi2.year = 2023 
+    AND npi2.ypno_status = 1
+    AND npi2.ngo_id=`+currentNgoId;
+
+	let query = '';
+	// if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
+	// 	if (query.includes('WHERE')) {
+	// 		query += ` AND npi2.ngo_id = '${req.body.ngo_id}'`;
+	// 	} else {
+	// 		query += ` WHERE npi2.ngo_id = '${req.body.ngo_id}'`;
+	// 	}
+	// }
+	if (req.body.division_id !== '') {
+		if (query.includes('WHERE')) {
+			query += ` and places.division_id = '${req.body.division_id}'`;
+		} else {
+			query += ` WHERE places.division_id = '${req.body.division_id}'`;
+		}
+	}
+	if (req.body.district_id !== '') {
+		if (query.includes('WHERE')) {
+			query += ` and places.district_id = '${req.body.district_id}'`;
+		} else {
+			query += ` WHERE places.district_id = '${req.body.district_id}'`;
+		}
+	}
+	if (req.body.place_id !== '') {
+		if (query.includes('WHERE')) {
+			query += ` and places.place_id = '${req.body.place_id}'`;
+		} else {
+			query += ` WHERE places.place_id = '${req.body.place_id}'`;
+		}
+	}
+
+	if (
+		req.body.category &&
+		req.body.category !== '' &&
+		req.body.category !== null
+	) {
+		if (query.includes('WHERE')) {
+			query += ` AND ngo_categories.id = '${req.body.category}'`;
+		} else {
+			query += ` WHERE ngo_categories.id = '${req.body.category}'`;
+		}
+	}
+
+	mainQuery = mainQuery + query + ` ORDER BY place_id`;
+
+	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
+	//console.log('query', mainQuery);
+	const [alldata, metadata] = await sequelize.query(mainQuery);
+	if (alldata.length > 0) {
+		const userId = report.getUserId(req);
+		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
+		console.log('success query: ', mainQuery);
+		return apiResponse.successResponseWithData(
+			res,
+			'all_data fetch successfully.',
+			alldata
+		);
+	} else {
+		console.log('faile queyr: ',mainQuery);
+		return apiResponse.ErrorResponse(res, 'No data found');
+	}
+};
+/*
+SELECT
+  place.id AS place_id,
+  place.name AS place_name,
+  IFNULL(
+        (SELECT 
+         CONCAT('[',GROUP_CONCAT(JSON_OBJECT(
+             'officer_name', IFNULL(officer_name, NULL),
+             'ngo_name', IFNULL(ngo_name, NULL),
+             'officer_photo', IFNULL(officer_photo, NULL),
+             'event_type', IFNULL(ypno_event_type, NULL)
+         )ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id), ']'
+         )
+         FROM ngo_place_info2
+         WHERE place_id = place.id AND ngo_jot_id=1 and year=2023
+         ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id
+        ),
+        NULL
+    ) AS jot1Officer,
+  CONCAT('[', GROUP_CONCAT(JSON_OBJECT('officer_name', npi.officer_name, 'ngo_name', npi.ngo_name)), ']') AS subplaces
+FROM
+  places place
+LEFT JOIN
+  ngo_place_info2 npi ON place.id = npi.place_id
+GROUP BY
+  place.id, place.name;
+*/ 
+exports.reportTest = async (req, res) => {
+	// let query = `SELECT ngo_place_info.*,
+	// (SELECT officers.name from year_place_ngo_officers LEFT JOIN officers
+	// ON(officers.id = year_place_ngo_officers.officer_id) LEFT JOIN years
+	// ON(years.id = year_place_ngo_officers.year_id)
+	// WHERE years.name =(SELECT years.name
+	// 				   FROM years ORDER BY id DESC LIMIT 1,1) AND year_place_ngo_officers.rank = 1 AND year_place_ngo_officers.place_id = ngo_place_info.place_id LIMIT 1) AS ngo_officer,
+	// ngo_place_info.officer_name AS ngo_officer_one
+	// FROM ngo_place_info where ngo_place_info.year = (select Max(name) from years) AND ngo_place_info.ypno_status = 1`;
+	console.log('-----------------------reportTest----------');
 	let currentNgoId;
 	if(req.body.ngo_id=='' || req.body.ngo_id==null)
 	currentNgoId = 6;
@@ -415,9 +555,9 @@ exports.finalReportGenerateJot = async (req, res) => {
 		req.body.category !== null
 	) {
 		if (query.includes('where')) {
-			query += ` and categoryb_id = '${req.body.category}'`;
+			query += ` and category_id = '${req.body.category}'`;
 		} else {
-			query += ` where categoryb_id = '${req.body.category}'`;
+			query += ` where category_id = '${req.body.category}'`;
 		}
 	}
 	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
@@ -533,7 +673,7 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 
 
 exports.finalReportGenerateDoubleNGO = async (req, res) => {
-	let query = ' where categoryb_name IS NOT NULL ';
+	let query = ' where category_short_name IS NOT NULL ';
 	if (req.body.year_id != '') {
 		const get_year = await years.findOne({ where: { id: req.body.year_id } });
 		if (query.includes('where')) {
@@ -631,7 +771,7 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 				subquery.place_id,
 				subquery.place_name,
 				MAX(subquery.place_area) AS place_area,
-				MAX(subquery.categoryb_name) AS categoryb_name,
+				MAX(subquery.category_short_name) AS category_short_name,
 				MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.officer_name END) AS ngo_officer_one,
 				MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.ngo_name END) AS ngo_name1,
 				MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.officer_name END) AS ngo_officer_two,
@@ -651,7 +791,7 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 					place_id,
 					place_name,
 					place_area,
-					categoryb_name,
+					category_short_name,
 					officer_name,
 					ngo_name,
 					ngo_jot_id
@@ -710,7 +850,7 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 //     subquery.place_id,
 //     subquery.place_name,
 //     MAX(subquery.place_area) AS place_area,
-//     MAX(subquery.categoryb_name) AS categoryb_name,
+//     MAX(subquery.category_short_name) AS category_short_name,
 //     MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.officer_name END) AS ngo_officer_one,
 //     MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.ngo_name END) AS ngo_name1,
 //     MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.officer_name END) AS ngo_officer_two,
@@ -730,7 +870,7 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 //         place_id,
 //         place_name,
 //         place_area,
-//         categoryb_name,
+//         category_short_name,
 //         officer_name,
 //         ngo_name,
 //         ngo_jot_id
@@ -759,7 +899,7 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 // };
 
 exports.finalReportGeneratePossibilityJot3 = async (req, res) => {
-	let query = ' where categoryb_name IS NOT NULL ';
+	let query = ' where category_short_name IS NOT NULL ';
 	console.log('req ', req.body);
 	if (req.body.year_id != '') {
 		const get_year = await years.findOne({ where: { id: req.body.year_id } });
@@ -900,68 +1040,148 @@ exports.masterReport = async (req, res) => {
 		let yvalue = resYear.name;
 		console.log(yvalue);
 
-		query += yvalue;
+		//query += yvalue;
 
 		if (roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length) {
-			query += ` AND place_id IN (${roleByplace.place})`;
+			query += ` WHERE places.place_id IN (${roleByplace.place})`;
 		}
 		if (roleByplace.division.length > 0 && roleByplace.district.length > 0) {
-			query += ` AND district_id IN (${roleByplace.district})`;
+			query += ` WHERE places.district_id IN (${roleByplace.district})`;
 		}
 		if (roleByplace.division.length > 0) {
-			query += ` AND division_id IN (${roleByplace.division})`;
+			query += ` WHERE places.division_id IN (${roleByplace.division})`;
 		}
 
 		if (req.body.division_id != '') {
-			query += ` AND division_id = '${req.body.division_id}'`;
+			query += ` WHERE places.division_id = ${req.body.division_id}`;
 		}
 		if (req.body.district_id != '') {
-			query += ` AND district_id = '${req.body.district_id}'`;
+			query = ` WHERE places.district_id = ${req.body.district_id}`;
 		}
 		if (req.body.place_id != '') {
-			query += ` AND place_id = '${req.body.place_id}'`;
+			query = ` WHERE places.id = ${req.body.place_id}`;
 		}
 
 		console.log('-----------------------adfaf----------------------');
 		console.log(query);
 
 		const [alldata, metadata] = await sequelize.query(`
-			SELECT
-				subquery.place_id,
-				subquery.place_name,
-				MAX(subquery.place_area) AS place_area,
-				MAX(subquery.categoryb_name) AS categoryb_name,
-				MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.officer_name END) AS ngo_officer_one,
-				MAX(CASE WHEN subquery.ngo_jot_id = 1 THEN subquery.ngo_name END) AS ngo_name1,
-				MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.officer_name END) AS ngo_officer_two,
-				MAX(CASE WHEN subquery.ngo_jot_id != 1 OR subquery.ngo_jot_id IS NULL THEN subquery.ngo_name END) AS ngo_name2,
-				(SELECT officer_name
-					FROM ngo_place_info2
-					WHERE place_id = subquery.place_id AND year <= 2023 AND ypno_rank = 1
-					ORDER BY year DESC
-					LIMIT 1) AS winner_name,
-				(SELECT ngo_name
-					FROM ngo_place_info2
-					WHERE place_id = subquery.place_id AND year <= 2023 AND ypno_rank = 1
-					ORDER BY year DESC
-					LIMIT 1) AS winner_ngo_name
-			FROM (
-				SELECT
-					place_id,
-					place_name,
-					place_area,
-					categoryb_name,
-					officer_name,
-					ngo_name,
-					ngo_jot_id
-				FROM ngo_place_info2
-				WHERE ypno_status = 1 AND year = ` +
-			query +
-			`
-				ORDER BY place_id, ngo_jot_id
-			) subquery
-			GROUP BY subquery.place_id, subquery.place_name
-			ORDER BY subquery.place_id;
+			SELECT 
+	places.id AS place_id,
+    places.name as place_name,
+    places.area as place_area,
+    IFNULL(ngo_categories.short_name, NULL) AS category_short_name,
+    IFNULL(ngo_categories.name, NULL) AS category_name,
+    IFNULL(ngo_categories.color_code, NULL) AS category_color,
+    IFNULL(
+        (SELECT 
+         JSON_OBJECT(
+             'officer_name', IFNULL(officer_name, NULL),
+             'officer_photo', IFNULL(officer_photo, NULL),
+             'ngo_name', IFNULL(ngo_name, NULL),
+             'event_type', IFNULL(ypno_event_type, NULL)
+         )
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ypno_rank = 1
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS winnerInfo,
+    IFNULL(
+        (SELECT 
+         JSON_OBJECT(
+             'officer_name', IFNULL(npi2.officer_name, NULL),
+             'officer_photo', IFNULL(npi2.officer_photo, NULL),
+             'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
+             'officer_comment', IFNULL(npi2.ypno_comment, NULL),
+             'ngo_name', IFNULL(npi2.ngo_name, NULL),
+             'ngo_popularity', IFNULL(nspbp.percent, NULL),
+             'or_officer_name', IFNULL(npi3.officer_name, NULL),
+             'or_officer_photo', IFNULL(npi3.officer_photo, NULL),
+             'or_officer_popularity', IFNULL(npi3.ypno_popularity, NULL),
+             'or_officer_comment', IFNULL(npi3.ypno_comment, NULL),
+             'or_ngo_name', IFNULL(npi3.ngo_name, NULL),
+             'or_ngo_popularity', IFNULL(nspbp3.percent, NULL)
+         ) 
+         FROM ngo_place_info2 AS npi2
+         LEFT JOIN ngo_place_info2 AS npi3 on npi2.ypno_view_order = npi3.ypno_view_order 
+         	AND npi2.ypno_view_order IS NOT NULL
+         	AND npi2.year = npi3.year
+         	AND npi2.ypno_id != npi3.ypno_id
+         LEFT JOIN ngo_served_percent_by_palces as nspbp on nspbp.ngo_id = npi2.ngo_id AND nspbp.place_id = places.id
+         LEFT JOIN ngo_served_percent_by_palces as nspbp3 on nspbp3.ngo_id = npi3.ngo_id AND nspbp3.place_id = places.id
+         WHERE npi2.place_id = places.id AND npi2.ngo_jot_id = 1 AND npi2.ypno_status = 1 AND npi2.year=2023
+         ORDER BY npi2.year DESC
+         LIMIT 1),
+        NULL
+    ) AS jot1_officer, 
+    IFNULL(
+        (SELECT SUM(percent)
+         FROM ngo_served_percent_by_palces as nspbp
+         LEFT JOIN ngos on ngos.id = ngo_id
+         WHERE ngos.ngo_jots_id = 1 AND places.id = nspbp.place_id
+         LIMIT 1),
+        NULL
+    ) AS popularity_jot1,
+    IFNULL(
+        (SELECT 
+         JSON_OBJECT(
+             'officer_name', IFNULL(npi2.officer_name, NULL),
+             'officer_photo', IFNULL(npi2.officer_photo, NULL),
+             'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
+             'officer_comment', IFNULL(npi2.ypno_comment, NULL),
+             'ngo_name', IFNULL(npi2.ngo_name, NULL),
+             'ngo_popularity', IFNULL(nspbp.percent, NULL),
+             'or_officer_name', IFNULL(npi3.officer_name, NULL),
+             'or_officer_photo', IFNULL(npi3.officer_photo, NULL),
+             'or_officer_popularity', IFNULL(npi3.ypno_popularity, NULL),
+             'or_officer_comment', IFNULL(npi3.ypno_comment, NULL),
+             'or_ngo_name', IFNULL(npi3.ngo_name, NULL),
+             'or_ngo_popularity', IFNULL(nspbp3.percent, NULL)
+         )
+         FROM ngo_place_info2 AS npi2
+         LEFT JOIN ngo_place_info2 AS npi3 on npi2.ypno_view_order = npi3.ypno_view_order 
+         	AND npi2.ypno_view_order IS NOT NULL
+         	AND npi2.year = npi3.year
+         	AND npi2.ypno_id != npi3.ypno_id
+         LEFT JOIN ngo_served_percent_by_palces as nspbp on nspbp.ngo_id = npi2.ngo_id AND nspbp.place_id = places.id
+         LEFT JOIN ngo_served_percent_by_palces as nspbp3 on nspbp3.ngo_id = npi3.ngo_id AND nspbp3.place_id = places.id
+         WHERE npi2.place_id = places.id AND npi2.ngo_jot_id = 1 AND npi2.ypno_status = 3 AND npi2.year=2023
+         ORDER BY npi2.year DESC
+         LIMIT 1),
+        NULL
+    ) AS change_jot1_officer,
+    IFNULL(
+        (SELECT 
+         JSON_OBJECT(
+             'officer_name', IFNULL(npi2.officer_name, NULL),
+             'officer_photo', IFNULL(npi2.officer_photo, NULL),
+             'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
+             'officer_comment', IFNULL(npi2.ypno_comment, NULL),
+             'ngo_name', IFNULL(npi2.ngo_name, NULL),
+             'ngo_popularity', IFNULL(nspbp.percent, NULL)
+         ) 
+         FROM ngo_place_info2 AS npi2
+         LEFT JOIN ngo_served_percent_by_palces as nspbp on nspbp.ngo_id = npi2.ngo_id AND nspbp.place_id = places.id
+         WHERE npi2.place_id = places.id AND npi2.ngo_jot_id = 2 AND npi2.ypno_status = 1 AND npi2.year=2023
+         ORDER BY npi2.year DESC
+         LIMIT 1),
+        NULL
+    ) AS jot2_officer, 
+    IFNULL(
+        (SELECT SUM(percent)
+         FROM ngo_served_percent_by_palces as nspbp
+         LEFT JOIN ngos on ngos.id = ngo_id
+         WHERE ngos.ngo_jots_id = 2 AND places.id = nspbp.place_id
+         LIMIT 1),
+        NULL
+    ) AS popularity_jot2
+FROM places
+	LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
+	LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
+	LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id
+	`+query+`
+GROUP BY places.id
 		`);
 
 		if (alldata.length > 0) {
@@ -980,6 +1200,143 @@ exports.masterReport = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+/*
+SELECT
+  place.id AS place_id,
+  place.name AS place_name,
+  IFNULL(
+        (SELECT 
+         CONCAT('[',GROUP_CONCAT(JSON_OBJECT(
+             'officer_name', IFNULL(officer_name, NULL),
+             'ngo_name', IFNULL(ngo_name, NULL),
+             'officer_photo', IFNULL(officer_photo, NULL),
+             'event_type', IFNULL(ypno_event_type, NULL)
+         )ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id), ']'
+         )
+         FROM ngo_place_info2
+         WHERE place_id = place.id AND ngo_jot_id=1 and year=2023
+         ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id
+        ),
+        NULL
+    ) AS jot1Officer,
+  CONCAT('[', GROUP_CONCAT(JSON_OBJECT('officer_name', npi.officer_name, 'ngo_name', npi.ngo_name)), ']') AS subplaces
+FROM
+  places place
+LEFT JOIN
+  ngo_place_info2 npi ON place.id = npi.place_id
+GROUP BY
+  place.id, place.name;
+*/  
+/*
+SELECT 
+	places.id AS place_id,
+    places.name as place_name,
+    places.area as place_area,
+    IFNULL(ngo_categories.short_name, NULL) AS category_name,
+    IFNULL(
+        (SELECT officer_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ypno_rank = 1
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS winner_name,
+    IFNULL(
+        (SELECT ngo_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ypno_rank = 1
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS winner_ngo,
+    IFNULL(
+        (SELECT officer_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ngo_jot_id = 1 AND ypno_status = 1 AND year=2023
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS jot1_officer,
+    IFNULL(
+        (SELECT ngo_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ngo_jot_id = 1 AND ypno_status = 1 AND year=2023
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS jot1_ngo,
+    IFNULL(
+        (SELECT percent
+         FROM ngo_served_percent_by_palces as nspbp
+         LEFT JOIN ngo_place_info2 as npi on npi.ngo_id = nspbp.ngo_id 
+         WHERE npi.ngo_jot_id=1 AND npi.ypno_status = 1 AND npi.year=2023 and places.id = nspbp.place_id
+         ORDER BY npi.year DESC
+         LIMIT 1),
+        NULL
+    ) AS popularity_jot1_ngo, 
+    IFNULL(
+        (SELECT SUM(percent)
+         FROM ngo_served_percent_by_palces as nspbp
+         LEFT JOIN ngos on ngos.id = ngo_id
+         WHERE ngos.ngo_jots_id = 1 AND places.id = nspbp.place_id
+         LIMIT 1),
+        NULL
+    ) AS popularity_jot1,
+    IFNULL(
+        (SELECT officer_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ngo_jot_id = 1 AND ypno_status = 3 AND year=2023
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS change_jot1_officer,
+    IFNULL(
+        (SELECT ngo_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ngo_jot_id = 1 AND ypno_status = 3 AND year=2023
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS change_jot1_ngo,
+    IFNULL(
+        (SELECT officer_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ngo_jot_id != 1 AND ypno_status = 1 AND year=2023
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS jot2_officer,
+    IFNULL(
+        (SELECT ngo_name
+         FROM ngo_place_info2
+         WHERE place_id = places.id AND ngo_jot_id != 1 AND ypno_status = 1 AND year=2023
+         ORDER BY year DESC
+         LIMIT 1),
+        NULL
+    ) AS jot2_ngo,
+    IFNULL(
+        (SELECT percent
+         FROM ngo_served_percent_by_palces as nspbp
+         LEFT JOIN ngo_place_info2 as npi on npi.ngo_id = nspbp.ngo_id 
+         WHERE npi.ngo_jot_id=2 AND npi.ypno_status = 1 AND npi.year=2023 and places.id = nspbp.place_id
+         ORDER BY npi.year DESC
+         LIMIT 1),
+        NULL
+    ) AS popularity_jot2_ngo,
+    IFNULL(
+        (SELECT SUM(percent)
+         FROM ngo_served_percent_by_palces as nspbp
+         LEFT JOIN ngos on ngos.id = ngo_id
+         WHERE ngos.ngo_jots_id = 2 AND places.id = nspbp.place_id
+         LIMIT 1),
+        NULL
+    ) AS popularity_jot2
+FROM `places`
+	LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
+	LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
+	LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id
+GROUP BY places.id;
+*/
 var decryptHash = (value) => {
 	// return CryptoJS.enc.Base64.parse(value).toString(CryptoJS.enc.Utf8);
 	const passphrase = '123';
@@ -1489,7 +1846,7 @@ exports.finalReportGenerateOfficerChange = async (req, res) => {
     FROM
         ngo_category_bs
     LEFT JOIN ngo_categories ON ngo_categories.id = ngo_category_bs.ngo_category_id
-    WHERE ngo_category_bs.place_id = places.id and status = 'colorActive'
+    WHERE ngo_category_bs.place_id = places.id
 ) AS categoryType
 ,ngos.short_name
 FROM
