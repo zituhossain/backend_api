@@ -247,7 +247,7 @@ exports.finalReportGenerateCategory = async (req, res) => {
 	// 				   FROM years ORDER BY id DESC LIMIT 1,1) AND year_place_ngo_officers.rank = 1 AND year_place_ngo_officers.place_id = ngo_place_info.place_id LIMIT 1) AS ngo_officer,
 	// ngo_place_info.officer_name AS ngo_officer_one
 	// FROM ngo_place_info where ngo_place_info.year = (select Max(name) from years) AND ngo_place_info.ypno_status = 1`;
-	console.log('-----------------------finalReportGenerateCategory----------');
+	console.log('-----------------------reportTest----------');
 	let currentNgoId;
 	if(req.body.ngo_id=='' || req.body.ngo_id==null)
 	currentNgoId = 6;
@@ -256,39 +256,51 @@ exports.finalReportGenerateCategory = async (req, res) => {
 	console.log('currentNgoId ',currentNgoId);
 	let mainQuery = `
 	SELECT 
-	places.id as place_id,
-	places.name AS place_name,
-	places.area AS place_area,
-    IFNULL(ngo_categories.short_name, NULL) AS category_name,
-    IFNULL(nspbp.percent, NULL) AS ngo_popularity_percent,
-    IFNULL(npi2.ngo_id, NULL) AS ypno_ngo_id,
-	IFNULL(npi2.officer_id, NULL) AS officer_id,
-    IFNULL(npi2.officer_name, NULL) AS ngo_officer,
-	IFNULL(npi2.ngo_name , NULL) AS ngo_name,
-    IFNULL(
-        (SELECT officer_name
-         FROM ngo_place_info2
-         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1
-         ORDER BY year DESC
-         LIMIT 1),
-        NULL
-    ) AS winner_name,
-     IFNULL(
-        (SELECT ngo_name
-         FROM ngo_place_info2
-         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1
-         ORDER BY year DESC
-         LIMIT 1),
-        NULL
-    ) AS winner_ngo
-FROM places 
-LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
-LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
-LEFT JOIN ngo_served_percent_by_palces AS nspbp on places.id = nspbp.place_id AND nspbp.ngo_id= `+currentNgoId+`
-LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id 
-	AND npi2.year = 2023 
-    AND npi2.ypno_status = 1
-    AND npi2.ngo_id=`+currentNgoId;
+	npi.place_id AS place_id, 
+	npi.place_name AS place_name,
+	npi.place_area AS place_area, 
+	npi.category_short_name AS category_short_name, 
+	npi.place_type_short_name AS place_type_short_name, 
+  winner.winner_year_type AS winner_year_type, 
+  winner.winner_officer_name AS winner_officer_name, 
+  winner.winner_ngo_name AS winner_ngo_name, 
+  ngo_officers.ngo_officer_list AS officer_list, 
+  nspbp.percent AS ngo_popularity 
+FROM ngo_place_info2 AS npi
+	LEFT JOIN (
+        SELECT 
+          npi2.year AS winner_year, 
+          npi2.year_type AS winner_year_type, 
+          npi2.officer_name AS winner_officer_name, 
+          npi2.ngo_name AS winner_ngo_name, 
+          npi2.place_id AS winner_place_id,
+          npi2.ypno_served_population AS winner_served_population 
+        FROM  ngo_place_info2 AS npi2 
+  ) AS winner ON npi.place_id = winner.winner_place_id 
+      AND winner.winner_year = ( SELECT  MAX(year) FROM  ngo_place_info2  WHERE ypno_rank = 1 
+                                AND place_id = winner.winner_place_id ) 
+	LEFT JOIN (
+        SELECT 
+        npi2.place_id AS place_id, 
+        npi2.year AS year,
+        CONCAT('[',GROUP_CONCAT(
+            JSON_OBJECT(
+             'officer_name', IFNULL(officer_name, NULL),
+             'ngo_name', IFNULL(ngo_name, NULL),
+             'officer_photo', IFNULL(officer_photo, NULL),
+             'ypno_popularity', IFNULL(ypno_popularity, NULL),
+             'ypno_view_order', IFNULL(ypno_view_order, NULL),
+             'ypno_status', IFNULL(ypno_status, NULL),
+             'event_type', IFNULL(ypno_event_type, NULL)
+             ) 
+            ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), 
+            -ngo_view_order DESC, -ypno_view_order DESC, officer_id 
+        ),']') AS ngo_officer_list 
+        FROM ngo_place_info2 AS npi2 
+        WHERE npi2.year = (SELECT MAX(name) from years WHERE type=0) AND npi2.ngo_id=`+currentNgoId+`
+        GROUP BY npi2.place_id 
+    ) AS ngo_officers ON npi.place_id = ngo_officers.place_id 
+	LEFT JOIN ngo_served_percent_by_palces AS nspbp on (nspbp.place_id = npi.place_id AND nspbp.ngo_id=`+currentNgoId+`)`;
 
 	let query = '';
 	// if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
@@ -298,26 +310,26 @@ LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id
 	// 		query += ` WHERE npi2.ngo_id = '${req.body.ngo_id}'`;
 	// 	}
 	// }
-	if (req.body.division_id !== '') {
-		if (query.includes('WHERE')) {
-			query += ` and places.division_id = '${req.body.division_id}'`;
-		} else {
-			query += ` WHERE places.division_id = '${req.body.division_id}'`;
-		}
-	}
-	if (req.body.district_id !== '') {
-		if (query.includes('WHERE')) {
-			query += ` and places.district_id = '${req.body.district_id}'`;
-		} else {
-			query += ` WHERE places.district_id = '${req.body.district_id}'`;
-		}
-	}
+	// if (req.body.division_id !== '') {
+	// 	if (query.includes('WHERE')) {
+	// 		query += ` and npi.division_id = '${req.body.division_id}'`;
+	// 	} else {
+	// 		query += ` WHERE npi.division_id = '${req.body.division_id}'`;
+	// 	}
+	// }
+	// if (req.body.district_id !== '') {
+	// 	if (query.includes('WHERE')) {
+	// 		query += ` and npi.district_id = '${req.body.district_id}'`;
+	// 	} else {
+	// 		query += ` WHERE npi.district_id = '${req.body.district_id}'`;
+	// 	}
+	// }
 	if (req.body.place_id !== '') {
-		if (query.includes('WHERE')) {
-			query += ` and places.place_id = '${req.body.place_id}'`;
-		} else {
-			query += ` WHERE places.place_id = '${req.body.place_id}'`;
-		}
+		query += ` WHERE npi.place_id = '${req.body.place_id}'`;
+	}else if(req.body.district_id !== ''){
+		query += ` WHERE npi.district_id = '${req.body.district_id}'`;
+	}else if(req.body.division_id !== ''){
+		query += ` WHERE npi.division_id = '${req.body.division_id}'`;
 	}
 
 	if (
@@ -326,13 +338,14 @@ LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id
 		req.body.category !== null
 	) {
 		if (query.includes('WHERE')) {
-			query += ` AND ngo_categories.id = '${req.body.category}'`;
+			query += ` AND npi.category_id = '${req.body.category}'`;
 		} else {
-			query += ` WHERE ngo_categories.id = '${req.body.category}'`;
+			query += ` WHERE npi.category_id = '${req.body.category}'`;
 		}
 	}
 
-	mainQuery = mainQuery + query + ` ORDER BY place_id`;
+	mainQuery = mainQuery + query + ` GROUP BY npi.place_id
+ORDER BY npi.place_id`;
 
 	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
 	//console.log('query', mainQuery);
@@ -341,6 +354,7 @@ LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id
 		const userId = report.getUserId(req);
 		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
 		console.log('success query: ', mainQuery);
+		console.log(alldata);
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
@@ -396,39 +410,51 @@ exports.reportTest = async (req, res) => {
 	console.log('currentNgoId ',currentNgoId);
 	let mainQuery = `
 	SELECT 
-	places.id as place_id,
-	places.name AS place_name,
-	places.area AS place_area,
-    IFNULL(ngo_categories.short_name, NULL) AS category_name,
-    IFNULL(nspbp.percent, NULL) AS ngo_popularity_percent,
-    IFNULL(npi2.ngo_id, NULL) AS ypno_ngo_id,
-	IFNULL(npi2.officer_id, NULL) AS officer_id,
-    IFNULL(npi2.officer_name, NULL) AS ngo_officer,
-	IFNULL(npi2.ngo_name , NULL) AS ngo_name,
-    IFNULL(
-        (SELECT officer_name
-         FROM ngo_place_info2
-         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1
-         ORDER BY year DESC
-         LIMIT 1),
-        NULL
-    ) AS winner_name,
-     IFNULL(
-        (SELECT ngo_name
-         FROM ngo_place_info2
-         WHERE place_id = places.id AND year < (SELECT MAX(name) FROM years) AND ypno_rank = 1
-         ORDER BY year DESC
-         LIMIT 1),
-        NULL
-    ) AS winner_ngo
-FROM places 
-LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
-LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
-LEFT JOIN ngo_served_percent_by_palces AS nspbp on places.id = nspbp.place_id AND nspbp.ngo_id= `+currentNgoId+`
-LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id 
-	AND npi2.year = 2023 
-    AND npi2.ypno_status = 1
-    AND npi2.ngo_id=`+currentNgoId;
+	npi.place_id AS place_id, 
+	npi.place_name AS place_name,
+	npi.place_area AS place_area, 
+	npi.category_short_name AS category_short_name, 
+	npi.place_type_short_name AS place_type_short_name, 
+  winner.winner_year_type AS winner_year_type, 
+  winner.winner_officer_name AS winner_officer_name, 
+  winner.winner_ngo_name AS winner_ngo_name, 
+  ngo_officers.ngo_officer_list AS officer_list, 
+  nspbp.percent AS ngo_popularity 
+FROM ngo_place_info2 AS npi
+	LEFT JOIN (
+        SELECT 
+          npi2.year AS winner_year, 
+          npi2.year_type AS winner_year_type, 
+          npi2.officer_name AS winner_officer_name, 
+          npi2.ngo_name AS winner_ngo_name, 
+          npi2.place_id AS winner_place_id,
+          npi2.ypno_served_population AS winner_served_population 
+        FROM  ngo_place_info2 AS npi2 
+  ) AS winner ON npi.place_id = winner.winner_place_id 
+      AND winner.winner_year = ( SELECT  MAX(year) FROM  ngo_place_info2  WHERE ypno_rank = 1 
+                                AND place_id = winner.winner_place_id ) 
+	LEFT JOIN (
+        SELECT 
+        npi2.place_id AS place_id, 
+        npi2.year AS year,
+        CONCAT('[',GROUP_CONCAT(
+            JSON_OBJECT(
+             'officer_name', IFNULL(officer_name, NULL),
+             'ngo_name', IFNULL(ngo_name, NULL),
+             'officer_photo', IFNULL(officer_photo, NULL),
+             'ypno_popularity', IFNULL(ypno_popularity, NULL),
+             'ypno_view_order', IFNULL(ypno_view_order, NULL),
+             'ypno_status', IFNULL(ypno_status, NULL),
+             'event_type', IFNULL(ypno_event_type, NULL)
+             ) 
+            ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), 
+            -ngo_view_order DESC, -ypno_view_order DESC, officer_id 
+        ),']') AS ngo_officer_list 
+        FROM ngo_place_info2 AS npi2 
+        WHERE npi2.year = (SELECT MAX(name) from years WHERE type=0) AND npi2.ngo_id=`+currentNgoId+`
+        GROUP BY npi2.place_id 
+    ) AS ngo_officers ON npi.place_id = ngo_officers.place_id 
+	LEFT JOIN ngo_served_percent_by_palces AS nspbp on (nspbp.place_id = npi.place_id AND nspbp.ngo_id=`+currentNgoId+`)`;
 
 	let query = '';
 	// if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
@@ -438,26 +464,26 @@ LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id
 	// 		query += ` WHERE npi2.ngo_id = '${req.body.ngo_id}'`;
 	// 	}
 	// }
-	if (req.body.division_id !== '') {
-		if (query.includes('WHERE')) {
-			query += ` and places.division_id = '${req.body.division_id}'`;
-		} else {
-			query += ` WHERE places.division_id = '${req.body.division_id}'`;
-		}
-	}
-	if (req.body.district_id !== '') {
-		if (query.includes('WHERE')) {
-			query += ` and places.district_id = '${req.body.district_id}'`;
-		} else {
-			query += ` WHERE places.district_id = '${req.body.district_id}'`;
-		}
-	}
+	// if (req.body.division_id !== '') {
+	// 	if (query.includes('WHERE')) {
+	// 		query += ` and npi.division_id = '${req.body.division_id}'`;
+	// 	} else {
+	// 		query += ` WHERE npi.division_id = '${req.body.division_id}'`;
+	// 	}
+	// }
+	// if (req.body.district_id !== '') {
+	// 	if (query.includes('WHERE')) {
+	// 		query += ` and npi.district_id = '${req.body.district_id}'`;
+	// 	} else {
+	// 		query += ` WHERE npi.district_id = '${req.body.district_id}'`;
+	// 	}
+	// }
 	if (req.body.place_id !== '') {
-		if (query.includes('WHERE')) {
-			query += ` and places.place_id = '${req.body.place_id}'`;
-		} else {
-			query += ` WHERE places.place_id = '${req.body.place_id}'`;
-		}
+		query += ` WHERE npi.place_id = '${req.body.place_id}'`;
+	}else if(req.body.district_id !== ''){
+		query += ` WHERE npi.district_id = '${req.body.district_id}'`;
+	}else if(req.body.division_id !== ''){
+		query += ` WHERE npi.division_id = '${req.body.division_id}'`;
 	}
 
 	if (
@@ -466,13 +492,14 @@ LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id
 		req.body.category !== null
 	) {
 		if (query.includes('WHERE')) {
-			query += ` AND ngo_categories.id = '${req.body.category}'`;
+			query += ` AND npi.category_id = '${req.body.category}'`;
 		} else {
-			query += ` WHERE ngo_categories.id = '${req.body.category}'`;
+			query += ` WHERE npi.category_id = '${req.body.category}'`;
 		}
 	}
 
-	mainQuery = mainQuery + query + ` ORDER BY place_id`;
+	mainQuery = mainQuery + query + ` GROUP BY npi.place_id
+ORDER BY npi.place_id`;
 
 	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
 	//console.log('query', mainQuery);
@@ -481,6 +508,7 @@ LEFT JOIN ngo_place_info2 AS npi2 ON places.id = npi2.place_id
 		const userId = report.getUserId(req);
 		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
 		console.log('success query: ', mainQuery);
+		console.log(alldata);
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
