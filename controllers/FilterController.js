@@ -1617,11 +1617,15 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
   administration_officer_types.name as designation_name, 
   administration_officer_types.id as type_id, 
   administration_offices.name as office_name, 
-  administration_officers.name as officer_name
+  administration_officers.name as officer_name,
+  ngos.name as ngo_name,
+  ngos.short_name as ngo_short_name,
+  ngos.color_code as ngo_color_code
 from 
   administration_officers 
   left join administration_offices on administration_officers.administration_office_id = administration_offices.id 
-  left join administration_officer_types on administration_officers.designation = administration_officer_types.id` +
+  left join administration_officer_types on administration_officers.designation = administration_officer_types.id
+  left join ngos on ngos.id = administration_officers.ngo_id` +
 		query
 	);
 	if (alldata.length > 0) {
