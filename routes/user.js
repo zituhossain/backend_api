@@ -3,6 +3,7 @@ const UserController = require('../controllers/UserController');
 const UserRoleController = require('../controllers/UserRoleController');
 const auth = require('../middlewares/jwt');
 const router = express.Router();
+const uploadRole = require('../middlewares/upload_role')
 
 router.get('/deactivate/:id', auth, UserController.deactivateuser);
 router.get('/activate/:id', auth, UserController.activateuser);
@@ -97,5 +98,7 @@ router.get(
 );
 
 router.get('/export-role/:id', auth, UserRoleController.roleExport);
+router.post('/import-role', auth, uploadRole.single('file') ,UserRoleController.roleImport);
+router.post('/import-role/:id', auth, uploadRole.single('file') ,UserRoleController.roleImportById);
 
 module.exports = router;
