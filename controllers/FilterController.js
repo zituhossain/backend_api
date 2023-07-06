@@ -1611,6 +1611,7 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
 			query += ` where administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
 		}
 	}
+	query+=` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`
 	const [alldata, metadata] = await sequelize.query(
 		`select 
   *, 

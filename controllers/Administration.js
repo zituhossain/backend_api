@@ -155,26 +155,56 @@ exports.fetch_admin_office_by_condition = async (req, res) => {
 			arr.push({ division_id: place_id });
 		}
 
-		const admin_office_data = await Administration_office.findAll({
-			include: [
-				{
-					model: Administration_officer,
-					include: [
-						{
-							model: Administration_officer_type,
-						},
-						{
-							model: Ngo,
-						},
-					],
-					where: {
-						[Op.or]: arr,
-					},
-				},
-			],
-			order: [[sequelize.literal('ordering'), 'ASC']],
-		});
+// const admin_office_data = await Administration_office.findAll({
+//   include: [
+//     {
+//       model: Administration_officer,
+//       include: [
+//         {
+//           model: Administration_officer_type,
+//         },
+//         {
+//           model: Ngo,
+//         },
+//       ],
+//       where: {
+//         [Op.or]: arr,
+//       },
+//     },
+//   ],
+//   order: [
+//     ['ordering', 'ASC'],
+//     [Administration_officer_type, 'view_sort', 'ASC'],
+//     [Administration_officer, 'ordering', 'ASC'],
+//   ],
+// });
 
+const admin_office_data = await Administration_office.findAll({
+  include: [
+    {
+      model: Administration_officer,
+      include: [
+        {
+          model: Administration_officer_type,
+        },
+        {
+          model: Ngo,
+        },
+      ],
+      where: {
+        [Op.or]: arr,
+      },
+    },
+  ],
+  order: [
+    ['ordering', 'ASC'], 
+    [{ model: Administration_officer }, Administration_officer_type, 'view_sort', 'ASC'],
+    [{ model: Administration_officer }, 'ordering', 'ASC'],
+  ],
+});
+
+
+console.log('admin_office_data',admin_office_data)
 		if (admin_office_data) {
 			return apiResponse.successResponseWithData(
 				res,
