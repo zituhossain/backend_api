@@ -2316,31 +2316,42 @@ exports.updateUnion = async (req, res) => {
 			where: { id: union_id },
 		});
 
-		const sub_place_data = await Sub_place.findAll({
-			where: { union_id: union_id },
-		});
-
-		const place_data = await Upazilla.findOne({
-			where: { id: union_data.upazilla_id },
-		});
-		console.log('place_data', place_data);
-
-		if (sub_place_data) {
-			if (req.body.upazilla_id) {
-				await Sub_place.update(
-					{ place_id: place_data.place_id, upazilla_id: req.body.upazilla_id },
-					{ where: { union_id: union_id, upazilla_id: union_data.upazilla_id } }
-				);
-			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'name is missing.');
-		}
-
 		if (union_data) {
 			if (req.body.name && req.body.upazilla_id && req.body.name !== '') {
 				await Union.update(req.body, {
 					where: { id: union_id },
 				});
+				const sub_place_data = await Sub_place.findAll({
+					where: { union_id: union_id },
+				});
+
+				const updated_union_data = await Union.findOne({
+					where: { id: union_id },
+				});
+
+				const place_data = await Upazilla.findOne({
+					where: { id: updated_union_data.upazilla_id },
+				});
+				console.log('place_data', place_data);
+
+				if (sub_place_data) {
+					if (req.body.upazilla_id) {
+						await Sub_place.update(
+							{
+								place_id: place_data.place_id,
+								upazilla_id: req.body.upazilla_id,
+							},
+							{
+								where: {
+									union_id: union_id,
+									upazilla_id: union_data.upazilla_id,
+								},
+							}
+						);
+					}
+				} else {
+					return apiResponse.ErrorResponse(res, 'name is missing.');
+				}
 				return apiResponse.successResponse(res, 'data successfully updated!!!');
 			} else {
 				return apiResponse.ErrorResponse(res, 'name is missing.');
