@@ -510,32 +510,22 @@ exports.PlaceCountByNgo40 = async (req, res) => {
 	}
 }
 
-exports.PopularOfficerCount = async (req, res) => {
+exports.PopularOfficerCountWithouNgoId6 = async (req, res) => {
 	try {
 		const [results, metadata] = await Ngo.sequelize.query(
-			`SELECT
-			SUM(officer_count) AS total_officer_count
-		  FROM
-			(
-			  SELECT
-				year_place_ngo_officers.place_id,
-				COUNT(*) AS officer_count
-			  FROM
-				officers
-				LEFT JOIN year_place_ngo_officers ON officers.id = year_place_ngo_officers.officer_id
-				LEFT JOIN ngos ON year_place_ngo_officers.ngo_id = ngos.id
-			  WHERE
-				rank = 1
-				AND year_place_ngo_officers.ngo_id != 6
-				AND year_place_ngo_officers.year_id = (
-				  SELECT MAX(year_id)
-				  FROM year_place_ngo_officers
-				)
-			  GROUP BY
-				year_place_ngo_officers.place_id
-			) AS subquery;`
+			`SELECT 
+    COUNT(*) AS row_count
+FROM (
+    SELECT 
+        npi.place_id
+    FROM ngo_place_info2 AS npi
+    WHERE npi.year = 2018 AND npi.ngo_id != 6 AND npi.ypno_rank = 1
+    GROUP BY npi.place_id
+) AS subquery;
+`
 		);
-
+console.log('------------adfasdfasd------------');
+console.log(results);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',

@@ -1101,6 +1101,9 @@ exports.masterReport = async (req, res) => {
     IFNULL(ngo_categories.short_name, NULL) AS category_short_name,
     IFNULL(ngo_categories.name, NULL) AS category_name,
     IFNULL(ngo_categories.color_code, NULL) AS category_color,
+    IFNULL(place_type.short_name, NULL) AS place_type_short_name,
+    IFNULL(place_type.name, NULL) AS place_type_name,
+    IFNULL(place_type.color_code, NULL) AS place_type_color,
     IFNULL(
         (SELECT 
          JSON_OBJECT(
@@ -1135,7 +1138,8 @@ exports.masterReport = async (req, res) => {
          LEFT JOIN ngo_place_info2 AS npi3 on npi2.ypno_view_order = npi3.ypno_view_order 
          	AND npi2.ypno_view_order IS NOT NULL
          	AND npi2.year = npi3.year
-         	AND npi2.ypno_id != npi3.ypno_id
+         	AND npi2.ypno_id != npi3.ypno_id 
+         	AND npi2.place_id = npi3.place_id
          LEFT JOIN ngo_served_percent_by_palces as nspbp on nspbp.ngo_id = npi2.ngo_id AND nspbp.place_id = places.id
          LEFT JOIN ngo_served_percent_by_palces as nspbp3 on nspbp3.ngo_id = npi3.ngo_id AND nspbp3.place_id = places.id
          WHERE npi2.place_id = places.id AND npi2.ngo_jot_id = 1 AND npi2.ypno_status = 1 AND npi2.year=2023
@@ -1171,7 +1175,8 @@ exports.masterReport = async (req, res) => {
          LEFT JOIN ngo_place_info2 AS npi3 on npi2.ypno_view_order = npi3.ypno_view_order 
          	AND npi2.ypno_view_order IS NOT NULL
          	AND npi2.year = npi3.year
-         	AND npi2.ypno_id != npi3.ypno_id
+         	AND npi2.ypno_id != npi3.ypno_id 
+         	AND npi2.place_id = npi3.place_id
          LEFT JOIN ngo_served_percent_by_palces as nspbp on nspbp.ngo_id = npi2.ngo_id AND nspbp.place_id = places.id
          LEFT JOIN ngo_served_percent_by_palces as nspbp3 on nspbp3.ngo_id = npi3.ngo_id AND nspbp3.place_id = places.id
          WHERE npi2.place_id = places.id AND npi2.ngo_jot_id = 1 AND npi2.ypno_status = 3 AND npi2.year=2023
@@ -1206,7 +1211,8 @@ exports.masterReport = async (req, res) => {
     ) AS popularity_jot2
 FROM places
 	LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
-	LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id
+	LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id 
+	LEFT JOIN ngo_categories AS place_type ON ngo_category_bs.ngo_category_type_id = place_type.id
 	LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id
 	`+query+`
 GROUP BY places.id
