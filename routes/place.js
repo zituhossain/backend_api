@@ -14,6 +14,16 @@ router.get('/delete_place/:id', auth, PlaceController.deleteplacebyid);
 router.post('/update_place/:id', auth, PlaceController.updatePlace);
 router.get('/districtmap/:id', auth, PlaceController.getDistrictmap);
 router.get('/divisionmap/:id', auth, PlaceController.getDivisionmap);
+router.get(
+	'/placeCountByDivision/:id',
+	auth,
+	PlaceController.PlaceCountByDivisionId
+);
+router.get(
+	'/placeCountByDistrict/:id',
+	auth,
+	PlaceController.PlaceCountByDistrictId
+);
 
 router.post('/place_connect_with_ngo', PlaceController.placeConnectWithNgo);
 router.post('/add_category_b', PlaceController.addCategoryB);

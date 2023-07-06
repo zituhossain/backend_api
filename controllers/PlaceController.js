@@ -386,6 +386,39 @@ exports.getDivisionmap = async (req, res) => {
 	}
 };
 
+exports.PlaceCountByDivisionId = async (req, res) => {
+	try {
+		const [results, metadata] = await Place.sequelize.query(
+			`SELECT COUNT(id) division_place_count FROM places
+WHERE division_id = ${req.params.id}`
+		);
+
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			results
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+exports.PlaceCountByDistrictId = async (req, res) => {
+	try {
+		const [results, metadata] = await Place.sequelize.query(
+			`SELECT COUNT(id) district_place_count FROM places
+WHERE district_id = ${req.params.id}`
+		);
+
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			results
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 /*
 exports.getDistrictByDivision = async (req, res) => {
 	try {
