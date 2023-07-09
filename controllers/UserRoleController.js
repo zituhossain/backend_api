@@ -15,6 +15,27 @@ const db = require('../db/db');
 const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 
+exports.getRoleId = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		console.log('decodedToken', decodedToken);
+		const roleId = decodedToken.role;
+
+		if (roleId) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				roleId
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 exports.createuserrole = async (req, res) => {
 	try {
 		if (Object.keys(req.body).length === 0) {
@@ -723,36 +744,39 @@ function incrementLastCounter(name, maxId) {
 	return `${name} ${maxId + 1}`;
 }
 
-
 // Export Role
 const fs = require('fs');
 const path = require('path');
 
 exports.roleExport = async (req, res) => {
 	try {
-	  const role_id = req.params.id;
-	  const role_data = await User_role.findOne({ where: { id: role_id } });
-  
-	  if (role_data) {
-		const previlegeData = await Previlege_table.findAll({
-		  where: { user_role_id: role_id },
-		});
-  
-		if (previlegeData && previlegeData.length > 0) {
-		  // Save the result data in a JSON file
-		  const filename = role_data.name;
-		  const jsonData = JSON.stringify(previlegeData, null, 2);
-		  const filePath = path.join(__dirname, '../uploads/role_file', `${filename}.json`);
-		  fs.writeFileSync(filePath, jsonData);
-  
-		  return apiResponse.successResponse(res, 'File export successfully!');
+		const role_id = req.params.id;
+		const role_data = await User_role.findOne({ where: { id: role_id } });
+
+		if (role_data) {
+			const previlegeData = await Previlege_table.findAll({
+				where: { user_role_id: role_id },
+			});
+
+			if (previlegeData && previlegeData.length > 0) {
+				// Save the result data in a JSON file
+				const filename = role_data.name;
+				const jsonData = JSON.stringify(previlegeData, null, 2);
+				const filePath = path.join(
+					__dirname,
+					'../uploads/role_file',
+					`${filename}.json`
+				);
+				fs.writeFileSync(filePath, jsonData);
+
+				return apiResponse.successResponse(res, 'File export successfully!');
+			} else {
+				return apiResponse.ErrorResponse(res, 'No matching privilege found.');
+			}
 		} else {
-		  return apiResponse.ErrorResponse(res, 'No matching privilege found.');
+			return apiResponse.ErrorResponse(res, 'No matching role found.');
 		}
-	  } else {
-		return apiResponse.ErrorResponse(res, 'No matching role found.');
-	  }
 	} catch (err) {
-	  return apiResponse.ErrorResponse(res, err.message);
+		return apiResponse.ErrorResponse(res, err.message);
 	}
-  };
+};
