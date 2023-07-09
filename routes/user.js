@@ -3,12 +3,11 @@ const UserController = require('../controllers/UserController');
 const UserRoleController = require('../controllers/UserRoleController');
 const auth = require('../middlewares/jwt');
 const router = express.Router();
-//const uploadRole = require('../middlewares/upload_role')
+const uploadRole = require('../middlewares/upload_role')
 
 router.get('/deactivate/:id', auth, UserController.deactivateuser);
 router.get('/activate/:id', auth, UserController.activateuser);
 router.get('/alluser', auth, UserController.fetchalluser);
-router.get('/user-role', auth, UserRoleController.getRoleId);
 router.post('/create_role', auth, UserRoleController.createuserrole);
 router.post('/copy_role/:id', auth, UserRoleController.copyUserRole);
 router.post('/update_role/:id', auth, UserRoleController.updateuserrole);
@@ -99,7 +98,7 @@ router.get(
 );
 
 router.get('/export-role/:id', auth, UserRoleController.roleExport);
-//router.post('/import-role', auth, uploadRole.single('file') ,UserRoleController.roleImport);
-//router.post('/import-role/:id', auth, uploadRole.single('file') ,UserRoleController.roleImportById);
+router.post('/import-role', auth, uploadRole.single('file') ,UserRoleController.roleImport);
+router.post('/import-role/:id', auth, uploadRole.single('file') ,UserRoleController.roleImportById);
 
 module.exports = router;
