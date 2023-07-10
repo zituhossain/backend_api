@@ -19,8 +19,29 @@ const path = require('path');
 const base_dir_config = require('../config.js');
 const { Op } = require('sequelize');
 const os = require('os');
-const readXlsxFile = require("read-excel-file/node");
+const readXlsxFile = require('read-excel-file/node');
 const xlsx = require('xlsx');
+
+exports.getRoleId = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		console.log('decodedToken', decodedToken);
+		const roleId = decodedToken.role;
+
+		if (roleId) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				roleId
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
 
 exports.createuserrole = async (req, res) => {
 	try {
@@ -730,7 +751,6 @@ function incrementLastCounter(name, maxId) {
 	return `${name} ${maxId + 1}`;
 }
 
-
 // Export Role
 // exports.roleExport = async (req, res) => {
 // 	try {
@@ -781,11 +801,18 @@ exports.roleExport = async (req, res) => {
 				// Save the Excel file
 				const filename = role_data.name;
 				const userHomeDir = os.homedir();
-				const filePath = path.join(userHomeDir, 'Downloads', `${filename}.xlsx`);
+				const filePath = path.join(
+					userHomeDir,
+					'Downloads',
+					`${filename}.xlsx`
+				);
 				// const filePath = path.join(__dirname, '../uploads/exported_role_file', `${filename}.xlsx`);
 				xlsx.writeFile(workbook, filePath);
 
-				return apiResponse.successResponse(res, 'File export successfully in Download Folder');
+				return apiResponse.successResponse(
+					res,
+					'File export successfully in Download Folder'
+				);
 			} else {
 				return apiResponse.ErrorResponse(res, 'No matching privilege found.');
 			}
@@ -797,15 +824,16 @@ exports.roleExport = async (req, res) => {
 	}
 };
 
-
-
 //   Import Role
 exports.roleImport = async (req, res) => {
 	try {
 		if (req.file === undefined) {
-			return res.status(400).send("Please upload a json file!");
+			return res.status(400).send('Please upload a json file!');
 		}
-		let filePath = base_dir_config.base_dir + 'uploads/imported_role_file/' + req.file.filename;
+		let filePath =
+			base_dir_config.base_dir +
+			'uploads/imported_role_file/' +
+			req.file.filename;
 
 		const rows = await readXlsxFile(filePath);
 		const headers = rows[0];
@@ -813,7 +841,7 @@ exports.roleImport = async (req, res) => {
 		// Remove header row
 		rows.shift();
 
-		const previlegeData = rows.map(row => {
+		const previlegeData = rows.map((row) => {
 			let data = {};
 			headers.forEach((header, index) => {
 				data[header] = row[index];
@@ -823,43 +851,51 @@ exports.roleImport = async (req, res) => {
 
 		const existingPrevilegeDatas = await Previlege_table.findAll({
 			where: {
-				user_role_id: { [Op.in]: previlegeData.map(role => role.user_role_id) },
-			}
+				user_role_id: {
+					[Op.in]: previlegeData.map((role) => role.user_role_id),
+				},
+			},
 		});
 
 		const inserts = [];
 
-		previlegeData.forEach(role => {
-			const existingPrevilegeData = existingPrevilegeDatas.find(p =>
-				p.user_role_id === role.user_role_id &&
-				p.previlege_url_id === role.previlege_url_id
+		previlegeData.forEach((role) => {
+			const existingPrevilegeData = existingPrevilegeDatas.find(
+				(p) =>
+					p.user_role_id === role.user_role_id &&
+					p.previlege_url_id === role.previlege_url_id
 			);
 
 			if (!existingPrevilegeData) {
 				inserts.push({
 					user_role_id: role.user_role_id,
 					previlege_url_id: role.previlege_url_id,
-					permission: 1
+					permission: 1,
 				});
 			}
 		});
 
 		await Previlege_table.bulkCreate(inserts);
 
-		return apiResponse.successResponseWithData(res, 'File import successfully!');
-
+		return apiResponse.successResponseWithData(
+			res,
+			'File import successfully!'
+		);
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 //   Import Role by id
 exports.roleImportById = async (req, res) => {
 	try {
 		if (req.file === undefined) {
-			return res.status(400).send("Please upload a JSON file!");
+			return res.status(400).send('Please upload a JSON file!');
 		}
-		let filePath = base_dir_config.base_dir + 'uploads/imported_role_file/' + req.file.filename;
+		let filePath =
+			base_dir_config.base_dir +
+			'uploads/imported_role_file/' +
+			req.file.filename;
 
 		const role_id = req.params.id;
 
@@ -917,10 +953,9 @@ exports.roleImportById = async (req, res) => {
 
 		return apiResponse.successResponseWithData(
 			res,
-			"File import successfully!"
+			'File import successfully!'
 		);
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
