@@ -529,11 +529,47 @@ exports.getPlacesByDivision = async (req, res) => {
 		const token = req.headers.authorization.split(' ')[1];
 		const roleByplace = await checkUserRoleByPlace(token);
 
-		let divisions;
-		if (roleByplace.division.length > 0) {
-			divisions = roleByplace.division.join(','); // Join the division IDs with commas
+		const places = await Place.findAll({
+			attributes: ['id'],
+			where: {
+				division_id: id,
+			},
+		});
+
+		const placeIds = places.map((place) => place.id).join(',');
+
+		let query;
+		if (
+			roleByplace.division.length > 0 &&
+			roleByplace.district.length > 0 &&
+			roleByplace.place.length > 0
+		) {
+			query = ` places.id IN (${roleByplace.place})`;
+		} else if (
+			roleByplace.division.length > 0 &&
+			roleByplace.district.length > 0
+		) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: roleByplace.district,
+				},
+			});
+
+			const placeIds = places.map((place) => place.id).join(',');
+			query = ` places.id IN (${placeIds})`;
+		} else if (roleByplace.division.length > 0) {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: roleByplace.division,
+				},
+			});
+
+			const placeIds = places.map((place) => place.id).join(',');
+			query = ` places.id IN (${placeIds})`;
 		} else {
-			divisions = id;
+			query = ` places.id IN (${placeIds})`;
 		}
 
 		const [results, metadata] = await sequelize.query(`
@@ -556,7 +592,7 @@ exports.getPlacesByDivision = async (req, res) => {
 		  LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id AND ngo_categories.type=1
 		  LEFT JOIN ngo_categories cat_type ON ngo_category_bs.ngo_category_type_id = cat_type.id  AND ngo_categories.type=0
 		WHERE
-		  places.division_id = ${id} AND places.division_id IN (${divisions}) -- Add condition for the specific division ID
+		places.id IN (${placeIds}) AND ${query}  -- Add condition for the specific division ID
 		GROUP BY
 		  places.id
 	  `);
