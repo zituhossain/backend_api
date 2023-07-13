@@ -1121,12 +1121,16 @@ exports.masterReport = async (req, res) => {
     IFNULL(
         (SELECT 
          JSON_OBJECT(
+         		 'officer_id', IFNULL(npi2.officer_id, NULL),
+         		 'officer_place_id', IFNULL(npi2.place_id, NULL),
              'officer_name', IFNULL(npi2.officer_name, NULL),
              'officer_photo', IFNULL(npi2.officer_photo, NULL),
              'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
              'officer_comment', IFNULL(npi2.ypno_comment, NULL),
              'ngo_name', IFNULL(npi2.ngo_name, NULL),
              'ngo_popularity', IFNULL(nspbp.percent, NULL),
+             'or_officer_id', IFNULL(npi3.officer_id, NULL),
+         		 'or_officer_place_id', IFNULL(npi3.place_id, NULL),
              'or_officer_name', IFNULL(npi3.officer_name, NULL),
              'or_officer_photo', IFNULL(npi3.officer_photo, NULL),
              'or_officer_popularity', IFNULL(npi3.ypno_popularity, NULL),
@@ -1158,12 +1162,16 @@ exports.masterReport = async (req, res) => {
     IFNULL(
         (SELECT 
          JSON_OBJECT(
+         		 'officer_id', IFNULL(npi2.officer_id, NULL),
+         		 'officer_place_id', IFNULL(npi2.place_id, NULL),
              'officer_name', IFNULL(npi2.officer_name, NULL),
              'officer_photo', IFNULL(npi2.officer_photo, NULL),
              'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
              'officer_comment', IFNULL(npi2.ypno_comment, NULL),
              'ngo_name', IFNULL(npi2.ngo_name, NULL),
              'ngo_popularity', IFNULL(nspbp.percent, NULL),
+             'or_officer_id', IFNULL(npi3.officer_id, NULL),
+         		 'or_officer_place_id', IFNULL(npi3.place_id, NULL),
              'or_officer_name', IFNULL(npi3.officer_name, NULL),
              'or_officer_photo', IFNULL(npi3.officer_photo, NULL),
              'or_officer_popularity', IFNULL(npi3.ypno_popularity, NULL),
@@ -1187,6 +1195,8 @@ exports.masterReport = async (req, res) => {
     IFNULL(
         (SELECT 
          JSON_OBJECT(
+         		 'officer_id', IFNULL(npi2.officer_id, NULL),
+         		 'officer_place_id', IFNULL(npi2.place_id, NULL),
              'officer_name', IFNULL(npi2.officer_name, NULL),
              'officer_photo', IFNULL(npi2.officer_photo, NULL),
              'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
