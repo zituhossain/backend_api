@@ -10,6 +10,7 @@ const {
 	Division,
 	Place,
 	Sequelize,
+	sequelize,
 } = require('../models');
 const db = require('../db/db');
 const secret = process.env.JWT_SECRET;
@@ -828,11 +829,11 @@ exports.roleExport = async (req, res) => {
 exports.roleImport = async (req, res) => {
 	try {
 		if (req.file === undefined) {
-			return res.status(400).send('Please upload a json file!');
+			return res.status(400).send('Please upload an Excel file!');
 		}
 		let filePath =
 			base_dir_config.base_dir +
-			'uploads/imported_role_file/' +
+			'uploads/excel_file/' +
 			req.file.filename;
 
 		const rows = await readXlsxFile(filePath);
@@ -890,11 +891,11 @@ exports.roleImport = async (req, res) => {
 exports.roleImportById = async (req, res) => {
 	try {
 		if (req.file === undefined) {
-			return res.status(400).send('Please upload a JSON file!');
+			return res.status(400).send('Please upload an Excel file!');
 		}
 		let filePath =
 			base_dir_config.base_dir +
-			'uploads/imported_role_file/' +
+			'uploads/excel_file/' +
 			req.file.filename;
 
 		const role_id = req.params.id;
@@ -950,6 +951,98 @@ exports.roleImportById = async (req, res) => {
 		});
 
 		await Previlege_table.bulkCreate(inserts);
+
+		return apiResponse.successResponseWithData(
+			res,
+			'File import successfully!'
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+
+// Export URL Previlege Table data
+exports.urlTableExport = async (req, res) => {
+	try {
+		const previlegeData = await Previlege_url.findAll({});
+		console.log('==============================')
+		console.log(previlegeData)
+		if (previlegeData && previlegeData.length > 0) {
+			// Prepare the data for Excel file
+			const jsonData = JSON.parse(JSON.stringify(previlegeData));
+			const worksheet = xlsx.utils.json_to_sheet(jsonData);
+			const workbook = xlsx.utils.book_new();
+			xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+			// Save the Excel file
+			const filename = 'previlege_url';
+			const userHomeDir = os.homedir();
+			const filePath = path.join(
+				userHomeDir,
+				'Downloads',
+				`${filename}.xlsx`
+			);
+			// const filePath = path.join(__dirname, '../uploads/exported_role_file', `${filename}.xlsx`);
+			xlsx.writeFile(workbook, filePath);
+
+			return apiResponse.successResponse(
+				res,
+				'File export successfully in Download Folder'
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching privilege found.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+// Export URL Previlege Table data
+exports.urlTableImport = async (req, res) => {
+	try {
+		if (req.file === undefined) {
+			return res.status(400).send('Please upload an excel file!');
+		}
+		let filePath =
+			base_dir_config.base_dir +
+			'uploads/excel_file/' +
+			req.file.filename;
+
+		const rows = await readXlsxFile(filePath);
+
+		if (rows.length === 0) {
+			return res.status(400).send('The uploaded file is empty!');
+		}
+
+		const headers = rows[0];
+		rows.shift(); // Remove header row
+
+		const previlegeUrlData = rows.map((row) => {
+			let data = {};
+			headers.forEach((header, index) => {
+				data[header] = row[index];
+			});
+			return data;
+		});
+
+		// Disable foreign key checks
+		await sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true });
+
+		await Previlege_url.destroy({ truncate: true });
+
+		const inserts = previlegeUrlData.map((url) => ({
+			id: url.id,
+			name: url.name,
+			url_order: url.url_order,
+			previlege_area_id: url.previlege_area_id,
+			url: url.url
+		}));
+
+		await Previlege_url.bulkCreate(inserts);
+
+		// Re-enable foreign key checks
+		await sequelize.query('SET FOREIGN_KEY_CHECKS = 1', { raw: true });
 
 		return apiResponse.successResponseWithData(
 			res,

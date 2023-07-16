@@ -3,7 +3,8 @@ const UserController = require('../controllers/UserController');
 const UserRoleController = require('../controllers/UserRoleController');
 const auth = require('../middlewares/jwt');
 const router = express.Router();
-const uploadRole = require('../middlewares/upload_role');
+// const uploadRole = require('../middlewares/upload_role');
+const uploadFile = require('../middlewares/upload');
 
 router.get('/user-role', auth, UserRoleController.getRoleId);
 router.get('/deactivate/:id', auth, UserController.deactivateuser);
@@ -102,14 +103,16 @@ router.get('/export-role/:id', auth, UserRoleController.roleExport);
 router.post(
 	'/import-role',
 	auth,
-	uploadRole.single('file'),
+	uploadFile.single('file'),
 	UserRoleController.roleImport
 );
 router.post(
 	'/import-role/:id',
 	auth,
-	uploadRole.single('file'),
+	uploadFile.single('file'),
 	UserRoleController.roleImportById
 );
+router.get('/export-previlege-url', auth, UserRoleController.urlTableExport);
+router.post('/import-previlege-url', auth, uploadFile.single('file'), UserRoleController.urlTableImport)
 
 module.exports = router;
