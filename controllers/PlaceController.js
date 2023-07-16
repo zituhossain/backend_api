@@ -1168,7 +1168,7 @@ exports.placeHistory = async (req, res) => {
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
 			ORDER BY
-			years.id desc, ypno.rank ASC;`,
+			years.id desc, ypno.event_type DESC,ypno.rank ASC;`,
 			{ type: sequelize.QueryTypes.SELECT }
 		);
 		console.log('---------------imhere');
@@ -1186,9 +1186,7 @@ exports.placeHistory = async (req, res) => {
 exports.AllPlaceHistory = async (req, res) => {
 	const place_id = req.params.id;
 	try {
-		//'SELECT GROUP_CONCAT(DISTINCT(ngo_id)) as ngoID,GROUP_CONCAT(DISTINCT(ngos.name) ORDER BY ngos.id ASC) as ngo_list,GROUP_CONCAT(DISTINCT(ngos.short_name)) as ngo_short_name,GROUP_CONCAT(DISTINCT(ngos.color_code) ORDER BY ngos.id ASC) as color_list,years.name as year_id,years.bn_term as term,(SELECT GROUP_CONCAT(cnt) cnt FROM ( SELECT COUNT(*) cnt,year_id FROM year_place_ngo_officers ypno where rank=1 GROUP BY ypno.ngo_id,year_id )as totla WHERE totla.year_id = year_place_ngo_officers.year_id) as percent_list FROM `year_place_ngo_officers` LEFT join ngos on ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN years on year_place_ngo_officers.year_id = years.id where rank=1 AND years.type=0 GROUP by year_id order by year_place_ngo_officers.year_id desc',
 		const place_data = await year_place_ngo_officer.sequelize.query(
-			// `SELECT ypno_year_id, GROUP_CONCAT( ypno_ngo_id ORDER BY ngo_id ASC ) AS ngoID, GROUP_CONCAT( ngo_name ORDER BY ngo_id ASC ) AS ngo_list, GROUP_CONCAT( ngo_short_name ORDER BY ngo_id ASC ) AS ngo_short_name, GROUP_CONCAT( ngo_color_code ORDER BY ngo_id ASC ) AS color_list, year_name, year_bn_name, year_bn_term, year_type, GROUP_CONCAT( ngoRank1Counter ORDER BY ngo_id ASC ) AS percent_list FROM ( SELECT ypno.year_id as ypno_year_id, ypno.ngo_id as ypno_ngo_id, ngos.id as ngo_id, ngos.name as ngo_name, ngos.short_name as ngo_short_name, ngos.color_code as ngo_color_code, years.name as year_name, years.bn_name as year_bn_name, years.bn_term as year_bn_term, years.type as year_type, COUNT(*) AS ngoRank1Counter FROM year_place_ngo_officers ypno LEFT JOIN ngos on ngos.id = ypno.ngo_id LEFT JOIN years on years.id = ypno.year_id WHERE rank = 1 AND years.type = 0 GROUP BY year_id, ypno_ngo_id ORDER BY ngo_id ASC -- Add an ORDER BY clause here ) AS subquery GROUP BY ypno_year_id ORDER BY ypno_year_id DESC;`,
 			`SELECT 
   ngo_id, 
   ngos.name as ngo_name, 
@@ -1210,6 +1208,7 @@ FROM
 WHERE 
   year_place_ngo_officers.rank = 1 
   AND years.type = 0 
+  AND year_place_ngo_officers.event_type = 0
 GROUP BY 
   year_place_ngo_officers.ngo_id, 
   year_place_ngo_officers.year_id 

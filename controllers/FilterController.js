@@ -1127,6 +1127,7 @@ exports.masterReport = async (req, res) => {
              'officer_photo', IFNULL(npi2.officer_photo, NULL),
              'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
              'officer_comment', IFNULL(npi2.ypno_comment, NULL),
+             'officer_age_year', IFNULL(npi2.officer_age_year, NULL),
              'ngo_name', IFNULL(npi2.ngo_name, NULL),
              'ngo_popularity', IFNULL(nspbp.percent, NULL),
              'or_officer_id', IFNULL(npi3.officer_id, NULL),
@@ -1135,6 +1136,7 @@ exports.masterReport = async (req, res) => {
              'or_officer_photo', IFNULL(npi3.officer_photo, NULL),
              'or_officer_popularity', IFNULL(npi3.ypno_popularity, NULL),
              'or_officer_comment', IFNULL(npi3.ypno_comment, NULL),
+             'or_officer_age_year', IFNULL(npi3.officer_age_year, NULL),
              'or_ngo_name', IFNULL(npi3.ngo_name, NULL),
              'or_ngo_popularity', IFNULL(nspbp3.percent, NULL)
          ) 
@@ -1168,6 +1170,7 @@ exports.masterReport = async (req, res) => {
              'officer_photo', IFNULL(npi2.officer_photo, NULL),
              'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
              'officer_comment', IFNULL(npi2.ypno_comment, NULL),
+             'officer_age_year', IFNULL(npi2.officer_age_year, NULL),
              'ngo_name', IFNULL(npi2.ngo_name, NULL),
              'ngo_popularity', IFNULL(nspbp.percent, NULL),
              'or_officer_id', IFNULL(npi3.officer_id, NULL),
@@ -1176,6 +1179,7 @@ exports.masterReport = async (req, res) => {
              'or_officer_photo', IFNULL(npi3.officer_photo, NULL),
              'or_officer_popularity', IFNULL(npi3.ypno_popularity, NULL),
              'or_officer_comment', IFNULL(npi3.ypno_comment, NULL),
+             'or_officer_age_year', IFNULL(npi3.officer_age_year, NULL),
              'or_ngo_name', IFNULL(npi3.ngo_name, NULL),
              'or_ngo_popularity', IFNULL(nspbp3.percent, NULL)
          )

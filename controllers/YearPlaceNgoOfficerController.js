@@ -552,7 +552,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
 				status_data['status'] = 0;
 			}
 			let rank_data = [];
-			const [results, metadata] = await sequelize.query(`SELECT * FROM year_place_ngo_officers WHERE place_id=${req.body.place_id} AND year_id=${req.body.year_id} AND rank=${req.body.rank} AND id <> ${condition_id} LIMIT 1;`);
+			const [results, metadata] = await sequelize.query(`SELECT * FROM year_place_ngo_officers WHERE place_id=${req.body.place_id} AND year_id=${req.body.year_id} AND rank=${req.body.rank} AND event_type=0 AND id <> ${condition_id} LIMIT 1;`);
 			if (results.length > 0) {
 				// console.log('if');
 				// console.log(results);
