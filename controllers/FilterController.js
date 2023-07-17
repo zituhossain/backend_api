@@ -249,12 +249,11 @@ exports.finalReportGenerateCategory = async (req, res) => {
 	// FROM ngo_place_info where ngo_place_info.year = (select Max(name) from years) AND ngo_place_info.ypno_status = 1`;
 	console.log('-----------------------reportTest----------');
 	let currentNgoId;
-	if(req.body.ngo_id=='' || req.body.ngo_id==null)
-	currentNgoId = 6;
-	else
-		currentNgoId = req.body.ngo_id;
-	console.log('currentNgoId ',currentNgoId);
-	let mainQuery = `
+	if (req.body.ngo_id == '' || req.body.ngo_id == null) currentNgoId = 6;
+	else currentNgoId = req.body.ngo_id;
+	console.log('currentNgoId ', currentNgoId);
+	let mainQuery =
+		`
 	SELECT 
 	npi.place_id AS place_id, 
 	npi.place_name AS place_name,
@@ -297,10 +296,14 @@ FROM ngo_place_info2 AS npi
             -ngo_view_order DESC, -ypno_view_order DESC, officer_id 
         ),']') AS ngo_officer_list 
         FROM ngo_place_info2 AS npi2 
-        WHERE npi2.year = (SELECT MAX(name) from years WHERE type=0) AND npi2.ngo_id=`+currentNgoId+`
+        WHERE npi2.year = (SELECT MAX(name) from years WHERE type=0) AND npi2.ngo_id=` +
+		currentNgoId +
+		`
         GROUP BY npi2.place_id 
     ) AS ngo_officers ON npi.place_id = ngo_officers.place_id 
-	LEFT JOIN ngo_served_percent_by_palces AS nspbp on (nspbp.place_id = npi.place_id AND nspbp.ngo_id=`+currentNgoId+`)`;
+	LEFT JOIN ngo_served_percent_by_palces AS nspbp on (nspbp.place_id = npi.place_id AND nspbp.ngo_id=` +
+		currentNgoId +
+		`)`;
 
 	let query = '';
 	// if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
@@ -326,9 +329,9 @@ FROM ngo_place_info2 AS npi
 	// }
 	if (req.body.place_id !== '') {
 		query += ` WHERE npi.place_id = '${req.body.place_id}'`;
-	}else if(req.body.district_id !== ''){
+	} else if (req.body.district_id !== '') {
 		query += ` WHERE npi.district_id = '${req.body.district_id}'`;
-	}else if(req.body.division_id !== ''){
+	} else if (req.body.division_id !== '') {
 		query += ` WHERE npi.division_id = '${req.body.division_id}'`;
 	}
 
@@ -344,7 +347,10 @@ FROM ngo_place_info2 AS npi
 		}
 	}
 
-	mainQuery = mainQuery + query + ` GROUP BY npi.place_id
+	mainQuery =
+		mainQuery +
+		query +
+		` GROUP BY npi.place_id
 ORDER BY npi.place_id`;
 
 	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
@@ -361,7 +367,7 @@ ORDER BY npi.place_id`;
 			alldata
 		);
 	} else {
-		console.log('faile queyr: ',mainQuery);
+		console.log('faile queyr: ', mainQuery);
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
@@ -391,7 +397,7 @@ LEFT JOIN
   ngo_place_info2 npi ON place.id = npi.place_id
 GROUP BY
   place.id, place.name;
-*/ 
+*/
 exports.reportTest = async (req, res) => {
 	// let query = `SELECT ngo_place_info.*,
 	// (SELECT officers.name from year_place_ngo_officers LEFT JOIN officers
@@ -403,12 +409,11 @@ exports.reportTest = async (req, res) => {
 	// FROM ngo_place_info where ngo_place_info.year = (select Max(name) from years) AND ngo_place_info.ypno_status = 1`;
 	console.log('-----------------------reportTest----------');
 	let currentNgoId;
-	if(req.body.ngo_id=='' || req.body.ngo_id==null)
-	currentNgoId = 6;
-	else
-		currentNgoId = req.body.ngo_id;
-	console.log('currentNgoId ',currentNgoId);
-	let mainQuery = `
+	if (req.body.ngo_id == '' || req.body.ngo_id == null) currentNgoId = 6;
+	else currentNgoId = req.body.ngo_id;
+	console.log('currentNgoId ', currentNgoId);
+	let mainQuery =
+		`
 	SELECT 
 	npi.place_id AS place_id, 
 	npi.place_name AS place_name,
@@ -451,10 +456,14 @@ FROM ngo_place_info2 AS npi
             -ngo_view_order DESC, -ypno_view_order DESC, officer_id 
         ),']') AS ngo_officer_list 
         FROM ngo_place_info2 AS npi2 
-        WHERE npi2.year = (SELECT MAX(name) from years WHERE type=0) AND npi2.ngo_id=`+currentNgoId+`
+        WHERE npi2.year = (SELECT MAX(name) from years WHERE type=0) AND npi2.ngo_id=` +
+		currentNgoId +
+		`
         GROUP BY npi2.place_id 
     ) AS ngo_officers ON npi.place_id = ngo_officers.place_id 
-	LEFT JOIN ngo_served_percent_by_palces AS nspbp on (nspbp.place_id = npi.place_id AND nspbp.ngo_id=`+currentNgoId+`)`;
+	LEFT JOIN ngo_served_percent_by_palces AS nspbp on (nspbp.place_id = npi.place_id AND nspbp.ngo_id=` +
+		currentNgoId +
+		`)`;
 
 	let query = '';
 	// if (req.body.ngo_id && req.body.ngo_id !== '' && req.body.ngo_id !== null) {
@@ -480,9 +489,9 @@ FROM ngo_place_info2 AS npi
 	// }
 	if (req.body.place_id !== '') {
 		query += ` WHERE npi.place_id = '${req.body.place_id}'`;
-	}else if(req.body.district_id !== ''){
+	} else if (req.body.district_id !== '') {
 		query += ` WHERE npi.district_id = '${req.body.district_id}'`;
-	}else if(req.body.division_id !== ''){
+	} else if (req.body.division_id !== '') {
 		query += ` WHERE npi.division_id = '${req.body.division_id}'`;
 	}
 
@@ -498,7 +507,10 @@ FROM ngo_place_info2 AS npi
 		}
 	}
 
-	mainQuery = mainQuery + query + ` GROUP BY npi.place_id
+	mainQuery =
+		mainQuery +
+		query +
+		` GROUP BY npi.place_id
 ORDER BY npi.place_id`;
 
 	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
@@ -515,7 +527,7 @@ ORDER BY npi.place_id`;
 			alldata
 		);
 	} else {
-		console.log('faile queyr: ',mainQuery);
+		console.log('faile queyr: ', mainQuery);
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
@@ -597,8 +609,8 @@ exports.finalReportGenerateJot = async (req, res) => {
         FROM
             years
         ) and year_place_ngo_officers.place_id = ngo_place_info.place_id AND ngos.ngo_jots_id = (select id from ngo_jots limit 1) limit 1) as ngo_officer ${custome_query} FROM ngo_place_info` +
-		query +
-		` GROUP BY place_id`
+			query +
+			` GROUP BY place_id`
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -655,7 +667,11 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 
 		let query = '';
 
-		if (roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length) {
+		if (
+			roleByplace.division.length > 0 &&
+			roleByplace.district.length > 0 &&
+			roleByplace.place.length
+		) {
 			query += ` and places.id in (${roleByplace.place})`;
 		}
 		if (roleByplace.division.length > 0 && roleByplace.district.length > 0) {
@@ -677,13 +693,17 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 
 		const [alldata, metadata] = await sequelize.query(
 			`SELECT places.id, places.name AS place_name, places.area, SUM(CASE WHEN ngo_jot_id = 1 THEN percent END) AS percent1, SUM(CASE WHEN ngo_jot_id = 2 THEN percent END) AS percent2 FROM ngo_jots jot LEFT JOIN ngo_jot_add_into_places ON (ngo_jot_add_into_places.ngo_jot_id = jot.id) INNER JOIN places ON (ngo_jot_add_into_places.place_id = places.id)` +
-			query +
-			`GROUP BY places.id,places.name,places.area`
+				query +
+				`GROUP BY places.id,places.name,places.area`
 		);
 
 		if (alldata.length > 0) {
 			const userId = report.getUserId(req);
-			const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
+			const reportGenerateInfo = report.generateReportInfo(
+				userId,
+				alldata,
+				req
+			);
 			console.log('ReportJotPopularity', reportGenerateInfo);
 
 			return apiResponse.successResponseWithData(
@@ -698,7 +718,6 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
-
 
 exports.finalReportGenerateDoubleNGO = async (req, res) => {
 	let query = ' where category_short_name IS NOT NULL ';
@@ -741,8 +760,8 @@ exports.finalReportGenerateDoubleNGO = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT ngo_place_info.*,(select ngo_name from ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select ngo_name from ngo_place_info npi where ngo_id = 2 limit 1) as ngo_name3,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id}) as ngo_officer_one, (select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id2}) as ngo_officer_two,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = ngo_place_info.place_id limit 1) as ngo_officer FROM ngo_place_info` +
-		query +
-		` GROUP BY place_id`
+			query +
+			` GROUP BY place_id`
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -771,7 +790,11 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 
 		query += yvalue;
 
-		if (roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length) {
+		if (
+			roleByplace.division.length > 0 &&
+			roleByplace.district.length > 0 &&
+			roleByplace.place.length
+		) {
 			query += ` AND place_id IN (${roleByplace.place})`;
 		}
 		if (roleByplace.division.length > 0 && roleByplace.district.length > 0) {
@@ -794,7 +817,8 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 		console.log('-----------------------adfaf----------------------');
 		console.log(query);
 
-		const [alldata, metadata] = await sequelize.query(`
+		const [alldata, metadata] = await sequelize.query(
+			`
 			SELECT
 				subquery.place_id,
 				subquery.place_name,
@@ -825,17 +849,22 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 					ngo_jot_id
 				FROM ngo_place_info2
 				WHERE ypno_status = 1 AND year = ` +
-			query +
-			`
+				query +
+				`
 				ORDER BY place_id, ngo_jot_id
 			) subquery
 			GROUP BY subquery.place_id, subquery.place_name
 			ORDER BY subquery.place_id;
-		`);
+		`
+		);
 
 		if (alldata.length > 0) {
 			const userId = report.getUserId(req);
-			const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
+			const reportGenerateInfo = report.generateReportInfo(
+				userId,
+				alldata,
+				req
+			);
 			//console.log('ReportPossibilityJot', reportGenerateInfo);
 			return apiResponse.successResponseWithData(
 				res,
@@ -1070,7 +1099,11 @@ exports.masterReport = async (req, res) => {
 
 		//query += yvalue;
 
-		if (roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length) {
+		if (
+			roleByplace.division.length > 0 &&
+			roleByplace.district.length > 0 &&
+			roleByplace.place.length
+		) {
 			query += ` WHERE places.place_id IN (${roleByplace.place})`;
 		}
 		if (roleByplace.division.length > 0 && roleByplace.district.length > 0) {
@@ -1093,7 +1126,8 @@ exports.masterReport = async (req, res) => {
 		console.log('-----------------------adfaf----------------------');
 		console.log(query);
 
-		const [alldata, metadata] = await sequelize.query(`
+		const [alldata, metadata] = await sequelize.query(
+			`
 			SELECT 
   places.id AS place_id, 
   places.name as place_name, 
@@ -1146,6 +1180,8 @@ exports.masterReport = async (req, res) => {
           IFNULL(npi2.ypno_comment, NULL), 
           'officer_age_year', 
           IFNULL(npi2.officer_age_year, NULL), 
+		  'ypno_officer_direct_age', 
+          IFNULL(npi2.ypno_officer_direct_age, NULL),
           'ngo_name', 
           IFNULL(npi2.ngo_name, NULL), 
           'ngo_popularity', 
@@ -1164,6 +1200,8 @@ exports.masterReport = async (req, res) => {
           IFNULL(npi3.ypno_comment, NULL), 
           'or_officer_age_year', 
           IFNULL(npi3.officer_age_year, NULL), 
+		  'or_ypno_officer_direct_age', 
+          IFNULL(npi3.ypno_officer_direct_age, NULL), 
           'or_ngo_name', 
           IFNULL(npi3.ngo_name, NULL), 
           'or_ngo_popularity', 
@@ -1223,6 +1261,8 @@ exports.masterReport = async (req, res) => {
           IFNULL(npi2.ypno_comment, NULL), 
           'officer_age_year', 
           IFNULL(npi2.officer_age_year, NULL), 
+		  'or_ypno_officer_direct_age', 
+          IFNULL(npi2.ypno_officer_direct_age, NULL),
           'ngo_name', 
           IFNULL(npi2.ngo_name, NULL), 
           'ngo_popularity', 
@@ -1239,8 +1279,8 @@ exports.masterReport = async (req, res) => {
           IFNULL(npi3.ypno_popularity, NULL), 
           'or_officer_comment', 
           IFNULL(npi3.ypno_comment, NULL), 
-          'or_officer_age_year', 
-          IFNULL(npi3.officer_age_year, NULL), 
+          'or_ypno_officer_direct_age', 
+          IFNULL(npi3.ypno_officer_direct_age, NULL), 
           'or_ngo_name', 
           IFNULL(npi3.ngo_name, NULL), 
           'or_ngo_popularity', 
@@ -1323,14 +1363,21 @@ FROM
   LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id 
   LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id 
   LEFT JOIN ngo_categories AS place_type ON ngo_category_bs.ngo_category_type_id = place_type.id 
-  LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id `+query+`
+  LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id ` +
+				query +
+				`
 GROUP BY 
   places.id
-		`);
+		`
+		);
 
 		if (alldata.length > 0) {
 			const userId = report.getUserId(req);
-			const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
+			const reportGenerateInfo = report.generateReportInfo(
+				userId,
+				alldata,
+				req
+			);
 			//console.log('ReportPossibilityJot', reportGenerateInfo);
 			return apiResponse.successResponseWithData(
 				res,
@@ -1370,7 +1417,7 @@ LEFT JOIN
   ngo_place_info2 npi ON place.id = npi.place_id
 GROUP BY
   place.id, place.name;
-*/  
+*/
 /*
 SELECT 
 	places.id AS place_id,
@@ -1538,7 +1585,7 @@ exports.finalReportGenerateOfficerProfileNGO_new = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT *,GROUP_CONCAT ( DISTINCT heading) as multiple_heading,GROUP_CONCAT ( DISTINCT officers_heading_descriptions.desc) as multiple_desc,places.id as place_id,places.name as place_name,officers.name as officer_name,ngos.name as ngo_name,ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join places on places.id = year_place_ngo_officers.place_id left join officers on officers.id = year_place_ngo_officers.officer_id left join ngos on ngos.id = year_place_ngo_officers.ngo_id` +
-		query
+			query
 	);
 	if (alldata.length > 0) {
 		let final_data = [];
@@ -1659,12 +1706,12 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 			alldata[i].description_list =
 				alldata[i].description_list !== null
 					? alldata[i].description_list.split(',')?.map((res) => {
-						const desc = res.split('/-/');
-						console.log(desc[2]);
-						const newDesc = decryptHash(desc[2]);
-						console.log(newDesc);
-						return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
-					})
+							const desc = res.split('/-/');
+							console.log(desc[2]);
+							const newDesc = decryptHash(desc[2]);
+							console.log(newDesc);
+							return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
+					  })
 					: alldata[i].description_list;
 			// let decoded_desc = "";
 			// if(current_desc){
@@ -1727,7 +1774,7 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
 			query += ` where administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
 		}
 	}
-	query+=` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`
+	query += ` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`;
 	const [alldata, metadata] = await sequelize.query(
 		`select 
   *, 
@@ -1742,8 +1789,7 @@ from
   administration_officers 
   left join administration_offices on administration_officers.administration_office_id = administration_offices.id 
   left join administration_officer_types on administration_officers.designation = administration_officer_types.id
-  left join ngos on ngos.id = administration_officers.ngo_id` +
-		query
+  left join ngos on ngos.id = administration_officers.ngo_id` + query
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);

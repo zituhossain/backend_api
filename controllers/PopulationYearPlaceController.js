@@ -256,28 +256,40 @@ exports.create = async (req, res) => {
 		const userId = decodedToken._id;
 		req.body.created_by = userId;
 		console.log('req.body', req.body);
-		// const get_data = await population_year_place.findOne({ where: { place_id: req.body.place_id, year_id: req.body.year_id } });
+		const get_data = await population_year_place.findOne({
+			where: {
+				place_id: req.body.place_id,
+				year_id: req.body.year_id,
+				event_type: req.body.event_type,
+			},
+		});
 		// console.log("get_data", get_data)
 		// return
-		if (Object.keys(req.body).length === 0) {
-			return apiResponse.ErrorResponse(res, 'description missing');
+		// if (Object.keys(req.body).length === 0) {
+		// 	return apiResponse.ErrorResponse(res, 'description missing');
+		// } else {
+		// 	await population_year_place.create(req.body);
+		// 	return apiResponse.successResponse(
+		// 		res,
+		// 		'population_year_place saved successfully.'
+		// 	);
+		// }
+		if (!get_data) {
+			if (Object.keys(req.body).length === 0) {
+				return apiResponse.ErrorResponse(res, 'description missing');
+			} else {
+				await population_year_place.create(req.body);
+				return apiResponse.successResponse(
+					res,
+					'population_year_place saved successfully.'
+				);
+			}
 		} else {
-			await population_year_place.create(req.body);
-			return apiResponse.successResponse(
+			return apiResponse.ErrorResponse(
 				res,
-				'population_year_place saved successfully.'
+				'Same Year Same Place Same event Failed'
 			);
 		}
-		// if (!get_data) {
-		//     if (Object.keys(req.body).length === 0) {
-		//         return apiResponse.ErrorResponse(res, 'description missing')
-		//     } else {
-		//         await population_year_place.create(req.body);
-		//         return apiResponse.successResponse(res, 'population_year_place saved successfully.')
-		//     }
-		// } else {
-		//     return apiResponse.ErrorResponse(res, "Same Year Same Place Failed")
-		// }
 	} catch (err) {
 		console.log(err.message);
 		return apiResponse.ErrorResponse(res, err.message);

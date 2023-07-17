@@ -1154,21 +1154,18 @@ exports.placeHistory = async (req, res) => {
 			ngos.color_code as ngo_color_code,
 			ngos.logo as ngo_logo,
 			officers.name as officer_name,
-			sub_pyp.sub_event_population,
-            main_pyp.main_event_population
-			FROM year_place_ngo_officers ypno
-				LEFT JOIN years on years.id = ypno.year_id
-				LEFT JOIN places on places.id = ypno.place_id
-				LEFT JOIN ngos on ngos.id = ypno.ngo_id
-				LEFT JOIN officers on officers.id = ypno.officer_id
-				LEFT JOIN (SELECT served_population sub_event_population, year_id, place_id
-					FROM population_year_places WHERE event_type = 1) as sub_pyp on ypno.year_id= sub_pyp.year_id AND ypno.place_id = sub_pyp.place_id
-		 		LEFT JOIN (SELECT served_population main_event_population, year_id, place_id
-					FROM population_year_places WHERE event_type = 0) as main_pyp on ypno.year_id= main_pyp.year_id AND ypno.place_id = main_pyp.place_id
+			CASE WHEN population_year_places.event_type = 1 THEN population_year_places.served_population END AS sub_event_population,
+			CASE WHEN population_year_places.event_type = 0 THEN population_year_places.served_population END AS main_event_population
+		FROM year_place_ngo_officers ypno
+			LEFT JOIN years on years.id = ypno.year_id
+			LEFT JOIN places on places.id = ypno.place_id
+			LEFT JOIN ngos on ngos.id = ypno.ngo_id
+			LEFT JOIN officers on officers.id = ypno.officer_id
+			LEFT JOIN population_year_places ON ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id AND ypno.event_type = population_year_places.event_type
 			WHERE
 				places.id = ` +
-			place_id +
-			`
+				place_id +
+				`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
 			ORDER BY
