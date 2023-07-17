@@ -1141,16 +1141,18 @@ exports.masterReport = async (req, res) => {
   IFNULL(
     (
       SELECT 
-        JSON_OBJECT(
-          'officer_name', 
-          IFNULL(officer_name, NULL), 
-          'officer_photo', 
-          IFNULL(officer_photo, NULL), 
-          'ngo_name', 
-          IFNULL(ngo_name, NULL), 
-          'event_type', 
-          IFNULL(ypno_event_type, NULL)
-        ) 
+      	CAST(
+	        JSON_OBJECT(
+	          'officer_name', 
+	          IFNULL(officer_name, NULL), 
+	          'officer_photo', 
+	          IFNULL(officer_photo, NULL), 
+	          'ngo_name', 
+	          IFNULL(ngo_name, NULL), 
+	          'event_type', 
+	          IFNULL(ypno_event_type, NULL)
+	        ) AS CHAR
+        )
       FROM 
         ngo_place_info2 
       WHERE 
@@ -1165,48 +1167,50 @@ exports.masterReport = async (req, res) => {
   IFNULL(
     (
       SELECT 
-        JSON_OBJECT(
-          'officer_id', 
-          IFNULL(npi2.officer_id, NULL), 
-          'officer_place_id', 
-          IFNULL(npi2.place_id, NULL), 
-          'officer_name', 
-          IFNULL(npi2.officer_name, NULL), 
-          'officer_photo', 
-          IFNULL(npi2.officer_photo, NULL), 
-          'officer_popularity', 
-          IFNULL(npi2.ypno_popularity, NULL), 
-          'officer_comment', 
-          IFNULL(npi2.ypno_comment, NULL), 
-          'officer_age_year', 
-          IFNULL(npi2.officer_age_year, NULL), 
-		  'ypno_officer_direct_age', 
-          IFNULL(npi2.ypno_officer_direct_age, NULL),
-          'ngo_name', 
-          IFNULL(npi2.ngo_name, NULL), 
-          'ngo_popularity', 
-          IFNULL(nspbp.percent, NULL), 
-          'or_officer_id', 
-          IFNULL(npi3.officer_id, NULL), 
-          'or_officer_place_id', 
-          IFNULL(npi3.place_id, NULL), 
-          'or_officer_name', 
-          IFNULL(npi3.officer_name, NULL), 
-          'or_officer_photo', 
-          IFNULL(npi3.officer_photo, NULL), 
-          'or_officer_popularity', 
-          IFNULL(npi3.ypno_popularity, NULL), 
-          'or_officer_comment', 
-          IFNULL(npi3.ypno_comment, NULL), 
-          'or_officer_age_year', 
-          IFNULL(npi3.officer_age_year, NULL), 
-		  'or_ypno_officer_direct_age', 
-          IFNULL(npi3.ypno_officer_direct_age, NULL), 
-          'or_ngo_name', 
-          IFNULL(npi3.ngo_name, NULL), 
-          'or_ngo_popularity', 
-          IFNULL(nspbp3.percent, NULL)
-        ) 
+      	CAST(
+	        JSON_OBJECT(
+	          'officer_id', 
+	          IFNULL(npi2.officer_id, NULL), 
+	          'officer_place_id', 
+	          IFNULL(npi2.place_id, NULL), 
+	          'officer_name', 
+	          IFNULL(npi2.officer_name, NULL), 
+	          'officer_photo', 
+	          IFNULL(npi2.officer_photo, NULL), 
+	          'officer_popularity', 
+	          IFNULL(npi2.ypno_popularity, NULL), 
+	          'officer_comment', 
+	          IFNULL(npi2.ypno_comment, NULL), 
+	          'officer_age_year', 
+	          IFNULL(npi2.officer_age_year, NULL), 
+			  		'ypno_officer_direct_age', 
+	          IFNULL(npi2.ypno_officer_direct_age, NULL),
+	          'ngo_name', 
+	          IFNULL(npi2.ngo_name, NULL), 
+	          'ngo_popularity', 
+	          IFNULL(nspbp.percent, NULL), 
+	          'or_officer_id', 
+	          IFNULL(npi3.officer_id, NULL), 
+	          'or_officer_place_id', 
+	          IFNULL(npi3.place_id, NULL), 
+	          'or_officer_name', 
+	          IFNULL(npi3.officer_name, NULL), 
+	          'or_officer_photo', 
+	          IFNULL(npi3.officer_photo, NULL), 
+	          'or_officer_popularity', 
+	          IFNULL(npi3.ypno_popularity, NULL), 
+	          'or_officer_comment', 
+	          IFNULL(npi3.ypno_comment, NULL), 
+	          'or_officer_age_year', 
+	          IFNULL(npi3.officer_age_year, NULL), 
+			  		'or_ypno_officer_direct_age', 
+	          IFNULL(npi3.ypno_officer_direct_age, NULL), 
+	          'or_ngo_name', 
+	          IFNULL(npi3.ngo_name, NULL), 
+	          'or_ngo_popularity', 
+	          IFNULL(nspbp3.percent, NULL)
+	        )  AS CHAR 
+        )
       FROM 
         ngo_place_info2 AS npi2 
         LEFT JOIN ngo_place_info2 AS npi3 on npi2.ypno_view_order = npi3.ypno_view_order 
@@ -1246,46 +1250,48 @@ exports.masterReport = async (req, res) => {
   IFNULL(
     (
       SELECT 
-        JSON_OBJECT(
-          'officer_id', 
-          IFNULL(npi2.officer_id, NULL), 
-          'officer_place_id', 
-          IFNULL(npi2.place_id, NULL), 
-          'officer_name', 
-          IFNULL(npi2.officer_name, NULL), 
-          'officer_photo', 
-          IFNULL(npi2.officer_photo, NULL), 
-          'officer_popularity', 
-          IFNULL(npi2.ypno_popularity, NULL), 
-          'officer_comment', 
-          IFNULL(npi2.ypno_comment, NULL), 
-          'officer_age_year', 
-          IFNULL(npi2.officer_age_year, NULL), 
-		  'or_ypno_officer_direct_age', 
-          IFNULL(npi2.ypno_officer_direct_age, NULL),
-          'ngo_name', 
-          IFNULL(npi2.ngo_name, NULL), 
-          'ngo_popularity', 
-          IFNULL(nspbp.percent, NULL), 
-          'or_officer_id', 
-          IFNULL(npi3.officer_id, NULL), 
-          'or_officer_place_id', 
-          IFNULL(npi3.place_id, NULL), 
-          'or_officer_name', 
-          IFNULL(npi3.officer_name, NULL), 
-          'or_officer_photo', 
-          IFNULL(npi3.officer_photo, NULL), 
-          'or_officer_popularity', 
-          IFNULL(npi3.ypno_popularity, NULL), 
-          'or_officer_comment', 
-          IFNULL(npi3.ypno_comment, NULL), 
-          'or_ypno_officer_direct_age', 
-          IFNULL(npi3.ypno_officer_direct_age, NULL), 
-          'or_ngo_name', 
-          IFNULL(npi3.ngo_name, NULL), 
-          'or_ngo_popularity', 
-          IFNULL(nspbp3.percent, NULL)
-        ) 
+      	CAST(
+	        JSON_OBJECT(
+	          'officer_id', 
+	          IFNULL(npi2.officer_id, NULL), 
+	          'officer_place_id', 
+	          IFNULL(npi2.place_id, NULL), 
+	          'officer_name', 
+	          IFNULL(npi2.officer_name, NULL), 
+	          'officer_photo', 
+	          IFNULL(npi2.officer_photo, NULL), 
+	          'officer_popularity', 
+	          IFNULL(npi2.ypno_popularity, NULL), 
+	          'officer_comment', 
+	          IFNULL(npi2.ypno_comment, NULL), 
+	          'officer_age_year', 
+	          IFNULL(npi2.officer_age_year, NULL), 
+			  		'or_ypno_officer_direct_age', 
+	          IFNULL(npi2.ypno_officer_direct_age, NULL),
+	          'ngo_name', 
+	          IFNULL(npi2.ngo_name, NULL), 
+	          'ngo_popularity', 
+	          IFNULL(nspbp.percent, NULL), 
+	          'or_officer_id', 
+	          IFNULL(npi3.officer_id, NULL), 
+	          'or_officer_place_id', 
+	          IFNULL(npi3.place_id, NULL), 
+	          'or_officer_name', 
+	          IFNULL(npi3.officer_name, NULL), 
+	          'or_officer_photo', 
+	          IFNULL(npi3.officer_photo, NULL), 
+	          'or_officer_popularity', 
+	          IFNULL(npi3.ypno_popularity, NULL), 
+	          'or_officer_comment', 
+	          IFNULL(npi3.ypno_comment, NULL), 
+	          'or_ypno_officer_direct_age', 
+	          IFNULL(npi3.ypno_officer_direct_age, NULL), 
+	          'or_ngo_name', 
+	          IFNULL(npi3.ngo_name, NULL), 
+	          'or_ngo_popularity', 
+	          IFNULL(nspbp3.percent, NULL)
+	        ) AS CHAR 
+        )
       FROM 
         ngo_place_info2 AS npi2 
         LEFT JOIN ngo_place_info2 AS npi3 on npi2.ypno_view_order = npi3.ypno_view_order 
@@ -1311,24 +1317,26 @@ exports.masterReport = async (req, res) => {
   IFNULL(
     (
       SELECT 
-        JSON_OBJECT(
-          'officer_id', 
-          IFNULL(npi2.officer_id, NULL), 
-          'officer_place_id', 
-          IFNULL(npi2.place_id, NULL), 
-          'officer_name', 
-          IFNULL(npi2.officer_name, NULL), 
-          'officer_photo', 
-          IFNULL(npi2.officer_photo, NULL), 
-          'officer_popularity', 
-          IFNULL(npi2.ypno_popularity, NULL), 
-          'officer_comment', 
-          IFNULL(npi2.ypno_comment, NULL), 
-          'ngo_name', 
-          IFNULL(npi2.ngo_name, NULL), 
-          'ngo_popularity', 
-          IFNULL(nspbp.percent, NULL)
-        ) 
+      	CAST(
+	        JSON_OBJECT(
+	          'officer_id', 
+	          IFNULL(npi2.officer_id, NULL), 
+	          'officer_place_id', 
+	          IFNULL(npi2.place_id, NULL), 
+	          'officer_name', 
+	          IFNULL(npi2.officer_name, NULL), 
+	          'officer_photo', 
+	          IFNULL(npi2.officer_photo, NULL), 
+	          'officer_popularity', 
+	          IFNULL(npi2.ypno_popularity, NULL), 
+	          'officer_comment', 
+	          IFNULL(npi2.ypno_comment, NULL), 
+	          'ngo_name', 
+	          IFNULL(npi2.ngo_name, NULL), 
+	          'ngo_popularity', 
+	          IFNULL(nspbp.percent, NULL)
+	        ) AS CHAR 
+        )
       FROM 
         ngo_place_info2 AS npi2 
         LEFT JOIN ngo_served_percent_by_palces as nspbp on nspbp.ngo_id = npi2.ngo_id 
