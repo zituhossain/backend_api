@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     year_id: DataTypes.INTEGER,
     place_id: DataTypes.INTEGER,
     ngo_id: DataTypes.INTEGER,
+    officer_direct_age: DataTypes.INTEGER,
     officer_id: DataTypes.INTEGER,
     event_type: DataTypes.INTEGER,
     popularity: { type: DataTypes.INTEGER, allowNull: true },
