@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     event_type: DataTypes.INTEGER,
     popularity: { type: DataTypes.INTEGER, allowNull: true },
     comment: { type: DataTypes.STRING, allowNull: true },
+    comment2: { type: DataTypes.STRING, allowNull: true },
     served_population: { type: DataTypes.INTEGER, allowNull: true },
     percent_served: { type: DataTypes.INTEGER, allowNull: true },
     rank: DataTypes.TINYINT,
