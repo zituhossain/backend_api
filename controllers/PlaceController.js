@@ -162,10 +162,16 @@ exports.getallDivision = async (req, res) => {
 		const roleByplace = await checkUserRoleByPlace(token);
 
 		const divisionIds = roleByplace.division; // Get the division IDs from the user's role
+		const districtIds = roleByplace.district; // Get the division IDs from the user's role
+		const placeIds = roleByplace.place; // Get the division IDs from the user's role
 
 		let division_data;
 
-		if (divisionIds.length > 0) {
+		if (divisionIds.length > 0 && districtIds.length > 0 && placeIds.length > 0) {
+			division_data = null;
+		} else if (divisionIds.length > 0 && districtIds.length > 0) {
+			division_data = null;
+		} else if (divisionIds.length > 0) {
 			division_data = await Division.findAll({
 				where: { id: divisionIds }, // Fetch divisions that match the IDs in the user's role
 			});
