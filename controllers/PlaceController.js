@@ -167,7 +167,11 @@ exports.getallDivision = async (req, res) => {
 
 		let division_data;
 
-		if (divisionIds.length > 0 && districtIds.length > 0 && placeIds.length > 0) {
+		if (
+			divisionIds.length > 0 &&
+			districtIds.length > 0 &&
+			placeIds.length > 0
+		) {
 			division_data = null;
 		} else if (divisionIds.length > 0 && districtIds.length > 0) {
 			division_data = null;
@@ -185,9 +189,10 @@ exports.getallDivision = async (req, res) => {
 				'Data successfully fetched.',
 				division_data
 			);
-		} else {
-			return apiResponse.ErrorResponse(res, 'No divisions found.');
 		}
+		// else {
+		// 	return apiResponse.ErrorResponse(res, 'No divisions found.');
+		// }
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
