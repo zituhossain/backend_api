@@ -1,18 +1,16 @@
 const apiResponse = require('../helpers/apiResponse');
-const {
-	years,
-	year_place_ngo_officer,
-	officers_heading_description,
-	Place,
-	Officer,
-	Ngo,
-	sequelize,
-	Profile_type,
-	officer_profile_heading,
-	NgoServed,
-} = require('../models');
+const { years, year_place_ngo_officer, officers_heading_description, Place, User, Officer, Ngo, sequelize, Profile_type, officer_profile_heading, NgoServed } = require('../models');
 const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
+const IP = require('ip');
+const UpdatedData = require('../models/mongo_log');
+const jwt = require('jsonwebtoken');
+const { model } = require('mongoose');
+const { date } = require('joi');
+const secret = process.env.JWT_SECRET;
+
+
+
 
 exports.deleteYearPlaceNgoofficer = async (req, res) => {
 	const row_id = req.params.id;
@@ -528,6 +526,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 	}
 };
 
+/*
 exports.updateoveralltitlebyid = async (req, res) => {
 
 	try {
@@ -647,6 +646,7 @@ exports.updateoveralltitlebyid = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
 
 exports.getkormibyxid = async (req, res) => {
 	try {

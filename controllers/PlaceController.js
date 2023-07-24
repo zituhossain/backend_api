@@ -1148,7 +1148,7 @@ exports.placeHistory = async (req, res) => {
 		const place_data = await sequelize.query(
 			`SELECT
 			years.id as year_id,
-			years.bn_name as bn_name,
+			GROUP_CONCAT(population_year_places.served_population) as total_serve_population, years.bn_name as bn_name,
 			years.bn_term as bn_term,
 			years.type as year_type,
 			ypno.id as ypno_id,
@@ -1169,12 +1169,12 @@ exports.placeHistory = async (req, res) => {
 			CASE WHEN population_year_places.event_type = 0 THEN population_year_places.served_population END AS main_event_population
 		FROM year_place_ngo_officers ypno
 			LEFT JOIN years on years.id = ypno.year_id
-			LEFT JOIN places on places.id = ypno.place_id
+			INNER JOIN population_year_places ON (ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id) LEFT JOIN places on places.id = ypno.place_id
 			LEFT JOIN ngos on ngos.id = ypno.ngo_id
 			LEFT JOIN officers on officers.id = ypno.officer_id
 			LEFT JOIN population_year_places ON ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id AND ypno.event_type = population_year_places.event_type
 			WHERE
-				places.id = ` +
+				places.id =` +
 				place_id +
 				`
 				AND ypno.rank IS NOT NULL
@@ -1727,6 +1727,7 @@ exports.allNgoJotAddIntoPlace = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
 exports.getNgoJotAddIntoPlaceId = async (req, res) => {
 	const place_id = req.params.id;
 	try {
@@ -1806,7 +1807,7 @@ exports.categoryBlist = async (req, res) => {
 	try {
 		const [results, metadata] =
 			await sequelize.query(`select ngo_category_bs.id as id , ngo_categories.name as categoryname , places.name as name, places.id as placeid , places.district_id as districtid , places.division_id as divisionid,
-        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_categories.type =1`);
+        ngo_categories.short_name as categoryShortName, ngo_categories.color_code as color_code  from ngo_category_bs INNER JOIN places on ngo_category_bs.place_id = places.id INNER JOIN ngo_categories on ngo_categories.id = ngo_category_bs.ngo_category_id where ngo_category_bs.status ="colorActive"`);
 
 		if (results.length > 0) {
 			return apiResponse.successResponseWithData(
@@ -1968,40 +1969,6 @@ exports.createSubPlace = async (req, res) => {
 
 exports.fetchallSubPlace = async (req, res) => {
 	try {
-		const token = req.headers.authorization.split(' ')[1];
-		let roleByplace = await checkUserRoleByPlace(token);
-		let arr = [];
-		if (
-			(roleByplace.division.length > 0 &&
-				roleByplace.district.length > 0 &&
-				roleByplace.place.length > 0) ||
-			roleByplace.place.length > 0
-		) {
-			arr.push({ place_id: roleByplace.place });
-		} else if (
-			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
-			roleByplace.district.length > 0
-		) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					district_id: roleByplace.district,
-				},
-			});
-
-			const placeIds = places.map((place) => place.id);
-			arr.push({ place_id: placeIds });
-		} else if (roleByplace.division.length > 0) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					division_id: roleByplace.division,
-				},
-			});
-
-			const placeIds = places.map((place) => place.id);
-			arr.push({ place_id: placeIds });
-		}
 		const sub_place_data = await Sub_place.findAll({
 			include: [
 				{
@@ -2014,7 +1981,6 @@ exports.fetchallSubPlace = async (req, res) => {
 					model: Union,
 				},
 			],
-			where: arr,
 		});
 		if (sub_place_data) {
 			return apiResponse.successResponseWithData(
@@ -2117,14 +2083,14 @@ exports.deleteSubPlace = async (req, res) => {
 	}
 };
 
-// Upazilla Controller
-exports.createUpazilla = async (req, res) => {
+// Upazila Controller
+exports.createUpazila = async (req, res) => {
 	try {
 		if (req.body.name && req.body.place_id) {
-			const if_upazilla_exists = await Upazilla.findOne({
+			const if_upazila_exists = await Upazilla.findOne({
 				where: { name: req.body.name },
 			});
-			if (if_upazilla_exists) {
+			if (if_upazila_exists) {
 				return apiResponse.ErrorResponse(
 					res,
 					'Upazilla already found in database.'
@@ -2141,47 +2107,12 @@ exports.createUpazilla = async (req, res) => {
 	}
 };
 
-exports.fetchallUpazilla = async (req, res) => {
+exports.fetchallUpazila = async (req, res) => {
 	try {
-		const token = req.headers.authorization.split(' ')[1];
-		let roleByplace = await checkUserRoleByPlace(token);
-		let arr = [];
-		if (
-			(roleByplace.division.length > 0 &&
-				roleByplace.district.length > 0 &&
-				roleByplace.place.length > 0) ||
-			roleByplace.place.length > 0
-		) {
-			arr.push({ id: roleByplace.place });
-		} else if (
-			(roleByplace.division.length > 0 && roleByplace.district.length > 0) ||
-			roleByplace.district.length > 0
-		) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					district_id: roleByplace.district,
-				},
-			});
-
-			const placeIds = places.map((place) => place.id);
-			arr.push({ id: placeIds });
-		} else if (roleByplace.division.length > 0) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					division_id: roleByplace.division,
-				},
-			});
-
-			const placeIds = places.map((place) => place.id);
-			arr.push({ id: placeIds });
-		}
 		const upazilla_data = await Upazilla.findAll({
 			include: [
 				{
 					model: Place,
-					where: arr,
 				},
 			],
 		});
@@ -2199,7 +2130,7 @@ exports.fetchallUpazilla = async (req, res) => {
 	}
 };
 
-exports.fetchallUpazillaByPlaceId = async (req, res) => {
+exports.fetchallUpazilaByPlaceId = async (req, res) => {
 	try {
 		const id = req.params.id;
 		const upazilla_data = await Upazilla.findAll({
@@ -2262,6 +2193,24 @@ exports.updateUpazilla = async (req, res) => {
 	}
 };
 
+exports.deleteUpazila = async (req, res) => {
+	try {
+		const upazilla_id = req.params.id;
+		const upazilla_data = await Upazilla.findOne({
+			where: { id: upazilla_id },
+		});
+		if (upazilla_data) {
+			await Upazilla.destroy({
+				where: { id: upazilla_id },
+			});
+			return apiResponse.successResponse(res, 'Data successfully deleted.');
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
 exports.deleteUpazilla = async (req, res) => {
 	try {
 		const upazilla_id = req.params.id;
