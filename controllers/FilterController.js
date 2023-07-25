@@ -12,6 +12,8 @@ const {
 	sequelize,
 } = require('../models');
 const CryptoJS = require('crypto-js');
+const reportJotPopularity = require('../models/report_jot_popularitymongo');
+const reportMaster = require('../models/report_master_mongo');
 
 exports.divisions = async (req, res) => {
 	const divisionsAll = await Division.findAll();
@@ -706,6 +708,24 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 			);
 			console.log('ReportJotPopularity', reportGenerateInfo);
 
+			const reportData = {
+				user_id: userId,
+				datetime: new Date(),
+				ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
+				alldata: alldata
+			};
+
+			// Insert the Data in MongoDB
+			const log = new reportJotPopularity(reportData);
+
+			await log.save((err) => {
+				if (err) {
+					console.error(err);
+				} else {
+					console.log('Data successfully inserted into MongoDB');
+				}
+			});
+
 			return apiResponse.successResponseWithData(
 				res,
 				'all_data fetch successfully.',
@@ -1388,6 +1408,24 @@ GROUP BY
 				req
 			);
 			//console.log('ReportPossibilityJot', reportGenerateInfo);
+			const reportData = {
+				user_id: userId,
+				datetime: new Date(),
+				ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
+				alldata: alldata
+			};
+
+			// Insert the Data in MongoDB
+			const log = new reportMaster(reportData);
+
+			await log.save((err) => {
+				if (err) {
+					console.error(err);
+				} else {
+					console.log('Data successfully inserted into MongoDB');
+				}
+			});
+
 			return apiResponse.successResponseWithData(
 				res,
 				'all_data fetch successfully.',
