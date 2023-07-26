@@ -1181,6 +1181,9 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 					view_order: data.oldValues.year_place_ngo_officer.view_order,
 					designation: data.oldValues.year_place_ngo_officer.designation,
 					status: data.oldValues.year_place_ngo_officer.status,
+					comment: data.oldValues.year_place_ngo_officer.comment,
+					comment2: data.oldValues.year_place_ngo_officer.comment2,
+					officer_direct_age: data.oldValues.year_place_ngo_officer.officer_direct_age,
 				},
 				officers_heading_description:
 					data.oldValues.officers_heading_description.map((item) => ({
@@ -1215,6 +1218,9 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 					view_order: data.newValues.year_place_ngo_officer.view_order,
 					designation: data.newValues.year_place_ngo_officer.designation,
 					status: data.newValues.year_place_ngo_officer.status,
+					comment: data.newValues.year_place_ngo_officer.comment,
+					comment2: data.newValues.year_place_ngo_officer.comment2,
+					officer_direct_age: data.newValues.year_place_ngo_officer.officer_direct_age,
 				},
 				officers_heading_description:
 					data.newValues.officers_heading_description.map((item) => ({
@@ -1240,6 +1246,8 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 exports.getUpdatedDataLogMongoByid = async (req, res) => {
 	try {
 		const log = await UpdatedData.findById(req.params.id);
+
+		console.log('shakhawat', log)
 
 		// Find user name
 		const userData = await User.findAll({
@@ -1311,6 +1319,8 @@ exports.getUpdatedDataLogMongoByid = async (req, res) => {
 					view_order: log.oldValues.year_place_ngo_officer.view_order,
 					designation: log.oldValues.year_place_ngo_officer.designation,
 					status: log.oldValues.year_place_ngo_officer.status,
+					comment: log.oldValues.year_place_ngo_officer.comment,
+					comment2: log.oldValues.year_place_ngo_officer.comment2
 				},
 				officers_heading_description:
 					log.oldValues.officers_heading_description.map((item) => ({
@@ -1345,6 +1355,8 @@ exports.getUpdatedDataLogMongoByid = async (req, res) => {
 					view_order: log.newValues.year_place_ngo_officer.view_order,
 					designation: log.newValues.year_place_ngo_officer.designation,
 					status: log.newValues.year_place_ngo_officer.status,
+					comment: log.oldValues.year_place_ngo_officer.comment,
+					comment2: log.oldValues.year_place_ngo_officer.comment2
 				},
 				officers_heading_description:
 					log.newValues.officers_heading_description.map((item) => ({
