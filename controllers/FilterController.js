@@ -12,7 +12,6 @@ const {
 	sequelize,
 } = require('../models');
 const CryptoJS = require('crypto-js');
-const allReportLog = require('../models/all_report_mongo');
 
 exports.divisions = async (req, res) => {
 	const divisionsAll = await Division.findAll();
@@ -358,26 +357,6 @@ ORDER BY npi.place_id`;
 	//console.log('query', mainQuery);
 	const [alldata, metadata] = await sequelize.query(mainQuery);
 	if (alldata.length > 0) {
-		const userId = report.getUserId(req);
-		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
-		const reportDataLog = {
-			user_id: userId,
-			report_name: 'ক্যাটাগরি ভিত্তিক রিপোর্ট',
-			datetime: new Date(),
-			ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
-			alldata: alldata,
-		};
-
-		// Insert the Data in MongoDB
-		const log = new allReportLog(reportDataLog);
-
-		await log.save((err) => {
-			if (err) {
-				console.error(err);
-			} else {
-				console.log('Data successfully inserted into MongoDB');
-			}
-		});
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
@@ -715,33 +694,6 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 		);
 
 		if (alldata.length > 0) {
-			const userId = report.getUserId(req);
-			const reportGenerateInfo = report.generateReportInfo(
-				userId,
-				alldata,
-				req
-			);
-			console.log('ReportJotPopularity', reportGenerateInfo);
-
-			const reportDataLog = {
-				user_id: userId,
-				report_name: 'জোট ভিত্তিক জনসমর্থন',
-				datetime: new Date(),
-				ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
-				alldata: alldata,
-			};
-
-			// Insert the Data in MongoDB
-			const log = new allReportLog(reportDataLog);
-
-			await log.save((err) => {
-				if (err) {
-					console.error(err);
-				} else {
-					console.log('Data successfully inserted into MongoDB');
-				}
-			});
-
 			return apiResponse.successResponseWithData(
 				res,
 				'all_data fetch successfully.',
@@ -895,33 +847,6 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 		);
 
 		if (alldata.length > 0) {
-			const userId = report.getUserId(req);
-			const reportGenerateInfo = report.generateReportInfo(
-				userId,
-				alldata,
-				req
-			);
-			//console.log('ReportPossibilityJot', reportGenerateInfo);
-
-			const reportDataLog = {
-				user_id: userId,
-				report_name: 'জোটের সম্ভাব্য এনজিও অফিসার',
-				datetime: new Date(),
-				ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
-				alldata: alldata,
-			};
-
-			// Insert the Data in MongoDB
-			const log = new allReportLog(reportDataLog);
-
-			await log.save((err) => {
-				if (err) {
-					console.error(err);
-				} else {
-					console.log('Data successfully inserted into MongoDB');
-				}
-			});
-
 			return apiResponse.successResponseWithData(
 				res,
 				'all_data fetch successfully.',
@@ -1437,32 +1362,6 @@ GROUP BY
 		);
 
 		if (alldata.length > 0) {
-			const userId = report.getUserId(req);
-			const reportGenerateInfo = report.generateReportInfo(
-				userId,
-				alldata,
-				req
-			);
-			//console.log('ReportPossibilityJot', reportGenerateInfo);
-			const reportDataLog = {
-				user_id: userId,
-				report_name: 'জোটের সম্ভাব্য এনজিও অফিসার',
-				datetime: new Date(),
-				ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
-				alldata: alldata,
-			};
-
-			// Insert the Data in MongoDB
-			const log = new allReportLog(reportDataLog);
-
-			await log.save((err) => {
-				if (err) {
-					console.error(err);
-				} else {
-					console.log('Data successfully inserted into MongoDB');
-				}
-			});
-
 			return apiResponse.successResponseWithData(
 				res,
 				'all_data fetch successfully.',
@@ -1806,24 +1705,6 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 			// alldata[i].desc = decoded_desc;
 			final_data.push(alldata[i]);
 		}
-		const reportDataLog = {
-			user_id: userId,
-			report_name: 'প্রোফাইল সম্পর্কিত রিপোর্ট',
-			datetime: new Date(),
-			ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
-			alldata: final_data,
-		};
-
-		// Insert the Data in MongoDB
-		const log = new allReportLog(reportDataLog);
-
-		await log.save((err) => {
-			if (err) {
-				console.error(err);
-			} else {
-				console.log('Data successfully inserted into MongoDB');
-			}
-		});
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
@@ -1894,28 +1775,6 @@ from
   left join ngos on ngos.id = administration_officers.ngo_id` + query
 	);
 	if (alldata.length > 0) {
-		const userId = report.getUserId(req);
-		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
-		console.log('ReportAdminOfficer', reportGenerateInfo);
-		const reportDataLog = {
-			user_id: userId,
-			report_name: 'রিপোর্ট - প্রশাসনিক কর্মকর্তা',
-			datetime: new Date(),
-			ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
-			alldata: alldata,
-		};
-
-		// Insert the Data in MongoDB
-		const log = new allReportLog(reportDataLog);
-
-		await log.save((err) => {
-			if (err) {
-				console.error(err);
-			} else {
-				console.log('Data successfully inserted into MongoDB');
-			}
-		});
-
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
@@ -2074,24 +1933,24 @@ exports.finalReportGenerateResult = async (req, res) => {
 		const userId = report.getUserId(req);
 		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
 		console.log('Reportresult', reportGenerateInfo);
-		const reportDataLog = {
-			user_id: userId,
-			report_name: 'রিপোর্ট - ফলাফল',
-			datetime: new Date(),
-			ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
-			alldata: alldata,
-		};
+		// const reportDataLog = {
+		// 	user_id: userId,
+		// 	report_name: 'রিপোর্ট - ফলাফল',
+		// 	datetime: new Date(),
+		// 	ip: req.header('x-forwarded-for') || req.socket.remoteAddress,
+		// 	alldata: alldata,
+		// };
 
-		// Insert the Data in MongoDB
-		const log = new allReportLog(reportDataLog);
+		// // Insert the Data in MongoDB
+		// const log = new allReportLog(reportDataLog);
 
-		await log.save((err) => {
-			if (err) {
-				console.error(err);
-			} else {
-				console.log('Data successfully inserted into MongoDB');
-			}
-		});
+		// await log.save((err) => {
+		// 	if (err) {
+		// 		console.error(err);
+		// 	} else {
+		// 		console.log('Data successfully inserted into MongoDB');
+		// 	}
+		// });
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
