@@ -67,6 +67,23 @@ exports.fetchalluser = async (req, res) => {
 	}
 };
 
+exports.fetchaUserById = async (req, res) => {
+	const userId = req.params.id;
+	const user = await User.findAll({
+		include: [User_role],
+		where: { id: userId },
+	});
+	if (user) {
+		return apiResponse.successResponseWithData(
+			res,
+			'user fetch successfully.',
+			user
+		);
+	} else {
+		return apiResponse.ErrorResponse(res, 'No data found');
+	}
+};
+
 // exports.fetchalluser = async (req, res) => {
 //     try {
 //         const users = await User.findAll({
