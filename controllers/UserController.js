@@ -68,7 +68,10 @@ exports.fetchalluser = async (req, res) => {
 };
 
 exports.fetchaUserById = async (req, res) => {
-	const userId = req.params.id;
+	const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+	// const userId = req.params.id;
 	const user = await User.findAll({
 		include: [User_role],
 		where: { id: userId },
