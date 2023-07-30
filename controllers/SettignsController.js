@@ -25,7 +25,41 @@ exports.createSetting = async (req, res) => {
 exports.getAllSettings = async (req, res) => {
 	try {
 
-		const settingData = await Setting.findAll({});
+		const settingData = await Setting.findAll();
+		// Return the combined data in the API response
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			settingData
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.updateSettingById = async (req, res) => {
+	try {
+        const id = req.params.id
+		const settingData = await Setting.findOne({ where: { id } });
+		// Return the combined data in the API response
+        if (settingData) {
+            await Setting.update(req.body, { where: { id } });
+            return apiResponse.successResponse(
+                res,
+                'previlege area successfully updated.'
+            );
+        } else {
+            return apiResponse.ErrorResponse(res, 'No data found');
+        }
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.getSettingById = async (req, res) => {
+	try {
+
+		const settingData = await Setting.findOne();
 		// Return the combined data in the API response
 		return apiResponse.successResponseWithData(
 			res,
