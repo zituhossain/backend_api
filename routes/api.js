@@ -27,6 +27,8 @@ const category = require("./category");
 const config = require('./config');
 const Years = require('./years');
 
+const Setting = require('./settings')
+
 
 
 
@@ -63,6 +65,7 @@ apiRouter.use('/category/', category);
 apiRouter.use('/config/', config);
 apiRouter.use('/officer_profile_type/', OfficerProfileType);
 apiRouter.use('/years/', Years);
+apiRouter.use('/settings/', Setting);
 
 
 
