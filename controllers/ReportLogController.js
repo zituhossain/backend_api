@@ -3,11 +3,15 @@ const allReportLog = require('../models/all_report_mongo');
 const { User } = require('../models');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
+const { Setting } = require('../models');
 
 exports.reportLog = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	const decodedToken = jwt.verify(token, secret);
 	const userId = decodedToken._id;
+	const isLoggedPermit = await Setting.findOne({
+		where: { name: 'Report Log' },
+	});
 	try {
 		const reportData = {
 			user_id: userId,
@@ -19,16 +23,17 @@ exports.reportLog = async (req, res) => {
 
 		// Insert the Data in MongoDB
 		const log = new allReportLog(reportData);
-
-		await log.save((err) => {
-			if (err) {
-				console.error(err);
-			} else {
-				console.log('Data successfully inserted into MongoDB');
-			}
-		});
-
-		return apiResponse.successResponse(res, 'Log Created Successfully!.');
+		if (isLoggedPermit.value === 1) {
+			console.log('isLoggedPermit', isLoggedPermit.value);
+			await log.save((err) => {
+				if (err) {
+					console.error(err);
+				} else {
+					console.log('Data successfully inserted into MongoDB');
+				}
+			});
+			return apiResponse.successResponse(res, 'Log Created Successfully!.');
+		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}

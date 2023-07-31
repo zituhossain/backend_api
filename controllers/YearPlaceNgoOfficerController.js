@@ -11,6 +11,7 @@ const {
 	officer_profile_heading,
 	NgoServed,
 	User,
+	Setting,
 } = require('../models');
 const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
@@ -712,17 +713,22 @@ exports.updateoveralltitlebyid = async (req, res) => {
 							},
 						};
 
+						const isLoggedPermit = await Setting.findOne({
+							where: { name: 'Table Log' },
+						});
+
 						// Insert the Data in MongoDB
 						const log = new UpdatedData(updatedData);
 
-						await log.save((err) => {
-							if (err) {
-								console.error(err);
-							} else {
-								console.log('Data successfully inserted into MongoDB');
-							}
-						});
-
+						if (isLoggedPermit.value === 1) {
+							await log.save((err) => {
+								if (err) {
+									console.error(err);
+								} else {
+									console.log('Data successfully inserted into MongoDB');
+								}
+							});
+						}
 						return apiResponse.successResponse(
 							res,
 							'Data successfully updated.'
@@ -1183,7 +1189,8 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 					status: data.oldValues.year_place_ngo_officer.status,
 					comment: data.oldValues.year_place_ngo_officer.comment,
 					comment2: data.oldValues.year_place_ngo_officer.comment2,
-					officer_direct_age: data.oldValues.year_place_ngo_officer.officer_direct_age,
+					officer_direct_age:
+						data.oldValues.year_place_ngo_officer.officer_direct_age,
 				},
 				officers_heading_description:
 					data.oldValues.officers_heading_description.map((item) => ({
@@ -1220,7 +1227,8 @@ exports.getAllUpdatedDataLogMongo = async (req, res) => {
 					status: data.newValues.year_place_ngo_officer.status,
 					comment: data.newValues.year_place_ngo_officer.comment,
 					comment2: data.newValues.year_place_ngo_officer.comment2,
-					officer_direct_age: data.newValues.year_place_ngo_officer.officer_direct_age,
+					officer_direct_age:
+						data.newValues.year_place_ngo_officer.officer_direct_age,
 				},
 				officers_heading_description:
 					data.newValues.officers_heading_description.map((item) => ({
@@ -1247,7 +1255,7 @@ exports.getUpdatedDataLogMongoByid = async (req, res) => {
 	try {
 		const log = await UpdatedData.findById(req.params.id);
 
-		console.log('shakhawat', log)
+		console.log('shakhawat', log);
 
 		// Find user name
 		const userData = await User.findAll({
@@ -1320,7 +1328,7 @@ exports.getUpdatedDataLogMongoByid = async (req, res) => {
 					designation: log.oldValues.year_place_ngo_officer.designation,
 					status: log.oldValues.year_place_ngo_officer.status,
 					comment: log.oldValues.year_place_ngo_officer.comment,
-					comment2: log.oldValues.year_place_ngo_officer.comment2
+					comment2: log.oldValues.year_place_ngo_officer.comment2,
 				},
 				officers_heading_description:
 					log.oldValues.officers_heading_description.map((item) => ({
@@ -1356,7 +1364,7 @@ exports.getUpdatedDataLogMongoByid = async (req, res) => {
 					designation: log.newValues.year_place_ngo_officer.designation,
 					status: log.newValues.year_place_ngo_officer.status,
 					comment: log.oldValues.year_place_ngo_officer.comment,
-					comment2: log.oldValues.year_place_ngo_officer.comment2
+					comment2: log.oldValues.year_place_ngo_officer.comment2,
 				},
 				officers_heading_description:
 					log.newValues.officers_heading_description.map((item) => ({
