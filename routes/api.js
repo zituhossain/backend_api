@@ -27,7 +27,7 @@ const ngoDetailYearPlace = require("./ngo_detail_year_place");
 const category = require("./category");
 const config = require('./config');
 const Years = require('./years');
-
+const Setting = require('./settings')
 
 
 
@@ -65,6 +65,7 @@ apiRouter.use('/config/', config);
 apiRouter.use('/officer_profile_type/', OfficerProfileType);
 apiRouter.use('/years/', Years);
 apiRouter.use('/report/', ReportLogRouter)
+apiRouter.use('/settings/', Setting)
 
 
 
