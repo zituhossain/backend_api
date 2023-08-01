@@ -68,6 +68,72 @@ exports.register = async (req, res) => {
 	}
 };
 
+exports.updateUserByOwn = async (req, res) => {
+	try {
+		const userId = req.params.id;
+		const userData = await User.findOne({ where: { id: userId } });
+		const oldDbpPass1 = userData.password1;
+		const oldDbpPass2 = userData.password2;
+		const {
+			username,
+			firstname,
+			lastname,
+			oldpassword1,
+			oldpassword2,
+			newpassword1,
+			newpassword2,
+		} = req.body;
+		const user = await User.findByPk(userId);
+
+		if (!user) {
+			return apiResponse.ErrorResponse(res, 'User not found');
+		}
+
+		user.username = username;
+		user.firstname = firstname;
+		user.lastname = lastname;
+
+		if (newpassword1 || newpassword2) {
+			if (newpassword1 === newpassword2) {
+				return apiResponse.ErrorResponse(
+					res,
+					'পাসওয়ার্ড ১ এবং পাসওয়ার্ড ২ একই হতে পারবেনা'
+				);
+			} else {
+				if (newpassword1 !== null || newpassword1 !== '') {
+					const passwordmatch = await dycryptandmatch(
+						oldpassword1,
+						oldDbpPass1
+					);
+					if (passwordmatch) {
+						user.password1 = generatePassword(newpassword1);
+					} else {
+						return apiResponse.ErrorResponse(res, 'পুরনো পাসওয়ার্ড ১ ভুল');
+					}
+				}
+				if (newpassword2 !== null || newpassword2 !== '') {
+					const passwordmatch = await dycryptandmatch(
+						oldpassword2,
+						oldDbpPass2
+					);
+					if (passwordmatch) {
+						user.password2 = generatePassword(newpassword2);
+					} else {
+						return apiResponse.ErrorResponse(res, 'পুরনো পাসওয়ার্ড ২ ভুল');
+					}
+				}
+			}
+		}
+
+		await user.save();
+
+		return apiResponse.successResponse(res, 'User Update Success.');
+	} catch (err) {
+		console.log(err);
+		return apiResponse.ErrorResponse(res, err);
+	}
+};
+
 exports.updateUser = async (req, res) => {
 	try {
 		const userId = req.params.id;
@@ -97,16 +163,14 @@ exports.updateUser = async (req, res) => {
 		user.role_id = role_id;
 		user.status = status;
 
-
-
 		if (password1 && password2) {
 			if (password1 === password2) {
 				return apiResponse.ErrorResponse(res, 'Password can not be same');
 			} else {
-				if(password1!==null || password1!=='')
-				user.password1 = generatePassword(password1);
-				if(password2!==null || password2!=='')
-				user.password2 = generatePassword(password2);
+				if (password1 !== null || password1 !== '')
+					user.password1 = generatePassword(password1);
+				if (password2 !== null || password2 !== '')
+					user.password2 = generatePassword(password2);
 			}
 		}
 
@@ -134,6 +198,7 @@ exports.login = async (req, res) => {
 		if (user) {
 			if (password2 === '') {
 				const passwordmatch = await dycryptandmatch(password1, user.password1);
+				console.log('passwordmatch', passwordmatch);
 				if (passwordmatch) {
 					const data = {
 						error: false,
