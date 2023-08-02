@@ -548,40 +548,65 @@ exports.getPlacesByDivision = async (req, res) => {
 		});
 
 		const placeIds = places.map((place) => place.id).join(',');
+		const placeIdsArray = places.map((place) => place.id);
+
+		const districts = await District.findAll({
+			attributes: ['id'],
+			where: {
+				division_id: id,
+			},
+		});
+
+		const districtIds = districts.map((district) => district.id);
+
+		const matchingDivisionId = roleByplace.division.find((element) => element === parseInt(req.params.id)) !== undefined ? roleByplace.division.find((element) => element === parseInt(req.params.id)) : [];
+		const matchingDistrictIds = roleByplace.district.filter((id) => districtIds.includes(id));
+		const matchingPlaceIds = roleByplace.place.filter((id) => placeIdsArray.includes(id));
+
+		console.log('============Test=================')
+		console.log('Division', id);
+		console.log('District', districtIds);
+		console.log('District', districts);
+		console.log('Place', placeIds)
+		console.log('matchingDivisionId', matchingDivisionId);
+		console.log('matchingDistrictIds', matchingDistrictIds);
+		console.log('matchingPlaceIds', matchingPlaceIds);
+		console.log('============Test=================')
 
 		let query;
-		if (
-			roleByplace.division.length > 0 &&
-			roleByplace.district.length > 0 &&
-			roleByplace.place.length > 0
-		) {
-			query = ` places.id IN (${roleByplace.place})`;
-		} else if (
-			roleByplace.division.length > 0 &&
-			roleByplace.district.length > 0
-		) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					district_id: roleByplace.district,
-				},
-			});
+			if (roleByplace.division.length > 0 || roleByplace.district.length > 0 || roleByplace.place.length > 0) {
+				console.log('Hello World')
+				if (matchingPlaceIds.length > 0) {
+					query = ` places.id IN (${matchingPlaceIds})`;
+				} else if (matchingDistrictIds.length > 0) {
+					const places = await Place.findAll({
+						attributes: ['id'],
+						where: {
+							district_id: matchingDistrictIds,
+						},
+					});
+		
+					const placeIds = places.map((place) => place.id).join(',');
+					query = ` places.id IN (${placeIds})`;
+	
+				} else if (matchingDivisionId) {
+					const places = await Place.findAll({
+						attributes: ['id'],
+						where: {
+							division_id: matchingDivisionId,
+						},
+					});
+		
+					const placeIds = places.map((place) => place.id).join(',');
+					query = ` places.id IN (${placeIds})`;
+					console.log('DivisionPlace====>', placeIds)
+				}
+			} else {
+				query = ` places.id IN (${placeIds})`;
+				console.log('Else World')
+			}
 
-			const placeIds = places.map((place) => place.id).join(',');
-			query = ` places.id IN (${placeIds})`;
-		} else if (roleByplace.division.length > 0) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					division_id: roleByplace.division,
-				},
-			});
-
-			const placeIds = places.map((place) => place.id).join(',');
-			query = ` places.id IN (${placeIds})`;
-		} else {
-			query = ` places.id IN (${placeIds})`;
-		}
+		console.log('Shakhawat===>', query);
 
 		const [results, metadata] = await sequelize.query(`
 		SELECT 
@@ -603,7 +628,7 @@ exports.getPlacesByDivision = async (req, res) => {
 		  LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id AND ngo_categories.type=1
 		  LEFT JOIN ngo_categories cat_type ON ngo_category_bs.ngo_category_type_id = cat_type.id  AND ngo_categories.type=0
 		WHERE
-		places.id IN (${placeIds}) AND ${query}  -- Add condition for the specific division ID
+		places.id IN (${placeIds}) AND ${query}
 		GROUP BY
 		  places.id
 	  `);
