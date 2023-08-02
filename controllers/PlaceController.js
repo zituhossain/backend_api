@@ -1247,6 +1247,7 @@ exports.placeHistoryDistrict = async (req, res) => {
 		const [results, metadata] = await year_place_ngo_officer.sequelize.query(
 			`SELECT 
   ypno.ngo_id, 
+  ypno.event_type,
   ngos.name AS ngo_name, 
   ngos.short_name, 
   ngos.color_code, 
@@ -1264,6 +1265,9 @@ FROM
 WHERE 
   ypno.rank = 1 
   AND places.district_id=${dis_id}
+  AND years.type = 0
+ AND ypno.event_type = 0
+ AND ypno.year_id != (select Max(id) from years)
 GROUP BY 
   ypno.ngo_id, 
   ypno.year_id 
@@ -1287,6 +1291,7 @@ exports.placeHistoryDivision = async (req, res) => {
 		const [results, metadata] = await year_place_ngo_officer.sequelize
 			.query(`SELECT 
   ypno.ngo_id, 
+  ypno.event_type,
   ngos.name AS ngo_name, 
   ngos.short_name, 
   ngos.color_code, 
@@ -1305,6 +1310,8 @@ WHERE
   ypno.rank = 1 
   AND years.type = 0 
   AND places.division_id=${dis_id}
+  AND ypno.year_id != (select Max(id) from years)
+  AND ypno.event_type = 0
 GROUP BY 
   ypno.ngo_id, 
   ypno.year_id 
