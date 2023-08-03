@@ -559,7 +559,7 @@ exports.getPlacesByDivision = async (req, res) => {
 
 		const districtIds = districts.map((district) => district.id);
 
-		const matchingDivisionId = roleByplace.division.find((element) => element === parseInt(req.params.id)) !== undefined ? roleByplace.division.find((element) => element === parseInt(req.params.id)) : [];
+		const matchingDivisionId = roleByplace.division.find((element) => element === parseInt(req.params.id)) !== undefined ? roleByplace.division.find((element) => element === parseInt(req.params.id)) : 0;
 		const matchingDistrictIds = roleByplace.district.filter((id) => districtIds.includes(id));
 		const matchingPlaceIds = roleByplace.place.filter((id) => placeIdsArray.includes(id));
 
@@ -589,7 +589,7 @@ exports.getPlacesByDivision = async (req, res) => {
 					const placeIds = places.map((place) => place.id).join(',');
 					query = ` places.id IN (${placeIds})`;
 	
-				} else if (matchingDivisionId) {
+				} else if (matchingDivisionId && matchingDivisionId !== 0) {
 					const places = await Place.findAll({
 						attributes: ['id'],
 						where: {
@@ -600,6 +600,9 @@ exports.getPlacesByDivision = async (req, res) => {
 					const placeIds = places.map((place) => place.id).join(',');
 					query = ` places.id IN (${placeIds})`;
 					console.log('DivisionPlace====>', placeIds)
+				} else {
+					query = ` places.id IN (0)`;
+					console.log('Role By Place World')
 				}
 			} else {
 				query = ` places.id IN (${placeIds})`;
