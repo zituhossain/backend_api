@@ -105,13 +105,13 @@ exports.placesByDistricId = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1];
 	const roleByplace = await checkUserRoleByPlace(token);
 
-	const permittedPlaceIds = roleByplace.place; // Get the permitted place IDs from the user's role
+	// const permittedPlaceIds = roleByplace.place; // Get the permitted place IDs from the user's role
 
 	let placeAll;
 
-	if (permittedPlaceIds.length > 0) {
+	if (roleByplace.district.length > 0) {
 		placeAll = await Place.findAll({
-			where: { district_id, id: permittedPlaceIds }, // Fetch places that match the provided district ID and the permitted place IDs
+			where: { district_id: district_id }, // Fetch places that match the provided district ID and the permitted place IDs
 		});
 	} else {
 		placeAll = await Place.findAll({ where: { district_id } }); // Fetch all places for the provided district ID when no place IDs are set in the user's role
