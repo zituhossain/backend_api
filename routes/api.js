@@ -10,33 +10,28 @@ const overallConditionPlaceRouter = require('./overall_condition_place');
 const localInfluencerRouter = require('./local_influencer');
 const placeCommentTitleRouter = require('./place_comment_title');
 const placeCommentRouter = require('./place_comment');
-const NgoRouter = require("./ngo");
-const AllTitle = require("./AllTitle");
-const YearPlaceNgoOfficer = require("./year_place_ngo_officer");
-const OfficerProfileHeading = require("./officer_profile_heading");
-const OfficerProfileType = require("./officer_profile_type");
-const NewsEventRouter = require("./NewsEvent");
-const TagRouter = require("./tag");
+const NgoRouter = require('./ngo');
+const AllTitle = require('./AllTitle');
+const YearPlaceNgoOfficer = require('./year_place_ngo_officer');
+const OfficerProfileHeading = require('./officer_profile_heading');
+const OfficerProfileType = require('./officer_profile_type');
+const NewsEventRouter = require('./NewsEvent');
+const TagRouter = require('./tag');
+const ReportLogRouter = require('./report_log');
 
-const Filter = require("./filter");
-const ngoJot = require("./ngoJot");
+const Filter = require('./filter');
+const ngoJot = require('./ngoJot');
 
-const populationYearPlace = require("./population_year_place");
-const ngoDetailYearPlace = require("./ngo_detail_year_place");
-const category = require("./category");
+const populationYearPlace = require('./population_year_place');
+const ngoDetailYearPlace = require('./ngo_detail_year_place');
+const category = require('./category');
 const config = require('./config');
 const Years = require('./years');
-
-const Setting = require('./settings')
-
-
-
-
+const Setting = require('./settings');
 
 const apiRouter = express.Router();
 
 apiRouter.use('/auth/', authRouter);
-
 
 apiRouter.use('/user/', userRouter);
 apiRouter.use('/officer/', officerRouter);
@@ -55,7 +50,6 @@ apiRouter.use('/officer_profile_heading/', OfficerProfileHeading);
 apiRouter.use('/population_year_place/', populationYearPlace);
 apiRouter.use('/ngo_detail_year_place/', ngoDetailYearPlace);
 
-
 apiRouter.use('/news_event/', NewsEventRouter);
 
 apiRouter.use('/tag/', TagRouter);
@@ -65,10 +59,7 @@ apiRouter.use('/category/', category);
 apiRouter.use('/config/', config);
 apiRouter.use('/officer_profile_type/', OfficerProfileType);
 apiRouter.use('/years/', Years);
+apiRouter.use('/report/', ReportLogRouter);
 apiRouter.use('/settings/', Setting);
-
-
-
-
 
 module.exports = apiRouter;

@@ -89,4 +89,15 @@ router.get(
 	YearPlaceNgoOfficerController.getNgoPoribortitoOfficer
 );
 
+router.get(
+	'/get_all_updated_data_log_from_mongo',
+	auth,
+	YearPlaceNgoOfficerController.getAllUpdatedDataLogMongo
+);
+router.get(
+	'/get_updated_data_log_from_mongo/:id',
+	auth,
+	YearPlaceNgoOfficerController.getUpdatedDataLogMongoByid
+);
+
 module.exports = router;
