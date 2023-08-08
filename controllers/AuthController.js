@@ -106,10 +106,17 @@ exports.updateUserByOwn = async (req, res) => {
 						oldpassword1,
 						oldDbpPass1
 					);
-					if (passwordmatch) {
+					const passwordmatch1 = await dycryptandmatch(
+						newpassword1,
+						oldDbpPass2
+					);
+					if (passwordmatch && !passwordmatch1) {
 						user.password1 = generatePassword(newpassword1);
 					} else {
-						return apiResponse.ErrorResponse(res, 'পুরনো পাসওয়ার্ড ১ ভুল');
+						return apiResponse.ErrorResponse(
+							res,
+							'পুরনো পাসওয়ার্ড ১ ভুল/পাসওয়ার্ড পুরনো ২ ও নতুন ১ একই'
+						);
 					}
 				}
 				if (newpassword2 !== null && newpassword2 !== '') {
@@ -117,10 +124,17 @@ exports.updateUserByOwn = async (req, res) => {
 						oldpassword2,
 						oldDbpPass2
 					);
-					if (passwordmatch) {
+					const passwordmatch1 = await dycryptandmatch(
+						newpassword2,
+						oldDbpPass1
+					);
+					if (passwordmatch && !passwordmatch1) {
 						user.password2 = generatePassword(newpassword2);
 					} else {
-						return apiResponse.ErrorResponse(res, 'পুরনো পাসওয়ার্ড ২ ভুল');
+						return apiResponse.ErrorResponse(
+							res,
+							'পুরনো পাসওয়ার্ড ২ ভুল/পাসওয়ার্ড পুরনো ১ ও নতুন ২ একই'
+						);
 					}
 				}
 			}
