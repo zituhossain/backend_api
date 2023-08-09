@@ -1382,6 +1382,185 @@ GROUP BY
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+exports.popularityReport = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		let roleByplace = await checkUserRoleByPlace(token);
+
+		let query = '';
+		let resYear = await years.findOne({
+			where: { id: req.body.year_id },
+		});
+		let yvalue = resYear.name;
+		console.log(yvalue);
+
+		//query += yvalue;
+
+		if (
+			roleByplace.division.length > 0 &&
+			roleByplace.district.length > 0 &&
+			roleByplace.place.length
+		) {
+			query += ` WHERE places.id IN (${roleByplace.place})`;
+		} else if (
+			roleByplace.division.length > 0 &&
+			roleByplace.district.length > 0
+		) {
+			query += ` WHERE places.district_id IN (${roleByplace.district})`;
+		} else if (roleByplace.division.length > 0) {
+			query += ` WHERE places.division_id IN (${roleByplace.division})`;
+		} else {
+			if (req.body.division_id != '') {
+				query += ` WHERE places.division_id = ${req.body.division_id}`;
+			}
+			if (req.body.district_id != '') {
+				query = ` WHERE places.district_id = ${req.body.district_id}`;
+			}
+			if (req.body.place_id != '') {
+				query = ` WHERE places.id = ${req.body.place_id}`;
+			}
+		}
+
+		console.log('-----------------------adfaf----------------------');
+		console.log(query);
+
+		const [alldata, metadata] = await sequelize.query(
+			`
+			SELECT 
+  places.id AS place_id, 
+  places.name as place_name, 
+  places.area as place_area, 
+  IFNULL(
+    (
+      SELECT 
+      	CAST(
+	        JSON_OBJECT(
+	          'officer_id', 
+	          IFNULL(npi2.officer_id, NULL), 
+	          'officer_place_id', 
+	          IFNULL(npi2.place_id, NULL), 
+	          'officer_name', 
+	          IFNULL(npi2.officer_name, NULL), 
+	          'officer_photo', 
+	          IFNULL(npi2.officer_photo, NULL), 
+	          'officer_popularity', 
+	          IFNULL(npi2.ypno_popularity, NULL), 
+	          'officer_comment', 
+	          IFNULL(npi2.ypno_comment, NULL), 
+			  'officer_comment2', 
+	          IFNULL(npi2.ypno_comment2, NULL),
+	          'officer_age_year', 
+	          IFNULL(npi2.officer_age_year, NULL), 
+			  	'ypno_officer_direct_age', 
+	          IFNULL(npi2.ypno_officer_direct_age, NULL),
+	          'ngo_name', 
+	          IFNULL(npi2.ngo_name, NULL), 
+	          'ngo_popularity', 
+	          IFNULL(nspbp.percent, NULL), 
+	          'or_officer_id', 
+	          IFNULL(npi3.officer_id, NULL), 
+	          'or_officer_place_id', 
+	          IFNULL(npi3.place_id, NULL), 
+	          'or_officer_name', 
+	          IFNULL(npi3.officer_name, NULL), 
+	          'or_officer_photo', 
+	          IFNULL(npi3.officer_photo, NULL), 
+	          'or_officer_popularity', 
+	          IFNULL(npi3.ypno_popularity, NULL), 
+	          'or_officer_comment', 
+	          IFNULL(npi3.ypno_comment, NULL), 
+			  'or_officer_comment2', 
+	          IFNULL(npi3.ypno_comment2, NULL),
+	          'or_officer_age_year', 
+	          IFNULL(npi3.officer_age_year, NULL), 
+			  	'or_ypno_officer_direct_age', 
+	          IFNULL(npi3.ypno_officer_direct_age, NULL), 
+	          'or_ngo_name', 
+	          IFNULL(npi3.ngo_name, NULL), 
+	          'or_ngo_popularity', 
+	          IFNULL(nspbp3.percent, NULL)
+	        )  AS CHAR 
+        )
+      FROM 
+        ngo_place_info2 AS npi2 
+        LEFT JOIN ngo_place_info2 AS npi3 on npi2.ypno_view_order = npi3.ypno_view_order 
+        AND npi2.ypno_view_order IS NOT NULL 
+        AND npi2.year = npi3.year 
+        AND npi2.ypno_id != npi3.ypno_id 
+        AND npi2.place_id = npi3.place_id 
+        LEFT JOIN ngo_served_percent_by_palces as nspbp on nspbp.ngo_id = npi2.ngo_id 
+        AND nspbp.place_id = npi2.place_id
+        LEFT JOIN ngo_served_percent_by_palces as nspbp3 on nspbp3.ngo_id = npi3.ngo_id 
+        AND nspbp3.place_id = npi3.place_id 
+      WHERE 
+        npi2.place_id = places.id 
+        AND npi2.ngo_jot_id = 1 
+        AND npi2.ypno_status = 1 
+        AND npi2.year = 2023 
+      ORDER BY 
+        npi2.year DESC 
+      LIMIT 
+        1
+    ), NULL
+  ) AS jot1_officer, 
+  IFNULL(
+    (
+      SELECT 
+        SUM(percent) 
+      FROM 
+        ngo_served_percent_by_palces as nspbp 
+        LEFT JOIN ngos on ngos.id = ngo_id 
+      WHERE 
+        ngos.ngo_jots_id = 1 
+        AND places.id = nspbp.place_id 
+      LIMIT 
+        1
+    ), NULL
+  ) AS popularity_jot1,
+  
+  IFNULL(
+    (
+      SELECT 
+        SUM(percent) 
+      FROM 
+        ngo_served_percent_by_palces as nspbp 
+        LEFT JOIN ngos on ngos.id = ngo_id 
+      WHERE 
+        ngos.ngo_jots_id = 2 
+        AND places.id = nspbp.place_id 
+      LIMIT 
+        1
+    ), NULL
+  ) AS popularity_jot2,
+  divisions.name_bg AS division_name,
+  districts.name_bg AS district_name
+  
+FROM 
+  places
+  LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id
+  LEFT JOIN divisions ON places.division_id = divisions.id
+  LEFT JOIN districts ON places.district_id = districts.id ` +
+				query +
+				` GROUP BY 
+  places.id
+		`
+		);
+
+		if (alldata.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'all_data fetch successfully.',
+				alldata
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 /*
 SELECT
   place.id AS place_id,
