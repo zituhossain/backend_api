@@ -1428,9 +1428,11 @@ exports.popularityReport = async (req, res) => {
 		const [alldata, metadata] = await sequelize.query(
 			`
 			SELECT 
-  places.id AS place_id, 
-  places.name as place_name, 
-  places.area as place_area, 
+			divisions.name_bg AS division_name,
+			districts.name_bg AS district_name,
+			places.id AS place_id,
+        	places.name AS place_name,
+        	places.area AS place_area,
   IFNULL(
     (
       SELECT 
@@ -1504,35 +1506,7 @@ exports.popularityReport = async (req, res) => {
         1
     ), NULL
   ) AS jot1_officer, 
-  IFNULL(
-    (
-      SELECT 
-        SUM(percent) 
-      FROM 
-        ngo_served_percent_by_palces as nspbp 
-        LEFT JOIN ngos on ngos.id = ngo_id 
-      WHERE 
-        ngos.ngo_jots_id = 1 
-        AND places.id = nspbp.place_id 
-      LIMIT 
-        1
-    ), NULL
-  ) AS popularity_jot1,
   
-  IFNULL(
-    (
-      SELECT 
-        SUM(percent) 
-      FROM 
-        ngo_served_percent_by_palces as nspbp 
-        LEFT JOIN ngos on ngos.id = ngo_id 
-      WHERE 
-        ngos.ngo_jots_id = 2 
-        AND places.id = nspbp.place_id 
-      LIMIT 
-        1
-    ), NULL
-  ) AS popularity_jot2,
   divisions.name_bg AS division_name,
   districts.name_bg AS district_name
   
@@ -1543,7 +1517,7 @@ FROM
   LEFT JOIN districts ON places.district_id = districts.id ` +
 				query +
 				` GROUP BY 
-  places.id
+				places.id
 		`
 		);
 
