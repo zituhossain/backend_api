@@ -77,6 +77,33 @@ exports.getPlaceCommentTitleByPlaceId = async (req, res) => {
     }
 }
 
+exports.getAllPlaceCommentTitle = async (req, res) => {
+    try {
+        // const influencer_id = req.params.placeid;
+        const influencer_data = await ngo_details_info.findAll({
+            order: [
+                ['view_order', 'ASC'],
+                ['id', 'ASC'],
+                [ngo_details_info_point_wise, "view_order", "ASC"],
+                [ngo_details_info_point_wise, "id", "ASC"]
+            ],
+            include: [{
+                model: ngo_details_info_point_wise,
+                // where: {place_id: influencer_id},
+                required: false
+            }]
+        });
+        if (influencer_data) {
+            return apiResponse.successResponseWithData(res, "Data successfully fetched.", influencer_data)
+        } else {
+            return apiResponse.ErrorResponse(res, "No matching query found")
+        }
+
+    } catch (err) {
+        return apiResponse.ErrorResponse(res, err.message)
+    }
+}
+
 const { Op } = require('sequelize');
 
 // exports.getPlaceCommentTitleByPlaceId = async (req, res) => {
