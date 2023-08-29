@@ -45,6 +45,7 @@ router.get('/get_place_category_type', PlaceController.getPlaceCategoryType);
 
 router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/place_details', PlaceController.placeDetailsAll);
+router.post('/all_place_details', PlaceController.allPlaceDetails);
 
 router.get('/place_history/:id', auth, PlaceController.placeHistory);
 router.get(

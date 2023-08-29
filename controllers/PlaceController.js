@@ -649,8 +649,8 @@ exports.getPlacesByDivision = async (req, res) => {
 				(element) => element === parseInt(req.params.id)
 			) !== undefined
 				? roleByplace.division.find(
-						(element) => element === parseInt(req.params.id)
-				  )
+					(element) => element === parseInt(req.params.id)
+				)
 				: 0;
 		const matchingDistrictIds = roleByplace.district.filter((id) =>
 			districtIds.includes(id)
@@ -1253,6 +1253,131 @@ exports.placeDetailsAll = async (req, res) => {
 	}
 };
 
+exports.allPlaceDetails = async (req, res) => {
+	try {
+		const yearRow = await years.findOne({
+			order: [['name', 'DESC']],
+		});
+
+		let year = yearRow.id;
+
+		let query = [];
+
+		console.log('uuuuuuuuu====>', req.body.division_id, req.body.district_id)
+
+		if (req.body.division_id !== '' && req.body.district_id !== '' && req.body.place_id !== '') {
+			query.push({ id: req.body.place_id });
+		}
+		if (req.body.division_id !== '' && req.body.district_id !== '') {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: req.body.district_id,
+				},
+			});
+			const placeIds = places.map((place) => place.id);
+			query.push({ id: placeIds });
+		}
+		if (req.body.division_id !== '') {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: req.body.division_id,
+				},
+			});
+			const placeIds = places.map((place) => place.id);
+			console.log('placeIds', placeIds);
+			query.push({ id: placeIds });
+		}
+
+		// const place_id = req.params.id;
+		const place_data = await Place.findAll({
+			where: query,
+			include: [
+				{
+					model: ngo_category_b,
+					as: 'categoryB',
+					include: [
+						{
+							model: ngo_categories,
+							as: 'category',
+						},
+						{
+							model: ngo_categories,
+							as: 'type',
+						},
+					],
+				},
+				{
+					model: ngo_served_percent_by_palces,
+					as: 'ngoServedPercentByPalce',
+					include: [
+						{
+							model: Ngo,
+							as: 'ngo',
+						},
+					],
+					order: [
+						Sequelize.fn('isnull', Sequelize.col('view_orders')),
+						['ngo', 'view_order', 'ASC'],
+					],
+				},
+				{
+					model: year_place_ngo_officer,
+					as: 'year_place_ngo_officer',
+					where: {
+						year_id: year,
+						rank: 1,
+					},
+					required: false,
+					include: [Officer, Ngo, years],
+				},
+			],
+		});
+
+		//Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
+		if (place_data?.ngoServedPercentByPalce) {
+			place_data.ngoServedPercentByPalce =
+				place_data?.ngoServedPercentByPalce.sort((a, b) => {
+					if (
+						a.ngo?.view_order < b.ngo?.view_order &&
+						a.ngo?.view_order !== null &&
+						b.ngo?.view_order !== null
+					) {
+						// console.log('if');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						return -1;
+					} else if (
+						a.ngo?.view_order > b.ngo?.view_order &&
+						a.ngo?.view_order !== null &&
+						b.ngo?.view_order !== null
+					) {
+						// console.log('else if');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						return 1;
+					} else {
+						// console.log('else');
+						// console.log(a.ngo?.name+'-'+a.ngo?.view_order);
+						// console.log(b.ngo?.name+'-'+b.ngo?.view_order);
+						if (a.ngo?.view_order == null) return 1;
+						if (b.ngo?.view_order == null) return -1;
+					}
+				});
+		}
+		console.log('----------jkafdf------------------------------');
+		console.log(place_data);
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			place_data
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 exports.placeHistory = async (req, res) => {
 	const place_id = req.params.id;
 	try {
@@ -1287,8 +1412,8 @@ exports.placeHistory = async (req, res) => {
 			LEFT JOIN population_year_places ON ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id AND ypno.event_type = population_year_places.event_type
 			WHERE
 				places.id = ` +
-				place_id +
-				`
+			place_id +
+			`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
 			ORDER BY
