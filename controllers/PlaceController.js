@@ -156,49 +156,38 @@ exports.getallDivision = async (req, res) => {
 };
 */
 
-// exports.getallDivision = async (req, res) => {
-// 	try {
-// 		const token = req.headers.authorization.split(' ')[1];
-// 		const roleByplace = await checkUserRoleByPlace(token);
-
-// 		const divisionIds = roleByplace.division; // Get the division IDs from the user's role
-// 		const districtIds = roleByplace.district; // Get the division IDs from the user's role
-// 		const placeIds = roleByplace.place; // Get the division IDs from the user's role
-
-// 		let division_data;
-
-// 		if (
-// 			divisionIds.length > 0 &&
-// 			districtIds.length > 0 &&
-// 			placeIds.length > 0
-// 		) {
-// 			division_data = null;
-// 		} else if (divisionIds.length > 0 && districtIds.length > 0) {
-// 			division_data = null;
-// 		} else if (divisionIds.length > 0) {
-// 			division_data = await Division.findAll({
-// 				where: { id: divisionIds }, // Fetch divisions that match the IDs in the user's role
-// 			});
-// 		} else {
-// 			division_data = await Division.findAll(); // Fetch all divisions if no division IDs are set in the user's role
-// 		}
-
-// 		if (division_data && division_data.length > 0) {
-// 			return apiResponse.successResponseWithData(
-// 				res,
-// 				'Data successfully fetched.',
-// 				division_data
-// 			);
-// 		}
-// 		// else {
-// 		// 	return apiResponse.ErrorResponse(res, 'No divisions found.');
-// 		// }
-// 	} catch (err) {
-// 		return apiResponse.ErrorResponse(res, err.message);
-// 	}
-// };
-
 exports.getallDivision = async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(' ')[1];
+		const roleByplace = await checkUserRoleByPlace(token);
+
+		const divisionIds = roleByplace.division; // Get the division IDs from the user's role
+
+		let division_data;
+		if (divisionIds.length > 0) {
+			division_data = await Division.findAll({
+				where: { id: divisionIds }, // Fetch divisions that match the IDs in the user's role
+			});
+		} else {
+			division_data = await Division.findAll(); // Fetch all divisions if no division IDs are set in the user's role
+		}
+
+		if (division_data && division_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				division_data
+			);
+		}
+		// else {
+		// 	return apiResponse.ErrorResponse(res, 'No divisions found.');
+		// }
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.getallDivisionForMap = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		const roleByplace = await checkUserRoleByPlace(token);
@@ -537,27 +526,86 @@ exports.getDistrictByDivision = async (req, res) => {
 };
 */
 
+// exports.getDistrictByDivision = async (req, res) => {
+// 	try {
+// 		const id = req.params.id;
+// 		const token = req.headers.authorization.split(' ')[1];
+// 		const roleByplace = await checkUserRoleByPlace(token);
+
+// 		// const permittedDistrictIds = roleByplace.district; // Get the permitted district IDs from the user's role
+
+// 		let district_data;
+
+// 		if (roleByplace.division.length > 0) {
+// 			district_data = await District.findAll({
+// 				where: { division_id: id }, // Fetch districts that match the provided division ID and the permitted district IDs
+// 			});
+// 		} else {
+// 			district_data = await District.findAll({
+// 				where: { division_id: id }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+// 			});
+// 		}
+
+// 		if (district_data && district_data.length > 0) {
+// 			return apiResponse.successResponseWithData(
+// 				res,
+// 				'Data successfully fetched.',
+// 				district_data
+// 			);
+// 		} else {
+// 			return apiResponse.ErrorResponse(
+// 				res,
+// 				'No districts found for the user role and provided division.'
+// 			);
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.getDistrictByDivision = async (req, res) => {
 	try {
 		const id = req.params.id;
 		const token = req.headers.authorization.split(' ')[1];
 		const roleByplace = await checkUserRoleByPlace(token);
 
-		// const permittedDistrictIds = roleByplace.district; // Get the permitted district IDs from the user's role
-
 		let district_data;
 
-		if (roleByplace.division.length > 0) {
-			district_data = await District.findAll({
-				where: { division_id: id }, // Fetch districts that match the provided division ID and the permitted district IDs
+		if (
+			roleByplace.division.length > 0 ||
+			roleByplace.district.length > 0 ||
+			roleByplace.place.length > 0
+		) {
+			// Find district id by division id
+			const districts = await District.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: id,
+				},
 			});
+
+			const districtIds = districts.map((district) => district.id);
+			// Check district id exist in roleByPlace or not
+			const matchingDistrictIds = roleByplace.district.filter((id) =>
+				districtIds.includes(id)
+			);
+
+			if (matchingDistrictIds.length > 0) {
+				district_data = await District.findAll({
+					where: { division_id: id, id: matchingDistrictIds }, // Fetch districts that match the provided division ID and the permitted district IDs
+				});
+			} else {
+				district_data = await District.findAll({
+					where: { division_id: id }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+				});
+			}
 		} else {
 			district_data = await District.findAll({
 				where: { division_id: id }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
 			});
 		}
 
-		if (district_data && district_data.length > 0) {
+		if (district_data) {
 			return apiResponse.successResponseWithData(
 				res,
 				'Data successfully fetched.',
@@ -649,8 +697,8 @@ exports.getPlacesByDivision = async (req, res) => {
 				(element) => element === parseInt(req.params.id)
 			) !== undefined
 				? roleByplace.division.find(
-					(element) => element === parseInt(req.params.id)
-				)
+						(element) => element === parseInt(req.params.id)
+				  )
 				: 0;
 		const matchingDistrictIds = roleByplace.district.filter((id) =>
 			districtIds.includes(id)
@@ -1263,9 +1311,13 @@ exports.allPlaceDetails = async (req, res) => {
 
 		let query = [];
 
-		console.log('uuuuuuuuu====>', req.body.division_id, req.body.district_id)
+		console.log('uuuuuuuuu====>', req.body.division_id, req.body.district_id);
 
-		if (req.body.division_id !== '' && req.body.district_id !== '' && req.body.place_id !== '') {
+		if (
+			req.body.division_id !== '' &&
+			req.body.district_id !== '' &&
+			req.body.place_id !== ''
+		) {
 			query.push({ id: req.body.place_id });
 		}
 		if (req.body.division_id !== '' && req.body.district_id !== '') {
@@ -1412,8 +1464,8 @@ exports.placeHistory = async (req, res) => {
 			LEFT JOIN population_year_places ON ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id AND ypno.event_type = population_year_places.event_type
 			WHERE
 				places.id = ` +
-			place_id +
-			`
+				place_id +
+				`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
 			ORDER BY
