@@ -11,7 +11,6 @@ exports.fetchall = async (req, res) => {
 		const roleByplace = await checkUserRoleByPlace(token);
 		const divisionIds = roleByplace.division;
 
-		console.log('division', divisionIds);
 		let allOverallTitle;
 		let arr = [];
 		if (

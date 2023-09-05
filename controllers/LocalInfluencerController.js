@@ -1,5 +1,5 @@
 const apiResponse = require('../helpers/apiResponse');
-const { local_influencer, Place } = require('../models');
+const { local_influencer, Place, District } = require('../models');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 const checkUserRoleByPlace = require('./globalController');
@@ -8,35 +8,83 @@ exports.fetchalllocalinfluencer = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
+		const divisionIds = roleByplace.division;
 		let arr = [];
-		if ((roleByplace.division.length > 0 && roleByplace.district.length > 0 && roleByplace.place.length > 0) || roleByplace.place.length > 0) {
-			arr.push({ place_id: roleByplace.place });
-		} else if ((roleByplace.division.length > 0 && roleByplace.district.length > 0) || roleByplace.district.length > 0) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					district_id: roleByplace.district
-				}
+		let allLocalInfluencer;
+		if (
+			roleByplace.division.length > 0 ||
+			roleByplace.district.length > 0 ||
+			roleByplace.place.length > 0
+		) {
+			await Promise.all(
+				divisionIds.map(async (id) => {
+					// Find place id by division id
+					const places = await Place.findAll({
+						attributes: ['id'],
+						where: {
+							division_id: id,
+						},
+					});
+
+					const placeIds = places.map((place) => place.id);
+					// Check place id exist in roleByPlace or not
+					const matchingPlaceIds = roleByplace.place.filter((id) =>
+						placeIds.includes(id)
+					);
+
+					// Find district id by division id
+					const districts = await District.findAll({
+						attributes: ['id'],
+						where: {
+							division_id: id,
+						},
+					});
+
+					const districtIds = districts.map((district) => district.id);
+					// Check district id exist in roleByPlace or not
+					const matchingDistrictIds = roleByplace.district.filter((id) =>
+						districtIds.includes(id)
+					);
+
+					if (matchingPlaceIds.length > 0) {
+						matchingPlaceIds.map((place) => {
+							arr.push(place);
+						});
+					} else if (matchingDistrictIds.length > 0) {
+						const places = await Place.findAll({
+							attributes: ['id'],
+							where: {
+								district_id: matchingDistrictIds,
+							},
+						});
+
+						places.map((place) => {
+							arr.push(place.id);
+						});
+					} else {
+						const places = await Place.findAll({
+							attributes: ['id'],
+							where: {
+								division_id: id,
+							},
+						});
+
+						places.map((place) => {
+							arr.push(place.id);
+						});
+					}
+				})
+			);
+			allLocalInfluencer = await local_influencer.findAll({
+				include: [Place],
+				where: { place_id: arr },
 			});
-
-			const placeIds = places.map(place => place.id);
-			arr.push({ place_id: placeIds });
-
-		} else if (roleByplace.division.length > 0) {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					division_id: roleByplace.division
-				}
+		} else {
+			allLocalInfluencer = await local_influencer.findAll({
+				include: [Place],
 			});
-
-			const placeIds = places.map(place => place.id);
-			arr.push({ place_id: placeIds });
 		}
-		const allLocalInfluencer = await local_influencer.findAll({
-			include: [Place],
-			where: arr,
-		});
+
 		if (allLocalInfluencer) {
 			return apiResponse.successResponseWithData(
 				res,
@@ -140,8 +188,6 @@ const { Op } = require('sequelize');
 // 		return apiResponse.ErrorResponse(res, err.message);
 // 	}
 // };
-
-
 
 exports.getlocalinfluencerbydistrictid = async (req, res) => {
 	try {

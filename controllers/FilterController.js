@@ -52,14 +52,34 @@ exports.districtById = async (req, res) => {
 
 		let district_data;
 
-		if (permittedDivisionId.length > 0 && permittedDistrictIds.length > 0) {
-			district_data = await District.findAll({
-				where: { division_id: permittedDivisionId, id: permittedDistrictIds }, // Fetch districts that match the provided division ID and the permitted district IDs
+		if (
+			roleByplace.division.length > 0 ||
+			roleByplace.district.length > 0 ||
+			roleByplace.place.length > 0
+		) {
+			// Find district id by division id
+			const districts = await District.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: id,
+				},
 			});
-		} else if (permittedDivisionId.length > 0) {
-			district_data = await District.findAll({
-				where: { division_id: permittedDivisionId }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
-			});
+
+			const districtIds = districts.map((district) => district.id);
+			// Check district id exist in roleByPlace or not
+			const matchingDistrictIds = roleByplace.district.filter((id) =>
+				districtIds.includes(id)
+			);
+
+			if (matchingDistrictIds.length > 0) {
+				district_data = await District.findAll({
+					where: { division_id: id, id: matchingDistrictIds }, // Fetch districts that match the provided division ID and the permitted district IDs
+				});
+			} else {
+				district_data = await District.findAll({
+					where: { division_id: id }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+				});
+			}
 		} else {
 			district_data = await District.findAll({
 				where: { division_id: id }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
