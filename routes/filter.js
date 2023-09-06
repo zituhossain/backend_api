@@ -32,6 +32,7 @@ router.post('/masterReport', auth, FilterController.masterReport);
 router.post('/popularityReport', auth, FilterController.popularityReport);
 router.post(
 	'/finalReportGenerate_double',
+	auth,
 	FilterController.finalReportGenerateDoubleNGO
 );
 router.post(
@@ -46,10 +47,12 @@ router.post(
 );
 router.post(
 	'/finalReportGenerateResult',
+	auth,
 	FilterController.finalReportGenerateResult
 );
 router.post(
 	'/finalReportGenerateOfficerChange',
+	auth,
 	FilterController.finalReportGenerateOfficerChange
 );
 router.get('/yearget/:year', FilterController.YearGet);
