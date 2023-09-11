@@ -344,6 +344,7 @@ exports.getAllCountInformation = async (req, res) => {
 };
 exports.getNgoPopularOfficer = async (req, res) => {
 	try {
+		console.log('Saku===>', req.params.id);
 		//const [results, metadata] = await sequelize.query(`select officers.* from year_place_ngo_officers left join officers on officers.id = year_place_ngo_officers.officer_id where year_place_ngo_officers.year_id =(select id from years order by id DESC LIMIT 1,1) and rank = 1 and year_place_ngo_officers.place_id = ${req.params.id}`)
 		//select officers.*, ngos.name as ngoname, year_place_ngo_officers.ngo_id from officers left join year_place_ngo_officers on officers.id = year_place_ngo_officers.officer_id left join ngos on year_place_ngo_officers.ngo_id = ngos.id where year_place_ngo_officers.year_id =(select id from years order by id DESC LIMIT 1,1) and rank = 1 and year_place_ngo_officers.place_id = ${req.params.id}
 		//${req.params.id}
@@ -358,8 +359,9 @@ FROM
   LEFT JOIN year_place_ngo_officers ON officers.id = year_place_ngo_officers.officer_id 
   LEFT JOIN ngos ON year_place_ngo_officers.ngo_id = ngos.id 
 WHERE 
-  rank = 1 
+year_place_ngo_officers.rank = 1 
   AND year_place_ngo_officers.place_id = ${req.params.id}
+  
 ORDER BY year_place_ngo_officers.year_id DESC
 LIMIT 1;`
 		);

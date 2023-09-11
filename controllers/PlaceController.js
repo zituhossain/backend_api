@@ -1581,6 +1581,7 @@ exports.placeHistory = async (req, res) => {
 				`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
+				AND ypno.year_id != (SELECT MAX(id) FROM years)
 			ORDER BY
 			years.id desc, ypno.event_type DESC,ypno.rank ASC;`,
 			{ type: sequelize.QueryTypes.SELECT }
@@ -1623,6 +1624,7 @@ WHERE
   year_place_ngo_officers.rank = 1 
   AND years.type = 0 
   AND year_place_ngo_officers.event_type = 0
+  AND year_place_ngo_officers.year_id != (SELECT MAX(id) FROM years)
 GROUP BY 
   year_place_ngo_officers.ngo_id, 
   year_place_ngo_officers.year_id 
