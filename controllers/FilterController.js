@@ -1220,6 +1220,7 @@ GROUP BY
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
+
 exports.masterReport = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
@@ -1229,9 +1230,10 @@ exports.masterReport = async (req, res) => {
 			where: { id: req.body.year_id },
 		});
 		let yvalue = resYear.name;
-		console.log(yvalue);
+		console.log('zyvalue', yvalue);
 
-		//query += yvalue;
+		let query = '';
+		// query += yvalue;
 
 		const divisionIds = roleByplace.division;
 		let arr = [];
@@ -1254,6 +1256,7 @@ exports.masterReport = async (req, res) => {
 					// Check place id exist in roleByPlace or not
 					const matchingPlaceIds = roleByplace.place.filter((id) =>
 						placeIds.includes(id)
+
 					);
 
 					// Find district id by division id
@@ -1268,6 +1271,7 @@ exports.masterReport = async (req, res) => {
 					// Check district id exist in roleByPlace or not
 					const matchingDistrictIds = roleByplace.district.filter((id) =>
 						districtIds.includes(id)
+
 					);
 
 					if (matchingPlaceIds.length > 0) {
@@ -1299,9 +1303,9 @@ exports.masterReport = async (req, res) => {
 					}
 				})
 			);
+			query += ` WHERE places.id in(${arr.join(',')}) `;
 		}
 
-		let query = ` WHERE places.id in(${arr.join(',')})`;
 
 		console.log('query', query);
 
@@ -1665,18 +1669,32 @@ exports.popularityReport = async (req, res) => {
 				})
 			);
 			query += ` WHERE places.id in(${arr.join(',')})`;
-		} else {
-			if (req.body.division_id != '') {
-				query += ` WHERE places.division_id = ${req.body.division_id}`;
-			}
-			if (req.body.district_id != '') {
-				query = ` WHERE places.district_id = ${req.body.district_id}`;
-			}
-			if (req.body.place_id != '') {
-				query = ` WHERE places.id = ${req.body.place_id}`;
-			}
 		}
 
+		if (req.body.division_id != '') {
+			if (query !== '') {
+				query += ' AND';
+			} else {
+				query += ' WHERE';
+			}
+			query += ` places.division_id = ${req.body.division_id}`;
+		}
+		if (req.body.district_id != '') {
+			if (query !== '') {
+				query += ' AND';
+			} else {
+				query += ' WHERE';
+			}
+			query += ` places.district_id = ${req.body.district_id}`;
+		}
+		if (req.body.place_id != '') {
+			if (query !== '') {
+				query += ' AND';
+			} else {
+				query += ' WHERE';
+			}
+			query += ` places.id = ${req.body.place_id}`;
+		}
 		console.log('-----------------------adfaf----------------------');
 		console.log(query);
 
