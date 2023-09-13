@@ -44,6 +44,7 @@ router.delete(
 );
 router.get('/get_place_category_type', PlaceController.getPlaceCategoryType);
 
+router.get('/place_details_map', PlaceController.placeDetailsForMap);
 router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/place_details', PlaceController.placeDetailsAll);
 router.post('/all_place_details', PlaceController.allPlaceDetails);

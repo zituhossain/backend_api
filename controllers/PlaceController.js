@@ -100,14 +100,14 @@ exports.getPlaceList = async (req, res) => {
 			);
 			place_data = await Place.findAll({
 				order: [['id', 'ASC']],
-				where: {id: arr},
+				where: { id: arr },
 			});
 		} else {
 			place_data = await Place.findAll({
 				order: [['id', 'ASC']],
 			});
 		}
-		
+
 		if (place_data) {
 			return apiResponse.successResponseWithData(
 				res,
@@ -737,8 +737,8 @@ exports.getPlacesByDivision = async (req, res) => {
 				(element) => element === parseInt(req.params.id)
 			) !== undefined
 				? roleByplace.division.find(
-						(element) => element === parseInt(req.params.id)
-				  )
+					(element) => element === parseInt(req.params.id)
+				)
 				: 0;
 		const matchingDistrictIds = roleByplace.district.filter((id) =>
 			districtIds.includes(id)
@@ -1056,6 +1056,25 @@ exports.addCategoryB = async (req, res) => {
 // 		}
 // 	}
 // ]
+
+exports.placeDetailsForMap = async (req, res) => {
+	// const place_id = req.params.id;
+	try {
+		const [placeDetails, metadata] =
+			await sequelize.query(`SELECT id, name, area
+	FROM places`);
+
+		if (placeDetails) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				placeDetails
+			);
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
 
 exports.placeDetails = async (req, res) => {
 	try {
@@ -1577,8 +1596,8 @@ exports.placeHistory = async (req, res) => {
 			LEFT JOIN population_year_places ON ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id AND ypno.event_type = population_year_places.event_type
 			WHERE
 				places.id = ` +
-				place_id +
-				`
+			place_id +
+			`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0
 				AND ypno.year_id != (SELECT MAX(id) FROM years)
