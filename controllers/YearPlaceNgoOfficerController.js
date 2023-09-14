@@ -165,7 +165,7 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 		);
 		allOverallTitle = await year_place_ngo_officer.findAll({
 			include: [Place, Officer, Ngo, years],
-			where: {place_id: arr},
+			where: { place_id: arr },
 		});
 	} else {
 		allOverallTitle = await year_place_ngo_officer.findAll({
@@ -173,7 +173,7 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 		});
 	}
 
-	
+
 
 	if (allOverallTitle.length > 0) {
 		return apiResponse.successResponseWithData(
@@ -995,10 +995,10 @@ exports.getkormitopbyxid = async (req, res) => {
 
 		const [results, metadata] = await sequelize.query(
 			`SELECT * FROM ngo_place_info2 ` +
-				query +
-				` GROUP BY officer_name ORDER BY -` +
-				placeOrderCondition +
-				` DESC,-ngo_view_order DESC,ypno_status DESC, -ypno_view_order DESC, ypno_view_order,officer_id`
+			query +
+			` GROUP BY officer_name ORDER BY -` +
+			placeOrderCondition +
+			` DESC,-ngo_view_order DESC,ypno_status DESC, -ypno_view_order DESC, ypno_view_order,officer_id`
 		);
 
 		if (results) {
@@ -1090,8 +1090,8 @@ exports.getYearPlaceNgoOfficersWithConditions = async (req, res) => {
 			`SELECT *
 FROM ngo_place_info2
 ` +
-				query +
-				` AND ypno_rank<1 ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
+			query +
+			` AND ypno_rank<1 ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
 		);
 
 		if (results) {
@@ -1137,6 +1137,45 @@ FROM ngo_place_info2
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+exports.getYearPlaceNgoOfficersWithConditionsForMap = async (req, res) => {
+	try {
+		let query = '';
+
+		console.log(req.body);
+		// if (req.body.place_id) query = ` AND place_id=${req.body.place_id}`;
+		// else if (req.body.district_id)
+		// 	query = ` AND district_id=${req.body.district_id}`;
+		// else if (req.body.division_id)
+		// 	query = ` AND division_id=${req.body.division_id}`;
+
+		if (req.body.jot_id) {
+			query = query + ` AND ngo_jot_id=${req.body.jot_id}`;
+		}
+		query = `WHERE year = (SELECT max(year) FROM ngo_place_info2)` + query;
+		console.log(query);
+
+		const [results, metadata] = await sequelize.query(
+			`SELECT place_id, officer_name, officer_photo, place_name, ypno_status
+				FROM ngo_place_info2
+	` +
+			query +
+			` AND ypno_rank<1 ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
+		);
+
+		if (results) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				results
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
 
 exports.getNgoPoribortitoOfficer = async (req, res) => {
 	try {

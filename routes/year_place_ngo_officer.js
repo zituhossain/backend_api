@@ -48,6 +48,13 @@ router.post(
 	auth,
 	YearPlaceNgoOfficerController.getYearPlaceNgoOfficersWithConditions
 );
+
+router.post(
+	'/get_year_place_ngo_officers_with_conditions_for_map',
+	auth,
+	YearPlaceNgoOfficerController.getYearPlaceNgoOfficersWithConditionsForMap
+);
+
 router.get(
 	'/by_yearId_and_id/:year/:id',
 	auth,
