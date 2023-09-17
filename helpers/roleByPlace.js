@@ -1,8 +1,8 @@
 const checkUserRoleByPlace = require('../controllers/globalController');
-const { District, Place,} = require('../models')
+const { District, Place } = require('../models');
 
 exports.roleByPlaceId = async (req) => {
-    const token = req.headers.authorization.split(' ')[1];
+	const token = req.headers.authorization.split(' ')[1];
 	let roleByplace = await checkUserRoleByPlace(token);
 	const divisionIds = roleByplace.division;
 	let arr = [];
@@ -71,5 +71,62 @@ exports.roleByPlaceId = async (req) => {
 			})
 		);
 	}
-    return arr;
-}
+	return arr;
+};
+
+exports.roleByDivisionId = async (req) => {
+	const token = req.headers.authorization.split(' ')[1];
+	const roleByplace = await checkUserRoleByPlace(token);
+
+	const divisionIds = roleByplace.division;
+
+	let filterDivisionId = [];
+	if (
+		roleByplace.place.length > 0 ||
+		roleByplace.district.length > 0 ||
+		roleByplace.division.length > 0
+	) {
+		await Promise.all(
+			divisionIds.map(async (divisionId) => {
+				try {
+					const places = await Place.findAll({
+						attributes: ['id'],
+						where: {
+							division_id: divisionId,
+						},
+					});
+
+					const placeIds = places.map((place) => place.id);
+
+					const districts = await District.findAll({
+						attributes: ['id'],
+						where: {
+							division_id: divisionId,
+						},
+					});
+
+					const districtIds = districts.map((district) => district.id);
+
+					const matchingDistrictIds = roleByplace.district.filter((id) =>
+						districtIds.includes(id)
+					);
+					const matchingPlaceIds = roleByplace.place.filter((id) =>
+						placeIds.includes(id)
+					);
+
+					if (
+						matchingPlaceIds.length === 0 &&
+						matchingDistrictIds.length === 0
+					) {
+						// Fetch the division data only if both matchingPlaceIds and matchingDistrictIds are empty
+						filterDivisionId.push(divisionId);
+					}
+				} catch (error) {
+					// Handle errors if necessary
+					return `Error fetching data for divisionId: ${divisionId}`;
+				}
+			})
+		);
+	}
+	return filterDivisionId;
+};
