@@ -12,7 +12,7 @@ const {
 	sequelize,
 } = require('../models');
 const CryptoJS = require('crypto-js');
-const { roleByPlaceId } = require('../helpers/roleByPlace');
+const { roleByPlaceId, roleByDivisionId } = require('../helpers/roleByPlace');
 
 exports.divisions = async (req, res) => {
 	const divisionsAll = await Division.findAll();
@@ -1227,90 +1227,35 @@ exports.masterReport = async (req, res) => {
 		const token = req.headers.authorization.split(' ')[1];
 		let roleByplace = await checkUserRoleByPlace(token);
 
-		let resYear = await years.findOne({
-			where: { id: req.body.year_id },
-		});
-		let yvalue = resYear.name;
-		console.log('zyvalue', yvalue);
-
 		let query = '';
-		// query += yvalue;
-
 		
-
-		const divisionIds = roleByplace.division;
-		let arr = [];
-		if (
-			roleByplace.division.length > 0 ||
-			roleByplace.district.length > 0 ||
-			roleByplace.place.length > 0
-		) {
-			await Promise.all(
-				divisionIds.map(async (id) => {
-					// Find place id by division id
-					const places = await Place.findAll({
-						attributes: ['id'],
-						where: {
-							division_id: id,
-						},
-					});
-
-					const placeIds = places.map((place) => place.id);
-					// Check place id exist in roleByPlace or not
-					const matchingPlaceIds = roleByplace.place.filter((id) =>
-						placeIds.includes(id)
-
-					);
-
-					// Find district id by division id
-					const districts = await District.findAll({
-						attributes: ['id'],
-						where: {
-							division_id: id,
-						},
-					});
-
-					const districtIds = districts.map((district) => district.id);
-					// Check district id exist in roleByPlace or not
-					const matchingDistrictIds = roleByplace.district.filter((id) =>
-						districtIds.includes(id)
-
-					);
-
-					if (matchingPlaceIds.length > 0) {
-						matchingPlaceIds.map((place) => {
-							arr.push(place);
-						});
-					} else if (matchingDistrictIds.length > 0) {
-						const places = await Place.findAll({
-							attributes: ['id'],
-							where: {
-								district_id: matchingDistrictIds,
-							},
-						});
-
-						places.map((place) => {
-							arr.push(place.id);
-						});
-					} else {
-						const places = await Place.findAll({
-							attributes: ['id'],
-							where: {
-								division_id: id,
-							},
-						});
-
-						places.map((place) => {
-							arr.push(place.id);
-						});
-					}
-				})
-			);
-			query += ` WHERE places.id in(${arr.join(',')}) `;
+		
+		
+		if (req.body.place_id != '') {
+			if (query !== '') {
+				query += ' AND';
+			} else {
+				query += ' WHERE';
+			}
+			query += ` places.id = ${req.body.place_id}`;
+		} else if (req.body.district_id != '') {
+			if (query !== '') {
+				query += ' AND';
+			} else {
+				query += ' WHERE';
+			}
+			query += ` places.district_id = ${req.body.district_id}`;
+		} else if (req.body.division_id != '') {
+			if (query !== '') {
+				query += ' AND';
+			} else {
+				query += ' WHERE';
+			}
+			query += ` places.division_id = ${req.body.division_id}`;
+		} else {
+			query += '';
 		}
 
-
-		console.log('query', arr);
 
 		console.log('-----------------------adfaf----------------------');
 		console.log(query);
@@ -1810,7 +1755,7 @@ LIMIT 1
   LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id 
   LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id 
   LEFT JOIN ngo_categories AS place_type ON ngo_category_bs.ngo_category_type_id = place_type.id
-  LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id
+  LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id ${query} 
   GROUP BY 
   places.id
 		`
