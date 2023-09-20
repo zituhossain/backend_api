@@ -2400,8 +2400,9 @@ exports.categoryBColor = async (req, res) => {
 			`
 				select 
 			  places.id as id, 
-			  ngo_categories.name as categoryname, 
 			  places.name as name, 
+			  ngo_categories.id as categoryId, 
+			  ngo_categories.name as categoryname, 
 			  ngo_categories.short_name as categoryShortName, 
 			  ngo_categories.color_code as color_code 
 			from 
