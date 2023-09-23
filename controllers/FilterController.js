@@ -1286,7 +1286,7 @@ exports.masterReport = async (req, res) => {
 	        ) AS CHAR
         )
 FROM ngo_place_info2
-WHERE ypno_rank = 1 AND place_id = places.id AND year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id))
+WHERE ypno_rank = 1 AND place_id = places.id
 ORDER BY ypno_id DESC
 LIMIT 1
   ), NULL) AS winnerInfo,
