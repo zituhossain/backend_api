@@ -1599,8 +1599,7 @@ exports.placeHistory = async (req, res) => {
 			place_id +
 			`
 				AND ypno.rank IS NOT NULL
-				AND ypno.rank <> 0
-				AND ypno.year_id != (SELECT MAX(id) FROM years)
+				AND ypno.rank <> 0				
 			ORDER BY
 			years.id desc, ypno.event_type DESC,ypno.rank ASC;`,
 			{ type: sequelize.QueryTypes.SELECT }
