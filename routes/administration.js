@@ -10,8 +10,12 @@ const storage = multer.diskStorage({
 		cb(null, base_dir_config.base_dir + 'uploads/admin_officer_photo/');
 	},
 	filename: (req, file, cb) => {
-		cb(null, file.originalname);
-	},
+		const timestamp = Date.now();
+		const originalFilename = file.originalname;
+		const fileExtension = originalFilename.split('.').pop();
+		const filename = `${timestamp}.${fileExtension}`;
+		cb(null, filename);
+	}
 });
 
 router.post(
