@@ -16,7 +16,7 @@ let month = date.getMonth() + 1;
 let year = date.getFullYear();
 let currentDate = `${day}-${month}-${year}`;
 
-const userModel = require('../models/mongo_models');
+// const userModel = require('../models/mongo_models');
 
 var logger = createLogger({
 	format: format.combine(format.timestamp(), format.json()),
@@ -118,22 +118,22 @@ function checkurl(value) {
 	}
 }
 
-const save_to_mongo = async (body) => {
-	const user = new userModel(body);
-	const users = await userModel.find({});
-	// console.log(users)
+// const save_to_mongo = async (body) => {
+// 	const user = new userModel(body);
+// 	// const users = await userModel.find({});
+// 	// console.log(users)
 
-	try {
-		await user.save();
-		//   console.log("mongo saved")
-	} catch (error) {
-		console.log('mongo save error: ', error.message);
-	}
-};
+// 	try {
+// 		await user.save();
+// 		//   console.log("mongo saved")
+// 	} catch (error) {
+// 		console.log('mongo save error: ', error.message);
+// 	}
+// };
 
 function createLog(data) {
 	logger.info(data);
-	save_to_mongo(data);
+	// save_to_mongo(data);
 }
 module.exports = authenticate;
 

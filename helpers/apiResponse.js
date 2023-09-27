@@ -4,20 +4,20 @@ let day = date.getDate();
 let month = date.getMonth() + 1;
 let year = date.getFullYear();
 let currentDate = `${day}-${month}-${year}`;
-const userModel = require("../models/mongo_models");
+// const userModel = require("../models/mongo_models");
 
-const save_to_mongo = async (body) => {
-    const user = new userModel(body);
-	// const users = await userModel.find({});
-	// console.log(users)
+// const save_to_mongo = async (body) => {
+//     const user = new userModel(body);
+// 	// const users = await userModel.find({});
+// 	// console.log(users)
   
-    try {
-      await user.save();
-	//   console.log("mongo saved")
-    } catch (error) {
-		console.log("mongo save error: ",error.message)
-    }
-};
+//     try {
+//     //   await user.save();
+// 	//   console.log("mongo saved")
+//     } catch (error) {
+// 		console.log("mongo save error: ",error.message)
+//     }
+// };
 
 
 var logger = createLogger({

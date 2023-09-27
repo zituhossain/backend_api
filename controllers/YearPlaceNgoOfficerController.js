@@ -755,23 +755,24 @@ exports.updateoveralltitlebyid = async (req, res) => {
 								table2: officers_heading_description.getTableName(),
 							},
 						};
+						console.log(updatedData);
 
-						const isLoggedPermit = await Setting.findOne({
-							where: { name: 'Table Log' },
-						});
+						// const isLoggedPermit = await Setting.findOne({
+						// 	where: { name: 'Table Log' },
+						// });
 
 						// Insert the Data in MongoDB
-						const log = new UpdatedData(updatedData);
+						// const log = new UpdatedData(updatedData);
 
-						if (isLoggedPermit.value === 1) {
-							await log.save((err) => {
-								if (err) {
-									console.error(err);
-								} else {
-									console.log('Data successfully inserted into MongoDB');
-								}
-							});
-						}
+						// if (isLoggedPermit.value === 1) {
+						// 	await log.save((err) => {
+						// 		if (err) {
+						// 			console.error(err);
+						// 		} else {
+						// 			console.log('Data successfully inserted into MongoDB');
+						// 		}
+						// 	});
+						// }
 						return apiResponse.successResponse(
 							res,
 							'Data successfully updated.'

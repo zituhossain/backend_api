@@ -12,7 +12,7 @@ class MongoDB{
         try {
             
             const movies = this.database.collection('place');
-            const result = await movies.insertOne(data);
+            // const result = await movies.insertOne(data);
             console.log(result, '-----------result')
         } catch(e) {
             
