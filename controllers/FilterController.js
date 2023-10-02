@@ -1287,7 +1287,7 @@ exports.masterReport = async (req, res) => {
         )
 FROM ngo_place_info2
 WHERE ypno_rank = 1 AND place_id = places.id
-ORDER BY ypno_id DESC
+ORDER BY year DESC
 LIMIT 1
   ), NULL) AS winnerInfo,
   IFNULL(
@@ -1371,7 +1371,7 @@ LIMIT 1
         AND npi2.ngo_jot_id = 1 
         AND npi2.ypno_status = 1 
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
-      ORDER BY npi2.ypno_id DESC
+      ORDER BY npi2.year DESC
       LIMIT 
         1
     ), NULL
@@ -1443,7 +1443,7 @@ LIMIT 1
         AND npi2.ngo_jot_id = 1 
         AND npi2.ypno_status = 2 
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
-      ORDER BY npi2.ypno_id DESC
+      ORDER BY npi2.year DESC
       LIMIT 
         1
     ), NULL
@@ -1515,7 +1515,7 @@ LIMIT 1
         AND npi2.ngo_jot_id = 1 
         AND npi2.ypno_status = 3
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
-      ORDER BY npi2.ypno_id DESC
+      ORDER BY npi2.year DESC
       LIMIT 
         1
     ), NULL
@@ -1601,7 +1601,7 @@ LIMIT 1
         AND npi2.ngo_jot_id = 2 
         AND npi2.ypno_status = 1 
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
-      ORDER BY npi2.ypno_id DESC
+      ORDER BY npi2.year DESC
       LIMIT 
         1
     ), NULL
@@ -1673,7 +1673,7 @@ LIMIT 1
         AND npi2.ngo_jot_id = 2
         AND npi2.ypno_status = 2 
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
-      ORDER BY npi2.ypno_id DESC
+      ORDER BY npi2.year DESC
       LIMIT 
         1
     ), NULL
@@ -1745,7 +1745,7 @@ LIMIT 1
         AND npi2.ngo_jot_id = 2
         AND npi2.ypno_status = 3
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
-      ORDER BY npi2.ypno_id DESC
+      ORDER BY npi2.year DESC
       LIMIT 
         1
     ), NULL
