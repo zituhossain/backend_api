@@ -29,6 +29,7 @@ router.post(
 	FilterController.finalReportGeneratePossibilityJot
 );
 router.post('/masterReport', auth, FilterController.masterReport);
+router.post('/requiredMasterReport', auth, FilterController.requiredMasterReport);
 router.post('/popularityReport', auth, FilterController.popularityReport);
 router.post(
 	'/finalReportGenerate_double',
