@@ -770,7 +770,7 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 					}
 				})
 			);
-			query += ` and ngo_jot_add_into_places.place_id in(${arr.join(',')})`;
+			query += ` where places.id in(${arr.join(',')})`;
 		}
 
 		// if (
@@ -787,20 +787,55 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 		// 	query += ` and places.division_id in (${roleByplace.division})`;
 		// }
 
-		if (req.body.division_id !== '') {
-			query += ` and ngo_jot_add_into_places.division_id = '${req.body.division_id}'`;
-		}
-		if (req.body.district_id !== '') {
-			query += ` and ngo_jot_add_into_places.district_id = '${req.body.district_id}'`;
-		}
+		
+		
 		if (req.body.place_id !== '') {
-			query += ` and ngo_jot_add_into_places.place_id = '${req.body.place_id}'`;
+			query += ` where places.id = '${req.body.place_id}'`;
+		} else if (req.body.district_id !== '') {
+			query += ` where places.district_id = '${req.body.district_id}'`;
+		} else if (req.body.division_id !== '') {
+			query += ` where places.division_id = '${req.body.division_id}'`;
 		}
 
 		const [alldata, metadata] = await sequelize.query(
-			`SELECT places.id, places.name AS place_name, places.area, SUM(CASE WHEN ngo_jot_id = 1 THEN percent END) AS percent1, SUM(CASE WHEN ngo_jot_id = 2 THEN percent END) AS percent2 FROM ngo_jots jot LEFT JOIN ngo_jot_add_into_places ON (ngo_jot_add_into_places.ngo_jot_id = jot.id) INNER JOIN places ON (ngo_jot_add_into_places.place_id = places.id)` +
-			query +
-			`GROUP BY places.id,places.name,places.area`
+			`SELECT 
+			places.id, 
+			places.name as place_name, 
+			places.area,
+			IFNULL(
+			  (
+				SELECT 
+				  SUM(percent) 
+				FROM 
+				  ngo_served_percent_by_palces as nspbp 
+				  LEFT JOIN ngos on ngos.id = ngo_id 
+				WHERE 
+				  ngos.ngo_jots_id = 1 
+				  AND places.id = nspbp.place_id 
+				LIMIT 
+				  1
+			  ), NULL
+			) AS percent1,
+			IFNULL(
+			  (
+				SELECT 
+				  SUM(percent) 
+				FROM 
+				  ngo_served_percent_by_palces as nspbp 
+				  LEFT JOIN ngos on ngos.id = ngo_id 
+				WHERE 
+				  ngos.ngo_jots_id = 2 
+				  AND places.id = nspbp.place_id 
+				LIMIT 
+				  1
+			  ), NULL
+			) AS percent2
+			FROM 
+			places 
+			LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id
+			${query}
+		  GROUP BY 
+			places.id`
 		);
 
 		if (alldata.length > 0) {
