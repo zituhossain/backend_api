@@ -2044,52 +2044,60 @@ LIMIT 1
     (
       SELECT 
       	CAST(
-	        JSON_OBJECT(
-	          'officer_id', 
-	          IFNULL(npi2.officer_id, NULL), 
-	          'officer_place_id', 
-	          IFNULL(npi2.place_id, NULL), 
-	          'officer_name', 
-	          IFNULL(npi2.officer_name, NULL), 
-	          'officer_photo', 
-	          IFNULL(npi2.officer_photo, NULL), 
-	          'officer_popularity', 
-	          IFNULL(npi2.ypno_popularity, NULL), 
-	          'officer_comment', 
-	          IFNULL(npi2.ypno_comment, NULL), 
-			  'officer_comment2', 
-	          IFNULL(npi2.ypno_comment2, NULL),
-	          'officer_age_year', 
-	          IFNULL(npi2.officer_age_year, NULL), 
-			  	'ypno_officer_direct_age', 
-	          IFNULL(npi2.ypno_officer_direct_age, NULL),
-	          'ngo_name', 
-	          IFNULL(npi2.ngo_name, NULL), 
-	          'ngo_popularity', 
-	          IFNULL(nspbp.percent, NULL), 
-	          'or_officer_id', 
-	          IFNULL(npi3.officer_id, NULL), 
-	          'or_officer_place_id', 
-	          IFNULL(npi3.place_id, NULL), 
-	          'or_officer_name', 
-	          IFNULL(npi3.officer_name, NULL), 
-	          'or_officer_photo', 
-	          IFNULL(npi3.officer_photo, NULL), 
-	          'or_officer_popularity', 
-	          IFNULL(npi3.ypno_popularity, NULL), 
-	          'or_officer_comment', 
-	          IFNULL(npi3.ypno_comment, NULL), 
-			  'or_officer_comment2', 
-	          IFNULL(npi3.ypno_comment2, NULL),
-	          'or_officer_age_year', 
-	          IFNULL(npi3.officer_age_year, NULL), 
-			  	'or_ypno_officer_direct_age', 
-	          IFNULL(npi3.ypno_officer_direct_age, NULL), 
-	          'or_ngo_name', 
-	          IFNULL(npi3.ngo_name, NULL), 
-	          'or_ngo_popularity', 
-	          IFNULL(nspbp3.percent, NULL)
-	        )  AS CHAR 
+	        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'officer_id',
+                IFNULL(npi2.officer_id, NULL),
+                'officer_place_id',
+                IFNULL(npi2.place_id, NULL),
+                'officer_name',
+                IFNULL(npi2.officer_name, NULL),
+                'officer_photo',
+                IFNULL(npi2.officer_photo, NULL),
+                'officer_popularity',
+                IFNULL(npi2.ypno_popularity, NULL),
+                'officer_comment',
+                IFNULL(npi2.ypno_comment, NULL),
+                'officer_comment2',
+                IFNULL(npi2.ypno_comment2, NULL),
+                'officer_age_year',
+                IFNULL(npi2.officer_age_year, NULL),
+                'ypno_officer_direct_age',
+                IFNULL(
+                    npi2.ypno_officer_direct_age,
+                    NULL
+                ),
+                'ngo_name',
+                IFNULL(npi2.ngo_name, NULL),
+                'ngo_popularity',
+                IFNULL(nspbp.percent, NULL),
+                'or_officer_id',
+                IFNULL(npi3.officer_id, NULL),
+                'or_officer_place_id',
+                IFNULL(npi3.place_id, NULL),
+                'or_officer_name',
+                IFNULL(npi3.officer_name, NULL),
+                'or_officer_photo',
+                IFNULL(npi3.officer_photo, NULL),
+                'or_officer_popularity',
+                IFNULL(npi3.ypno_popularity, NULL),
+                'or_officer_comment',
+                IFNULL(npi3.ypno_comment, NULL),
+                'or_officer_comment2',
+                IFNULL(npi3.ypno_comment2, NULL),
+                'or_officer_age_year',
+                IFNULL(npi3.officer_age_year, NULL),
+                'or_ypno_officer_direct_age',
+                IFNULL(
+                    npi3.ypno_officer_direct_age,
+                    NULL
+                ),
+                'or_ngo_name',
+                IFNULL(npi3.ngo_name, NULL),
+                'or_ngo_popularity',
+                IFNULL(nspbp3.percent, NULL)
+            )
+        ) AS CHAR 
         )
       FROM 
         ngo_place_info2 AS npi2 
@@ -2105,13 +2113,11 @@ LIMIT 1
         LEFT JOIN ngo_served_percent_by_palces as nspbp3 on nspbp3.ngo_id = npi3.ngo_id 
         AND nspbp3.place_id = npi3.place_id 
       WHERE 
-        npi2.place_id = places.id 
+        npi2.place_id = places.id
         AND npi2.ngo_jot_id = 1 
         AND npi2.ypno_status = 3
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
       ORDER BY npi2.year DESC
-      LIMIT 
-        1
     ), NULL
   ) AS change_jot1_officer,
   IFNULL(
@@ -2416,8 +2422,7 @@ LIMIT 1
         AND nspbp3.place_id = npi3.place_id 
       WHERE 
         npi2.place_id = places.id 
-        AND npi2.ngo_jot_id = 2
-		AND npi2.ngo_id = 41
+        AND npi2.ngo_jot_id = 3
         AND npi2.ypno_status = 1 
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
       ORDER BY npi2.year DESC
@@ -2491,8 +2496,7 @@ LIMIT 1
         AND nspbp3.place_id = npi3.place_id 
       WHERE 
         npi2.place_id = places.id 
-        AND npi2.ngo_jot_id = 2
-		AND npi2.ngo_id = 41
+        AND npi2.ngo_jot_id = 3
         AND npi2.ypno_status = 2 
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
       ORDER BY npi2.year DESC
@@ -2566,8 +2570,7 @@ LIMIT 1
         AND nspbp3.place_id = npi3.place_id 
       WHERE 
         npi2.place_id = places.id 
-        AND npi2.ngo_jot_id = 2
-		AND npi2.ngo_id = 41
+        AND npi2.ngo_jot_id = 3
         AND npi2.ypno_status = 3
         AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
       ORDER BY npi2.year DESC
@@ -2580,7 +2583,7 @@ LIMIT 1
   LEFT JOIN ngo_category_bs ON places.id = ngo_category_bs.place_id 
   LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id 
   LEFT JOIN ngo_categories AS place_type ON ngo_category_bs.ngo_category_type_id = place_type.id
-  LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id ${query} 
+  LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id ${query}
   GROUP BY 
   places.id
 		`

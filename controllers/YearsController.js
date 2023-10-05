@@ -27,6 +27,7 @@ exports.getAll = async(req,res) => {
         return apiResponse.ErrorResponse(res,err.message)
     }
 }
+
 exports.update = async(req,res) => {
     const id = req.params.id;
     try{
