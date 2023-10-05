@@ -48,6 +48,7 @@ router.get('/place_details_map', PlaceController.placeDetailsForMap);
 router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/place_details', PlaceController.placeDetailsAll);
 router.post('/all_place_details', PlaceController.allPlaceDetails);
+router.post('/all_place_details_pagination', PlaceController.allPlaceDetailsPagination);
 
 router.get('/place_history/:id', auth, PlaceController.placeHistory);
 router.get(
