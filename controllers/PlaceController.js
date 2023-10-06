@@ -1564,6 +1564,10 @@ exports.allPlaceDetails = async (req, res) => {
 
 exports.allPlaceDetailsPagination = async (req, res) => {
 	try {
+		const page = parseInt(req.body.page)+1; // Get the current page from the request query or default to page 1
+		const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or default to 10
+		const offset = (page - 1) * pageSize; // Calculate the offset
+		let placeIds;
 		const yearRow = await years.findOne({
 			order: [['name', 'DESC']],
 		});
@@ -1572,7 +1576,7 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 
 		let query = [];
 
-		console.log('uuuuuuuuu====>', req.body.division_id, req.body.district_id);
+		console.log('fsddsds====>', page, pageSize);
 
 		if (
 			req.body.division_id !== '' &&
@@ -1581,31 +1585,38 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 		) {
 			query.push({ id: req.body.place_id });
 		}
-		if (req.body.division_id !== '' && req.body.district_id !== '') {
-			const places = await Place.findAll({
-				attributes: ['id'],
-				where: {
-					district_id: req.body.district_id,
-				},
-			});
-			const placeIds = places.map((place) => place.id);
-			query.push({ id: placeIds });
-		}
+		
 		if (req.body.division_id !== '') {
 			const places = await Place.findAll({
 				attributes: ['id'],
 				where: {
 					division_id: req.body.division_id,
 				},
+				//limit: pageSize, // Limit the number of results per page
+  				//offset: offset, // Skip the appropriate number of rows based on the current page
 			});
-			const placeIds = places.map((place) => place.id);
-			console.log('placeIds', placeIds);
+			placeIds = places.map((place) => place.id);
+			console.log('placeIds------------------', placeIds);
+			query.push({ id: placeIds });
+		}
+		if (req.body.division_id !== '' && req.body.district_id !== '') {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: req.body.district_id,
+				},
+				limit: pageSize, // Limit the number of results per page
+  				offset: offset, // Skip the appropriate number of rows based on the current page
+			});
+			placeIds = places.map((place) => place.id);
 			query.push({ id: placeIds });
 		}
 
 		// const place_id = req.params.id;
 		const place_data = await Place.findAll({
 			where: query,
+			limit: pageSize, // Limit the number of results per page
+  			offset: offset, // Skip the appropriate number of rows based on the current page
 			include: [
 				{
 					model: ngo_category_b,
@@ -1680,12 +1691,22 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 				});
 		}
 		console.log('----------jkafdf------------------------------');
-		console.log(place_data);
+		//console.log(place_data);
+		// return apiResponse.successResponseWithData(
+		// 	res,
+		// 	'Data successfully fetched.',
+		// 	place_data
+		// );
+
 		return apiResponse.successResponseWithData(
-			res,
-			'Data successfully fetched.',
-			place_data
+		  res,
+		  'Data successfully fetched.',
+		  {
+		    data: place_data, // Your array elements or JSON data
+		    counter: placeIds?placeIds.length:null, // Your additional data (you can replace 42 with the desired value)
+		  }
 		);
+
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
