@@ -1657,6 +1657,7 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 					include: [Officer, Ngo, years],
 				},
 			],
+			order: [['id', 'asc']],
 		});
 
 		//Modify the ngoServedPercentByPalce array to order by ngo_id in ascending order
