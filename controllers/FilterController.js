@@ -1813,7 +1813,11 @@ LIMIT 1
 exports.requiredMasterReport = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
-		let roleByplace = await checkUserRoleByPlace(token);
+		const page = parseInt(req.body.page) + 1; // Get the current page from the request query or default to page 1
+		const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or default to 10
+		const offset = (page - 1) * pageSize; // Calculate the offset
+		let placeIds;
+		//let roleByplace = await checkUserRoleByPlace(token);
 
 		let query = '';
 		
@@ -2584,17 +2588,26 @@ LIMIT 1
   LEFT JOIN ngo_categories ON ngo_category_bs.ngo_category_id = ngo_categories.id 
   LEFT JOIN ngo_categories AS place_type ON ngo_category_bs.ngo_category_type_id = place_type.id
   LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id ${query}
-  GROUP BY 
-  places.id
+  GROUP BY places.id
+  LIMIT ${pageSize} OFFSET ${offset}
 		`
 		);
 
 		if (alldata.length > 0) {
+			// return apiResponse.successResponseWithData(
+			// 	res,
+			// 	'all_data fetch successfully.',
+			// 	alldata
+			// );
+
 			return apiResponse.successResponseWithData(
-				res,
-				'all_data fetch successfully.',
-				alldata
-			);
+			res,
+			'Data successfully fetched.',
+			{
+				data: alldata, // Your array elements or JSON data
+				counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
+			}
+		);
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found');
 		}
