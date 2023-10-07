@@ -100,6 +100,10 @@ router.get(
 	'/get_ngo_jot_list_by_place_id/:id',
 	PlaceController.getNgoJotAddIntoPlaceId
 );
+router.get(
+	'/get_joter_jonosomorthon_by_place_id/:id',
+	PlaceController.getJoterJonoSomorthon
+);
 router.get('/get_ngo_jot_by_id/:id', PlaceController.getNgoJotById);
 router.delete('/ngo_jot_delete_by_id/:id', PlaceController.ngoJotDeleteById);
 

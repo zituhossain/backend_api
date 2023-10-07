@@ -1564,7 +1564,7 @@ exports.allPlaceDetails = async (req, res) => {
 
 exports.allPlaceDetailsPagination = async (req, res) => {
 	try {
-		const page = parseInt(req.body.page)+1; // Get the current page from the request query or default to page 1
+		const page = parseInt(req.body.page) + 1; // Get the current page from the request query or default to page 1
 		const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or default to 10
 		const offset = (page - 1) * pageSize; // Calculate the offset
 		let placeIds;
@@ -1585,7 +1585,7 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 		) {
 			query.push({ id: req.body.place_id });
 		}
-		
+
 		if (req.body.division_id !== '') {
 			const places = await Place.findAll({
 				attributes: ['id'],
@@ -1593,7 +1593,7 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 					division_id: req.body.division_id,
 				},
 				//limit: pageSize, // Limit the number of results per page
-  				//offset: offset, // Skip the appropriate number of rows based on the current page
+				//offset: offset, // Skip the appropriate number of rows based on the current page
 			});
 			placeIds = places.map((place) => place.id);
 			console.log('placeIds------------------', placeIds);
@@ -1606,7 +1606,7 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 					district_id: req.body.district_id,
 				},
 				limit: pageSize, // Limit the number of results per page
-  				offset: offset, // Skip the appropriate number of rows based on the current page
+				offset: offset, // Skip the appropriate number of rows based on the current page
 			});
 			placeIds = places.map((place) => place.id);
 			query.push({ id: placeIds });
@@ -1616,7 +1616,7 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 		const place_data = await Place.findAll({
 			where: query,
 			limit: pageSize, // Limit the number of results per page
-  			offset: offset, // Skip the appropriate number of rows based on the current page
+			offset: offset, // Skip the appropriate number of rows based on the current page
 			include: [
 				{
 					model: ngo_category_b,
@@ -1700,12 +1700,12 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 		// );
 
 		return apiResponse.successResponseWithData(
-		  res,
-		  'Data successfully fetched.',
-		  {
-		    data: place_data, // Your array elements or JSON data
-		    counter: placeIds?placeIds.length:null, // Your additional data (you can replace 42 with the desired value)
-		  }
+			res,
+			'Data successfully fetched.',
+			{
+				data: place_data, // Your array elements or JSON data
+				counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
+			}
 		);
 
 	} catch (err) {
@@ -2421,6 +2421,42 @@ exports.getNgoJotAddIntoPlaceId = async (req, res) => {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
+
+exports.getJoterJonoSomorthon = async (req, res) => {
+	const place_id = req.params.id;
+	try {
+		const [results, metadata] = await sequelize.query(
+			`SELECT 
+			nspbp.place_id,
+			SUM(CASE WHEN ngos.ngo_jots_id = 1 THEN nspbp.percent ELSE 0 END) AS jot1popularity,
+			SUM(CASE WHEN ngos.ngo_jots_id = 2 THEN nspbp.percent ELSE 0 END) AS jot2popularity
+		FROM 
+			ngo_served_percent_by_palces as nspbp 
+			LEFT JOIN ngos ON ngos.id = nspbp.ngo_id 
+		WHERE 
+			ngos.ngo_jots_id IN (1, 2)
+		AND
+		nspbp.place_id = ${place_id}	
+		GROUP BY
+			nspbp.place_id
+		ORDER BY place_id;`
+		);
+
+		if (results.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data fetch successfull.',
+				results
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No data found!!!');
+		}
+
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 exports.getNgoJotById = async (req, res) => {
 	const id = req.params.id;
 	try {
