@@ -2073,6 +2073,8 @@ LIMIT 1
                 ),
                 'ngo_name',
                 IFNULL(npi2.ngo_name, NULL),
+				'ypno_view_order',
+                IFNULL(npi2.ypno_view_order, NULL),
                 'ngo_popularity',
                 IFNULL(nspbp.percent, NULL),
                 'or_officer_id',
