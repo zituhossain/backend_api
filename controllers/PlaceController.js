@@ -737,8 +737,8 @@ exports.getPlacesByDivision = async (req, res) => {
 				(element) => element === parseInt(req.params.id)
 			) !== undefined
 				? roleByplace.division.find(
-					(element) => element === parseInt(req.params.id)
-				)
+						(element) => element === parseInt(req.params.id)
+				  )
 				: 0;
 		const matchingDistrictIds = roleByplace.district.filter((id) =>
 			districtIds.includes(id)
@@ -1707,7 +1707,6 @@ exports.allPlaceDetailsPagination = async (req, res) => {
 				counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
 			}
 		);
-
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
@@ -1746,8 +1745,8 @@ exports.placeHistory = async (req, res) => {
 			LEFT JOIN population_year_places ON ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id AND ypno.event_type = population_year_places.event_type
 			WHERE
 				places.id = ` +
-			place_id +
-			`
+				place_id +
+				`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0				
 			ORDER BY
@@ -2426,20 +2425,61 @@ exports.getJoterJonoSomorthon = async (req, res) => {
 	const place_id = req.params.id;
 	try {
 		const [results, metadata] = await sequelize.query(
-			`SELECT 
-			nspbp.place_id,
-			SUM(CASE WHEN ngos.ngo_jots_id = 1 THEN nspbp.percent ELSE 0 END) AS jot1popularity,
-			SUM(CASE WHEN ngos.ngo_jots_id = 2 THEN nspbp.percent ELSE 0 END) AS jot2popularity
-		FROM 
-			ngo_served_percent_by_palces as nspbp 
-			LEFT JOIN ngos ON ngos.id = nspbp.ngo_id 
-		WHERE 
-			ngos.ngo_jots_id IN (1, 2)
-		AND
-		nspbp.place_id = ${place_id}	
+			`SELECT
+			places.id place_id,
+			IFNULL(
+				(
+					SELECT
+						CAST(
+							JSON_OBJECT(
+								'jot_name',
+								IFNULL(ngo_jots.name, NULL),
+								'jot_color',
+								IFNULL(ngo_jots.color_code, NULL),
+								'percent',
+								IFNULL(SUM(nspbp.percent), NULL)
+							) AS CHAR
+						)
+					FROM
+						ngo_served_percent_by_palces as nspbp 
+						LEFT JOIN ngos ON ngos.id = nspbp.ngo_id 
+						LEFT JOIN ngo_jots ON ngos.ngo_jots_id = ngo_jots.id
+					WHERE
+						nspbp.place_id = places.id
+						AND ngo_jots.id = 1
+					LIMIT
+						1
+				), NULL
+			) AS popularityJot1,
+			IFNULL(
+				(
+					SELECT
+						CAST(
+							JSON_OBJECT(
+								'jot_name',
+								IFNULL(ngo_jots.name, NULL),
+								'jot_color',
+								IFNULL(ngo_jots.color_code, NULL),
+								'percent',
+								IFNULL(SUM(nspbp.percent), NULL)
+							) AS CHAR
+						)
+					FROM
+						ngo_served_percent_by_palces as nspbp 
+						LEFT JOIN ngos ON ngos.id = nspbp.ngo_id 
+						LEFT JOIN ngo_jots ON ngos.ngo_jots_id = ngo_jots.id
+					WHERE
+						nspbp.place_id = places.id
+						AND ngo_jots.id = 2
+					LIMIT
+						1
+				), NULL
+			) AS popularityJot2
+		FROM
+			places
+			WHERE places.id = ${place_id}
 		GROUP BY
-			nspbp.place_id
-		ORDER BY place_id;`
+			places.id`
 		);
 
 		if (results.length > 0) {
@@ -2451,7 +2491,6 @@ exports.getJoterJonoSomorthon = async (req, res) => {
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found!!!');
 		}
-
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
