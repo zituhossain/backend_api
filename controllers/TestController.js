@@ -32,8 +32,7 @@ exports.fetchDivisions = async (req, res) => {
 };
 
 
-exports.fetchDistricts = (req, res) => {
-  setTimeout(async () => {
+exports.fetchDistricts =  async (req, res) => {
     try {
       let district_data = await District.findAll();
 
@@ -49,5 +48,4 @@ exports.fetchDistricts = (req, res) => {
     } catch (err) {
       return apiResponse.ErrorResponse(res, err.message);
     }
-  }, 10000); // Delay of 10 seconds
 };
