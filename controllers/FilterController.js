@@ -306,7 +306,7 @@ exports.finalReportGenerateCategory = async (req, res) => {
   winner.winner_ngo_name AS winner_ngo_name, 
   ngo_officers.ngo_officer_list AS officer_list, 
   nspbp.percent AS ngo_popularity 
-FROM ngo_place_info2 AS npi
+  FROM ngo_place_info2 AS npi
 	LEFT JOIN (
         SELECT 
           npi2.year AS winner_year, 
@@ -317,7 +317,7 @@ FROM ngo_place_info2 AS npi
           npi2.ypno_served_population AS winner_served_population 
         FROM  ngo_place_info2 AS npi2 
   ) AS winner ON npi.place_id = winner.winner_place_id 
-      AND winner.winner_year = ( SELECT  MAX(year) FROM  ngo_place_info2  WHERE ypno_rank = 1 
+      AND winner.winner_year = ( SELECT  MAX(year) FROM  ngo_place_info2  WHERE ypno_rank = 1 AND ypno_status = 0
                                 AND place_id = winner.winner_place_id ) 
 	LEFT JOIN (
         SELECT 

@@ -93,7 +93,7 @@ router.get(
 router.get(
 	'/get_poribortito_officer',
 	auth,
-	YearPlaceNgoOfficerController.getNgoPoribortitoOfficer
+	YearPlaceNgoOfficerController.getPlaceCountWithPoribortitoOfficer
 );
 
 router.get(

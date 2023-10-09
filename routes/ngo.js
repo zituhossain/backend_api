@@ -56,7 +56,7 @@ router.get('/delete_by_id/:id', auth, NgoController.delete_by_id);
 router.get('/ngoCounter', auth, NgoController.NgoCounter);
 router.get('/placecount_by_ngo_id/:id', auth, NgoController.PlaceCountByNgoId);
 router.get('/placecount_by_ngo_40', auth, NgoController.PlaceCountByNgo40);
-router.get('/popular_officer_count', auth, NgoController.PopularOfficerCountWithouNgoId6);
+router.get('/popular_officer_count', auth, NgoController.totalPlaceCountPopularOfficerWithoutNgoId6);
 router.get('/max_category_division', auth, NgoController.MaxCategoryDivision);
 
 module.exports = router;
