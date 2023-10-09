@@ -536,6 +536,39 @@ console.log(results);
 	}
 }
 
+exports.totalPlaceCountPopularOfficerWithoutNgoId6 = async (req, res) => {
+	try {
+		const [results, metadata] = await Ngo.sequelize.query(
+			`SELECT
+    SUM(winner) AS total_count
+FROM (
+    SELECT
+        place_id,
+        MAX(year_id) AS max_year_id,
+        COUNT(DISTINCT officer_id) AS winner
+    FROM
+        year_place_ngo_officers
+    WHERE
+        rank = 1
+        AND status = 0
+        AND ngo_id != 6
+    GROUP BY
+        place_id
+) AS subquery;
+`
+		);
+console.log('------------adfasdfasd------------');
+console.log(results);
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			results
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+}
+
 exports.MaxCategoryDivision = async (req, res) => {
 	try {
 		const [results, metadata] = await Ngo.sequelize.query(

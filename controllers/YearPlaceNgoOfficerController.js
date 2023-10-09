@@ -1196,6 +1196,24 @@ exports.getNgoPoribortitoOfficer = async (req, res) => {
 	}
 };
 
+exports.getPlaceCountWithPoribortitoOfficer = async (req, res) => {
+	try {
+		const [results, metadata] = await year_place_ngo_officer.sequelize.query(
+			`SELECT IFNULL(COUNT(DISTINCT place_id), 1) AS total_place
+FROM year_place_ngo_officers
+WHERE status = 3;`
+		);
+
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			results
+		);
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 exports.getAllUpdatedDataLogMongo = async (req, res) => {
 	try {
 		const log = await UpdatedData.find({});
