@@ -646,8 +646,8 @@ exports.finalReportGenerateJot = async (req, res) => {
         FROM
             years
         ) and year_place_ngo_officers.place_id = ngo_place_info.place_id AND ngos.ngo_jots_id = (select id from ngo_jots limit 1) limit 1) as ngo_officer ${custome_query} FROM ngo_place_info` +
-		query +
-		` GROUP BY place_id`
+			query +
+			` GROUP BY place_id`
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -787,8 +787,6 @@ exports.finalReportGenerateJotPopularity = async (req, res) => {
 		// 	query += ` and places.division_id in (${roleByplace.division})`;
 		// }
 
-		
-		
 		if (req.body.place_id !== '') {
 			query += ` where places.id = '${req.body.place_id}'`;
 		} else if (req.body.district_id !== '') {
@@ -893,8 +891,8 @@ exports.finalReportGenerateDoubleNGO = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT ngo_place_info.*,(select ngo_name from ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select ngo_name from ngo_place_info npi where ngo_id = 2 limit 1) as ngo_name3,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id}) as ngo_officer_one, (select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id2}) as ngo_officer_two,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = ngo_place_info.place_id limit 1) as ngo_officer FROM ngo_place_info` +
-		query +
-		` GROUP BY place_id`
+			query +
+			` GROUP BY place_id`
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -1027,8 +1025,8 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 					ngo_jot_id
 				FROM ngo_place_info2
 				WHERE ypno_status = 1 AND year = ` +
-			query +
-			`
+				query +
+				`
 				ORDER BY place_id, ngo_jot_id
 			) subquery
 			GROUP BY subquery.place_id, subquery.place_name
@@ -1263,9 +1261,7 @@ exports.masterReport = async (req, res) => {
 		let roleByplace = await checkUserRoleByPlace(token);
 
 		let query = '';
-		
-		
-		
+
 		if (req.body.place_id != '') {
 			if (query !== '') {
 				query += ' AND';
@@ -1290,7 +1286,6 @@ exports.masterReport = async (req, res) => {
 		} else {
 			query += '';
 		}
-
 
 		console.log('-----------------------adfaf----------------------');
 		console.log(query);
@@ -1820,9 +1815,7 @@ exports.requiredMasterReport = async (req, res) => {
 		//let roleByplace = await checkUserRoleByPlace(token);
 
 		let query = '';
-		
-		
-		
+
 		if (req.body.place_id != '') {
 			if (query !== '') {
 				query += ' AND';
@@ -1847,7 +1840,6 @@ exports.requiredMasterReport = async (req, res) => {
 		} else {
 			query += '';
 		}
-
 
 		console.log('-----------------------adfaf----------------------');
 		console.log(query);
@@ -2046,84 +2038,64 @@ LIMIT 1
   ) AS general_jot1_officer,
   IFNULL(
     (
-      SELECT 
-      	CAST(
-	        JSON_ARRAYAGG(
+		SELECT
+    CONCAT(
+        '[',
+        GROUP_CONCAT(
             JSON_OBJECT(
-                'officer_id',
-                IFNULL(npi2.officer_id, NULL),
-                'officer_place_id',
-                IFNULL(npi2.place_id, NULL),
-                'officer_name',
-                IFNULL(npi2.officer_name, NULL),
-                'officer_photo',
-                IFNULL(npi2.officer_photo, NULL),
-                'officer_popularity',
-                IFNULL(npi2.ypno_popularity, NULL),
-                'officer_comment',
-                IFNULL(npi2.ypno_comment, NULL),
-                'officer_comment2',
-                IFNULL(npi2.ypno_comment2, NULL),
-                'officer_age_year',
-                IFNULL(npi2.officer_age_year, NULL),
-                'ypno_officer_direct_age',
-                IFNULL(
-                    npi2.ypno_officer_direct_age,
-                    NULL
-                ),
-                'ngo_name',
-                IFNULL(npi2.ngo_name, NULL),
-				'ypno_view_order',
-                IFNULL(npi2.ypno_view_order, NULL),
-                'ngo_popularity',
-                IFNULL(nspbp.percent, NULL),
-                'or_officer_id',
-                IFNULL(npi3.officer_id, NULL),
-                'or_officer_place_id',
-                IFNULL(npi3.place_id, NULL),
-                'or_officer_name',
-                IFNULL(npi3.officer_name, NULL),
-                'or_officer_photo',
-                IFNULL(npi3.officer_photo, NULL),
-                'or_officer_popularity',
-                IFNULL(npi3.ypno_popularity, NULL),
-                'or_officer_comment',
-                IFNULL(npi3.ypno_comment, NULL),
-                'or_officer_comment2',
-                IFNULL(npi3.ypno_comment2, NULL),
-                'or_officer_age_year',
-                IFNULL(npi3.officer_age_year, NULL),
-                'or_ypno_officer_direct_age',
-                IFNULL(
-                    npi3.ypno_officer_direct_age,
-                    NULL
-                ),
-                'or_ngo_name',
-                IFNULL(npi3.ngo_name, NULL),
-                'or_ngo_popularity',
-                IFNULL(nspbp3.percent, NULL)
+                'officer_id', IFNULL(npi2.officer_id, NULL),
+                'officer_place_id', IFNULL(npi2.place_id, NULL),
+                'officer_name', IFNULL(npi2.officer_name, NULL),
+                'officer_photo', IFNULL(npi2.officer_photo, NULL),
+                'officer_popularity', IFNULL(npi2.ypno_popularity, NULL),
+                'officer_comment', IFNULL(npi2.ypno_comment, NULL),
+                'officer_comment2', IFNULL(npi2.ypno_comment2, NULL),
+                'officer_age_year', IFNULL(npi2.officer_age_year, NULL),
+                'ypno_officer_direct_age', IFNULL(npi2.ypno_officer_direct_age, NULL),
+                'ngo_name', IFNULL(npi2.ngo_name, NULL),
+                'ypno_view_order', IFNULL(npi2.ypno_view_order, NULL),
+                'ngo_popularity', IFNULL(nspbp.percent, NULL),
+                'or_officer_id', IFNULL(npi3.officer_id, NULL),
+                'or_officer_place_id', IFNULL(npi3.place_id, NULL),
+                'or_officer_name', IFNULL(npi3.officer_name, NULL),
+                'or_officer_photo', IFNULL(npi3.officer_photo, NULL),
+                'or_officer_popularity', IFNULL(npi3.ypno_popularity, NULL),
+                'or_officer_comment', IFNULL(npi3.ypno_comment, NULL),
+                'or_officer_comment2', IFNULL(npi3.ypno_comment2, NULL),
+                'or_officer_age_year', IFNULL(npi3.officer_age_year, NULL),
+                'or_ypno_officer_direct_age', IFNULL(npi3.ypno_officer_direct_age, NULL),
+                'or_ngo_name', IFNULL(npi3.ngo_name, NULL),
+                'or_ngo_popularity', IFNULL(nspbp3.percent, NULL)
             )
-        ) AS CHAR 
+            SEPARATOR ','
+        ),
+        ']'
+    ) AS result_array
+FROM ngo_place_info2 AS npi2
+LEFT JOIN ngo_place_info2 AS npi3 ON npi2.ypno_view_order = npi3.ypno_view_order 
+    AND npi2.ypno_view_order IS NOT NULL 
+    AND npi2.year = npi3.year 
+    AND npi2.ngo_jot_id = npi3.ngo_jot_id
+    AND npi2.ypno_status = npi3.ypno_status
+    AND npi2.ypno_id != npi3.ypno_id 
+    AND npi2.place_id = npi3.place_id 
+LEFT JOIN ngo_served_percent_by_palces AS nspbp ON nspbp.ngo_id = npi2.ngo_id 
+    AND nspbp.place_id = npi2.place_id
+LEFT JOIN ngo_served_percent_by_palces AS nspbp3 ON nspbp3.ngo_id = npi3.ngo_id 
+    AND nspbp3.place_id = npi3.place_id 
+WHERE npi2.place_id = places.id
+    AND npi2.ngo_jot_id = 1 
+    AND npi2.ypno_status = 3
+    AND npi2.year = (
+        SELECT MAX(name)
+        FROM years
+        WHERE id = (
+            SELECT MAX(year_id)
+            FROM year_place_ngo_officers
+            WHERE place_id = places.id
         )
-      FROM 
-        ngo_place_info2 AS npi2 
-        LEFT JOIN ngo_place_info2 AS npi3 on npi2.ypno_view_order = npi3.ypno_view_order 
-        AND npi2.ypno_view_order IS NOT NULL 
-        AND npi2.year = npi3.year 
-		AND npi2.ngo_jot_id = npi3.ngo_jot_id
-		AND npi2.ypno_status = npi3.ypno_status
-        AND npi2.ypno_id != npi3.ypno_id 
-        AND npi2.place_id = npi3.place_id 
-        LEFT JOIN ngo_served_percent_by_palces as nspbp on nspbp.ngo_id = npi2.ngo_id 
-        AND nspbp.place_id = npi2.place_id
-        LEFT JOIN ngo_served_percent_by_palces as nspbp3 on nspbp3.ngo_id = npi3.ngo_id 
-        AND nspbp3.place_id = npi3.place_id 
-      WHERE 
-        npi2.place_id = places.id
-        AND npi2.ngo_jot_id = 1 
-        AND npi2.ypno_status = 3
-        AND npi2.year = (SELECT MAX(name) FROM years WHERE id = (SELECT MAX(year_id) FROM year_place_ngo_officers WHERE place_id = places.id)) 
-      ORDER BY npi2.year DESC
+    )
+    ORDER BY npi2.year DESC
     ), NULL
   ) AS change_jot1_officer,
   IFNULL(
@@ -2603,13 +2575,13 @@ LIMIT 1
 			// );
 
 			return apiResponse.successResponseWithData(
-			res,
-			'Data successfully fetched.',
-			{
-				data: alldata, // Your array elements or JSON data
-				counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
-			}
-		);
+				res,
+				'Data successfully fetched.',
+				{
+					data: alldata, // Your array elements or JSON data
+					counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
+				}
+			);
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found');
 		}
@@ -2668,7 +2640,6 @@ exports.popularityReport = async (req, res) => {
 					const matchingDistrictIds = roleByplace.district.filter((id) =>
 						districtIds.includes(id)
 					);
-
 
 					if (matchingPlaceIds.length > 0) {
 						matchingPlaceIds.map((place) => {
@@ -2819,8 +2790,8 @@ FROM
   LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id
   LEFT JOIN divisions ON places.division_id = divisions.id
   LEFT JOIN districts ON places.district_id = districts.id ` +
-			query +
-			` GROUP BY 
+				query +
+				` GROUP BY 
 				places.id
 		`
 		);
@@ -3033,7 +3004,7 @@ exports.finalReportGenerateOfficerProfileNGO_new = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT *,GROUP_CONCAT ( DISTINCT heading) as multiple_heading,GROUP_CONCAT ( DISTINCT officers_heading_descriptions.desc) as multiple_desc,places.id as place_id,places.name as place_name,officers.name as officer_name,ngos.name as ngo_name,ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join places on places.id = year_place_ngo_officers.place_id left join officers on officers.id = year_place_ngo_officers.officer_id left join ngos on ngos.id = year_place_ngo_officers.ngo_id` +
-		query
+			query
 	);
 	if (alldata.length > 0) {
 		let final_data = [];
@@ -3154,12 +3125,12 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 			alldata[i].description_list =
 				alldata[i].description_list !== null
 					? alldata[i].description_list.split(',')?.map((res) => {
-						const desc = res.split('/-/');
-						console.log(desc[2]);
-						const newDesc = decryptHash(desc[2]);
-						console.log(newDesc);
-						return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
-					})
+							const desc = res.split('/-/');
+							console.log(desc[2]);
+							const newDesc = decryptHash(desc[2]);
+							console.log(newDesc);
+							return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
+					  })
 					: alldata[i].description_list;
 			// let decoded_desc = "";
 			// if(current_desc){
