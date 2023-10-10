@@ -1,5 +1,4 @@
 const apiResponse = require('../helpers/apiResponse');
-
 const {
 	Division,
 	District,
@@ -32,20 +31,23 @@ exports.fetchDivisions = async (req, res) => {
 };
 
 
-exports.fetchDistricts =  async (req, res) => {
-    try {
-      let district_data = await District.findAll();
+exports.fetchDistricts = async (req, res) => {
+	try {
 
-      if (district_data && district_data.length > 0) {
-        return apiResponse.successResponseWithData(
-          res,
-          'District Data successfully fetched.',
-          district_data
-        );
-      } else {
-        return apiResponse.ErrorResponse(res, 'No districts found.');
-      }
-    } catch (err) {
-      return apiResponse.ErrorResponse(res, err.message);
-    }
+		let district_data;
+		district_data = await District.findAll(); // Fetch all divisions if no division IDs are set in the user's role
+
+		if (district_data && district_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'district Data successfully fetched.',
+				district_data
+			);
+		}
+		else {
+			return apiResponse.ErrorResponse(res, 'No districts found.');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
 };
