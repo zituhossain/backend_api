@@ -7,32 +7,34 @@ const {
 const { where } = require('sequelize');
 var Sequelize = require('sequelize');
 
+
+
 exports.fetchDivisions = async (req, res) => {
-	console.log('here');
-	try {
+  setTimeout(async () => {
+    try {
+      let division_data;
 
-		let division_data;
-		
-			division_data = await Division.findAll(); // Fetch all divisions if no division IDs are set in the user's role
+      division_data = await Division.findAll(); // Fetch all divisions if no division IDs are set in the user's role
 
-		if (division_data && division_data.length > 0) {
-			return apiResponse.successResponseWithData(
-				res,
-				'division Data successfully fetched.',
-				division_data
-			);
-		}
-		else {
-			return apiResponse.ErrorResponse(res, 'No divisions found.');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
+      if (division_data && division_data.length > 0) {
+        return apiResponse.successResponseWithData(
+          res,
+          'Division Data successfully fetched.',
+          division_data
+        );
+      } else {
+        return apiResponse.ErrorResponse(res, 'No divisions found.');
+      }
+    } catch (err) {
+      return apiResponse.ErrorResponse(res, err.message);
+    }
+  }, 10000);
 };
 
 
 exports.fetchDistricts = async (req, res) => {
-	try {
+	setTimeout(async () => {
+	  try {
 
 		let district_data;
 		district_data = await District.findAll(); // Fetch all divisions if no division IDs are set in the user's role
@@ -50,4 +52,6 @@ exports.fetchDistricts = async (req, res) => {
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
+	}, 10000);
+	
 };
