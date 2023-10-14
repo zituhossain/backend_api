@@ -603,7 +603,7 @@ exports.getDistrictByDivision = async (req, res) => {
 // 	}
 // };
 
-exports.getDistrictByDivision = async (req, res) => {
+exports.getDistrictsByDivision = async (req, res) => {
 	try {
 		const id = req.params.id;
 		const token = req.headers.authorization.split(' ')[1];
