@@ -69,7 +69,7 @@ router.get('/get_division/:id', auth, PlaceController.getDivision);
 router.get(
 	'/get_district_by_division_id/:id',
 	auth,
-	PlaceController.getDistrictByDivision
+	PlaceController.getDistrictsByDivision
 );
 router.get(
 	'/get_place_by_division_id/:id',

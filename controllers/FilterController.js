@@ -27,57 +27,7 @@ exports.divisions = async (req, res) => {
 	}
 };
 
-exports.placesByDistricId = async (req, res) => {
-	const district_id = req.params.id;
-	const token = req.headers.authorization.split(' ')[1];
-	const roleByplace = await checkUserRoleByPlace(token);
 
-	let placeAll;
-
-	if (
-		roleByplace.division.length > 0 ||
-		roleByplace.district.length > 0 ||
-		roleByplace.place.length > 0
-	) {
-		// Find place id by division id
-		const places = await Place.findAll({
-			attributes: ['id'],
-			where: {
-				district_id: district_id,
-			},
-		});
-
-		const placeIds = places.map((place) => place.id);
-		// Check place id exist in roleByPlace or not
-		const matchingPlaceIds = roleByplace.place.filter((id) =>
-			placeIds.includes(id)
-		);
-
-		if (matchingPlaceIds.length > 0) {
-			placeAll = await Place.findAll({
-				where: { district_id: district_id, id: matchingPlaceIds }, // Fetch places that match the provided district ID and the permitted place IDs
-			});
-		} else {
-			placeAll = await Place.findAll({ where: { district_id } });
-		}
-	} else {
-		placeAll = await Place.findAll({ where: { district_id } });
-	}
-
-	if (placeAll && placeAll.length > 0) {
-		return apiResponse.successResponseWithData(
-			res,
-			'Data successfully fetched.',
-			placeAll
-		);
-	} else {
-		return apiResponse.ErrorResponse(
-			res,
-			'No places found for the user role and provided district.'
-		);
-	}
-};
-// */
 
 exports.places = async (req, res) => {
 	const district_id = req.params.id;

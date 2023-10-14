@@ -5,9 +5,6 @@ const router = express.Router();
 
 router.get('/divisions', FilterController.divisions);
 
-
-router.get('/places-by-distict-id/:id', FilterController.placesByDistricId);
-router.get('/all_places', FilterController.placesByDistricId);
 router.post('/reportTest', auth, FilterController.reportTest);
 router.post(
 	'/finalReportGenerateCategory',
