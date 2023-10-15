@@ -2639,11 +2639,14 @@ exports.categoryBColor = async (req, res) => {
 		);
 
 		if (results.length > 0) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data fetch successfull.',
-				results
-			);
+			setTimeout(()=>{
+				return apiResponse.successResponseWithData(
+					res,
+					'Data fetch successfull.',
+					results
+				);
+			},1);
+			
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found!!!');
 		}

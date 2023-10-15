@@ -26,8 +26,118 @@ exports.divisions = async (req, res) => {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
+exports.districtsByDivisionId = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const token = req.headers.authorization.split(' ')[1];
+		const roleByplace = await checkUserRoleByPlace(token);
 
+		const permittedDistrictIds = roleByplace.district; // Get the permitted district IDs from the user's role
+		const permittedDivisionId = roleByplace.division;
 
+		let district_data;
+
+		if (
+			roleByplace.division.length > 0 ||
+			roleByplace.district.length > 0 ||
+			roleByplace.place.length > 0
+		) {
+			// Find district id by division id
+			const districts = await District.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: id,
+				},
+			});
+
+			const districtIds = districts.map((district) => district.id);
+			// Check district id exist in roleByPlace or not
+			const matchingDistrictIds = roleByplace.district.filter((id) =>
+				districtIds.includes(id)
+			);
+
+			if (matchingDistrictIds.length > 0) {
+				district_data = await District.findAll({
+					where: { division_id: id, id: matchingDistrictIds }, // Fetch districts that match the provided division ID and the permitted district IDs
+				});
+			} else {
+				district_data = await District.findAll({
+					where: { division_id: id }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+				});
+			}
+		} else {
+			district_data = await District.findAll({
+				where: { division_id: id }, // Fetch all districts for the provided division ID when no district IDs are set in the user's role
+			});
+		}
+
+		if (district_data && district_data.length > 0) {
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				district_data
+			);
+		} else {
+			return apiResponse.ErrorResponse(
+				res,
+				'No districts found for the user role and provided division.'
+			);
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.placesByDistricId = async (req, res) => {
+	const district_id = req.params.id;
+	const token = req.headers.authorization.split(' ')[1];
+	const roleByplace = await checkUserRoleByPlace(token);
+
+	let placeAll;
+
+	if (
+		roleByplace.division.length > 0 ||
+		roleByplace.district.length > 0 ||
+		roleByplace.place.length > 0
+	) {
+		// Find place id by division id
+		const places = await Place.findAll({
+			attributes: ['id'],
+			where: {
+				district_id: district_id,
+			},
+		});
+
+		const placeIds = places.map((place) => place.id);
+		// Check place id exist in roleByPlace or not
+		const matchingPlaceIds = roleByplace.place.filter((id) =>
+			placeIds.includes(id)
+		);
+
+		if (matchingPlaceIds.length > 0) {
+			placeAll = await Place.findAll({
+				where: { district_id: district_id, id: matchingPlaceIds }, // Fetch places that match the provided district ID and the permitted place IDs
+			});
+		} else {
+			placeAll = await Place.findAll({ where: { district_id } });
+		}
+	} else {
+		placeAll = await Place.findAll({ where: { district_id } });
+	}
+
+	if (placeAll && placeAll.length > 0) {
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			placeAll
+		);
+	} else {
+		return apiResponse.ErrorResponse(
+			res,
+			'No places found for the user role and provided district.'
+		);
+	}
+};
 
 exports.places = async (req, res) => {
 	const district_id = req.params.id;
@@ -2896,6 +3006,8 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 	let descType = '';
 	let headingDesc = '';
 
+
+
 	if (req.body.division_id != '') {
 		if (query.includes('where')) {
 			query += ` and places.division_id = ${req.body.division_id}`;
@@ -3010,8 +3122,141 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 	}
 };
 
+
+exports.finalReportGenerateOfficerProfileNGOCounter = async (req, res) => {
+	let query = 'where years.id = (select MAX(id) from years)';
+	let type = '';
+	let heading = '';
+	let headingType = '';
+	let descType = '';
+	let headingDesc = '';
+
+
+
+
+	if (req.body.division_id != '') {
+		if (query.includes('where')) {
+			query += ` and places.division_id = ${req.body.division_id}`;
+		} else {
+			query += ` where places.division_id = ${req.body.division_id}`;
+		}
+	}
+	if (req.body.district_id != '') {
+		if (query.includes('where')) {
+			query += ` and places.district_id = '${req.body.district_id}'`;
+		} else {
+			query += ` where places.district_id = '${req.body.district_id}'`;
+		}
+	}
+	if (req.body.place_id != '') {
+		if (query.includes('where')) {
+			query += ` and places.id = '${req.body.place_id}'`;
+		} else {
+			query += ` where places.id = '${req.body.place_id}'`;
+		}
+	}
+	if (req.body.heading_id != '') {
+		// if(heading.includes('where')){
+		heading += ` and id = '${req.body.heading_id}'`;
+		headingDesc += ` and heading_id = '${req.body.heading_id}'`;
+		// }else{
+		//     heading += ` where heading_id = '${req.body.heading_id}'`
+		// }
+	}
+
+	if (req.body.type_id != '') {
+		if (type.includes('where')) {
+			type += ` and officer_profile_headings.type_id = '${req.body.type_id}'`;
+			headingType += ` and officer_profile_headings.type = '${req.body.type_id}'`;
+		} else {
+			type += ` where id = '${req.body.type_id}'`;
+			headingType += ` where officer_profile_headings.type = '${req.body.type_id}'`;
+		}
+		descType += ` and officer_profile_headings.type = '${req.body.type_id}'`;
+	}
+
+	if (req.body.ngo_id !== '') {
+		if (query.includes('where')) {
+			query += ` and year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`;
+		} else {
+			query += ` where year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`;
+		}
+	}
+	// const [alldata, metadata] = await sequelize.query(`SELECT *,places.id as place_id,places.name as place_name,officers.name as officer_name,ngos.name as ngo_name,ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join places on places.id = year_place_ngo_officers.place_id left join officers on officers.id = year_place_ngo_officers.officer_id left join ngos on ngos.id = year_place_ngo_officers.ngo_id`+query);
+	// const [alldata, metadata] = await sequelize.query(
+	// 	`select (select GROUP_CONCAT(concat(id,'/-/',type)) from profile_types ${type} ORDER by sort) as type_list,(select GROUP_CONCAT(concat(type,'/-/',id,'/-/',heading)) from officer_profile_headings ${headingType}${heading} ORDER by view_sort,type) heading_list,(select GROUP_CONCAT(CONCAT(heading_id,'/-/',type,'/-/',officers_heading_descriptions.desc)) from officers_heading_descriptions left join officer_profile_headings on officers_heading_descriptions.heading_id = officer_profile_headings.id where officer_id = year_place_ngo_officers.officer_id and year_id = year_place_ngo_officers.year_id ${descType}${headingDesc} order by heading_id) description_list, places.id as place_id,places.name as place_name,ngos.name as ngo_name,officers.name as officer_name,officers.image as officer_photo,places.area from places LEFT join year_place_ngo_officers on year_place_ngo_officers.place_id = places.id LEFT join ngos on ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id left JOIN years on years.id = year_place_ngo_officers.year_id ${query} GROUP by year_place_ngo_officers.officer_id  order by places.id`
+	// );
+	const [alldata, metadata] = await sequelize.query(`
+    SELECT 
+        (SELECT GROUP_CONCAT(CONCAT(id, '/-/', type)) FROM profile_types ${type} ORDER BY sort) AS type_list,
+        (SELECT GROUP_CONCAT(CONCAT(type, '/-/', id, '/-/', heading)) FROM officer_profile_headings ${headingType}${heading} ORDER BY view_sort, type) AS heading_list,
+        (SELECT GROUP_CONCAT(CONCAT(heading_id, '/-/', type, '/-/', officers_heading_descriptions.desc)) 
+         FROM officers_heading_descriptions 
+         LEFT JOIN officer_profile_headings ON officers_heading_descriptions.heading_id = officer_profile_headings.id 
+         WHERE officer_id = year_place_ngo_officers.officer_id 
+           AND year_id = year_place_ngo_officers.year_id ${descType}${headingDesc} 
+           AND officers_heading_descriptions.desc IS NOT NULL
+         ORDER BY heading_id) AS description_list,
+        places.id AS place_id, 
+        places.name AS place_name,
+        ngos.name AS ngo_name,
+        officers.name AS officer_name,
+        officers.image AS officer_photo,
+        places.area
+    FROM places
+    LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.place_id = places.id
+    LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id
+    LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
+    LEFT JOIN years ON years.id = year_place_ngo_officers.year_id
+    ${query}
+    GROUP BY year_place_ngo_officers.officer_id
+    HAVING description_list IS NOT NULL
+    ORDER BY places.id `);
+	console.log('alldata', alldata);
+	if (alldata.length > 0) {
+		const userId = report.getUserId(req);
+		const reportGenerateInfo = report.generateReportInfo(userId, alldata, req);
+		console.log('ReportOfficerProfile', reportGenerateInfo);
+		let final_data = [];
+		for (let i = 0; i < alldata.length; i++) {
+			alldata[i].description_list =
+				alldata[i].description_list !== null
+					? alldata[i].description_list.split(',')?.map((res) => {
+							const desc = res.split('/-/');
+							console.log(desc[2]);
+							const newDesc = decryptHash(desc[2]);
+							console.log(newDesc);
+							return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
+					  })
+					: alldata[i].description_list;
+			// let decoded_desc = "";
+			// if(current_desc){
+			//     decoded_desc = decryptHash(current_desc);
+			// }else{
+			//     decoded_desc = ""
+			// }
+			// alldata[i].desc = decoded_desc;
+			final_data.push(alldata[i]);
+		}
+		return apiResponse.successResponseWithData(
+			res,
+			'all_data fetch successfully.',
+			final_data
+		);
+	} else {
+		return apiResponse.ErrorResponse(res, 'No data found');
+	}
+};
+
 exports.finalReportGenerateAdminOfficer = async (req, res) => {
 	let query = '';
+
+	let page = parseInt(req.body.page)+1; // Get the current page from the request query or default to page 1
+	// if(page===0)
+	// 	page=1;
+	const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or default to 10
+	const offset = (page - 1) * pageSize; // Calculate the offset
+
 
 	if (req.body.division_id != '') {
 		if (query.includes('where')) {
@@ -3067,6 +3312,77 @@ from
   administration_officers 
   left join administration_offices on administration_officers.administration_office_id = administration_offices.id 
   left join administration_officer_types on administration_officers.designation = administration_officer_types.id
+  left join ngos on ngos.id = administration_officers.ngo_id` + query + ` LIMIT ${pageSize} OFFSET ${offset}`
+	);
+	if (alldata.length > 0) {
+		setTimeout(()=>{
+			return apiResponse.successResponseWithData(
+			res,
+			'all_data fetch successfully.',
+			alldata
+		);
+		},10000);
+		
+
+
+	} else {
+		return apiResponse.ErrorResponse(res, 'No data found');
+	}
+};
+
+
+exports.finalReportGenerateAdminOfficerCounter = async (req, res) => {
+	let query = '';
+
+
+
+	if (req.body.division_id != '') {
+		if (query.includes('where')) {
+			query += ` and administration_officers.division_id = '${req.body.division_id}'`;
+		} else {
+			query += ` where administration_officers.division_id = '${req.body.division_id}'`;
+		}
+	}
+	if (req.body.district_id != '') {
+		const get_district = await District.findOne({
+			where: { id: req.body.district_id },
+		});
+		if (query.includes('where')) {
+			query += ` and administration_officers.district_id = '${req.body.district_id}'`;
+		} else {
+			query += ` where administration_officers.district_id = '${req.body.district_id}'`;
+		}
+	}
+	if (req.body.place_id != '') {
+		if (query.includes('where')) {
+			query += ` and administration_officers.place_id = '${req.body.place_id}'`;
+		} else {
+			query += ` where administration_officers.place_id = '${req.body.place_id}'`;
+		}
+	}
+
+	if (req.body.admin_office_id != '') {
+		if (query.includes('where')) {
+			query += ` and administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
+		} else {
+			query += ` where administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
+		}
+	}
+	if (req.body.admin_officer_type_id != '') {
+		if (query.includes('where')) {
+			query += ` and administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
+		} else {
+			query += ` where administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
+		}
+	}
+	query += ` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`;
+	const [alldata, metadata] = await sequelize.query(
+		`select 
+  COUNT(administration_officers.id) as total_officer_count
+from 
+  administration_officers 
+  left join administration_offices on administration_officers.administration_office_id = administration_offices.id 
+  left join administration_officer_types on administration_officers.designation = administration_officer_types.id
   left join ngos on ngos.id = administration_officers.ngo_id` + query
 	);
 	if (alldata.length > 0) {
@@ -3075,6 +3391,8 @@ from
 			'all_data fetch successfully.',
 			alldata
 		);
+
+
 	} else {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}

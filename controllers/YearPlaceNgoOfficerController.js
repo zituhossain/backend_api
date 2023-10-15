@@ -1165,11 +1165,15 @@ exports.getYearPlaceNgoOfficersWithConditionsForMap = async (req, res) => {
 		);
 
 		if (results) {
-			return apiResponse.successResponseWithData(
-				res,
-				'Data successfully fetched.',
-				results
-			);
+			setTimeout(()=>{
+				return apiResponse.successResponseWithData(
+					res,
+					'Data successfully fetched.',
+					results
+				);
+
+			},1);
+			
 		} else {
 			return apiResponse.ErrorResponse(res, 'No matching query found');
 		}

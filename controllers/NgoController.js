@@ -536,25 +536,51 @@ console.log(results);
 	}
 }
 
+// SELECT
+//     place_id,
+//     ngo_id,
+//     officer_id,
+//     MAX(year_id) AS max_year_id,
+//     COUNT(DISTINCT place_id) AS total_place_count
+// FROM
+//     year_place_ngo_officers
+// WHERE
+//     rank = 1
+//     AND status = 0
+//     AND ngo_id != 6
+// GROUP BY
+//     place_id;
+
+
 exports.totalPlaceCountPopularOfficerWithoutNgoId6 = async (req, res) => {
 	try {
 		const [results, metadata] = await Ngo.sequelize.query(
 			`SELECT
-    SUM(winner) AS total_count
-FROM (
-    SELECT
-        place_id,
-        MAX(year_id) AS max_year_id,
-        COUNT(DISTINCT officer_id) AS winner
-    FROM
-        year_place_ngo_officers
-    WHERE
-        rank = 1
-        AND status = 0
-        AND ngo_id != 6
-    GROUP BY
-        place_id
-) AS subquery;
+    y.place_id,
+    y.ngo_id,
+    y.officer_id,
+    MAX(y.year_id) AS max_year_id,
+    COUNT(DISTINCT y.place_id) AS total_place_count
+FROM
+    (
+        SELECT
+            place_id,
+            MAX(id) AS max_id
+        FROM
+            year_place_ngo_officers
+        WHERE
+            rank = 1
+            AND status = 0
+            AND ngo_id != 6
+        GROUP BY
+            place_id
+    ) AS latest_entries
+JOIN year_place_ngo_officers y
+ON
+    latest_entries.place_id = y.place_id
+    AND latest_entries.max_id = y.id
+GROUP BY
+    y.place_id;;
 `
 		);
 console.log('------------adfasdfasd------------');
