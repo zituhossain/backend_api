@@ -19,6 +19,7 @@ const checkUserRoleByPlace = require('./globalController');
 const UpdatedData = require('../models/mongo_log');
 const IP = require('ip');
 const jwt = require('jsonwebtoken');
+const { createChildJson } = require('./ReportController');
 const secret = process.env.JWT_SECRET;
 
 exports.deleteYearPlaceNgoofficer = async (req, res) => {
@@ -478,6 +479,10 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 		// 	},
 		// });
 
+		const [jotData, JotMeta] = await sequelize.query(
+			`SELECT ngo_jots_id FROM ngos WHERE id= ${req.body.ngo_id}`
+		)
+
 		const eventTypeData = await year_place_ngo_officer.findOne({
 			where: {
 				place_id: req.body.place_id,
@@ -567,11 +572,43 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 									}
 								});
 						}
-						// console.log('ypno', ypno)
-						return apiResponse.successResponse(
-							res,
-							'Year Place Ngo Officer saved successfully.'
-						);
+
+
+
+						// if (req.body.rank === 1) {
+						// 	console.log('Brank', req.body.rank)
+						// 	childJson = await createChildJson(req.body.place_id, "ngoPopularOfficer")
+						// }
+
+						const data = ["ngoPopularOfficer", "jot1Officer", "jot2Officer", "ngoPlaceHistory"];
+						const childJson = await createChildJson(req.body.place_id, data);
+
+						// if (jotData[0]['ngo_jots_id'] === 1) {
+						// 	console.log('Crank', req.body.rank)
+						// 	childJson = await createChildJson(req.body.place_id, "jot1Officer")
+						// }
+						// else {
+						// 	console.log('Drank', req.body.rank)
+						// 	childJson = await createChildJson(req.body.place_id, "jot2Officer")
+						// }
+
+
+
+
+						if (childJson === true) {
+							return apiResponse.successResponse(res, 'Data successfully Saved.');
+						} else {
+							return apiResponse.successResponse(
+								res,
+								'Data successfully saved but createChildJson unsuccessful',
+
+							);
+						}
+
+						// return apiResponse.successResponse(
+						// 	res,
+						// 	'Year Place Ngo Officer saved successfully.'
+						// );
 					}
 				} else {
 					return apiResponse.ErrorResponse(
@@ -597,7 +634,11 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 };
 
 exports.updateoveralltitlebyid = async (req, res) => {
+
 	try {
+		const [jotData, JotMeta] = await sequelize.query(
+			`SELECT ngo_jots_id FROM ngos WHERE id= ${req.body.ngo_id}`
+		)
 		const condition_id = req.params.id;
 		// For userID:
 		const token = req.headers.authorization.split(' ')[1];
@@ -773,10 +814,27 @@ exports.updateoveralltitlebyid = async (req, res) => {
 						// 		}
 						// 	});
 						// }
-						return apiResponse.successResponse(
-							res,
-							'Data successfully updated.'
-						);
+
+						const data = ["ngoPopularOfficer", "jot1Officer", "jot2Officer", "ngoPlaceHistory"];
+						const childJson = await createChildJson(req.body.place_id, data);
+
+
+
+
+						if (childJson === true) {
+							return apiResponse.successResponse(res, 'Data successfully Saved.');
+						} else {
+							return apiResponse.successResponse(
+								res,
+								'Data successfully saved but createChildJson unsuccessful',
+
+							);
+						}
+
+						// return apiResponse.successResponse(
+						// 	res,
+						// 	'Data successfully updated.'
+						// );
 					} else {
 						return apiResponse.ErrorResponse(res, 'Description missing');
 					}

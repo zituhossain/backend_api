@@ -13,6 +13,8 @@ const {MongoDB} = require('./db');
 const mongoDB = new MongoDB();
 const mongoose = require("mongoose");
 const { mongo_db_url } = require('./config.js');
+const combineDetailsReportQueue = require('./combineDetailsReportQueue');
+const combineDetailsReportWorker = require('./combineDetailsReportWorker');
 
 //////////////////////mongo connect
 
@@ -55,7 +57,13 @@ sequelize.authenticate()
   console.error('Unable to connect to the database:', err);
 });
  
-
+combineDetailsReportQueue
+.isReady()
+.then(() => {
+	combineDetailsReportWorker.start();
+}).catch((error) => {
+	console.error('Error starting the combineDetailsReportQueue:', error);
+});
 const app = express();
 
 // var env = process.env.NODE_ENV || 'development';

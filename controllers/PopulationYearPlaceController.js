@@ -4,6 +4,7 @@ const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const checkUserRoleByPlace = require('./globalController');
+const { createChildJson } = require('./ReportController');
 
 exports.fetchall = async (req, res) => {
 	try {
@@ -47,7 +48,7 @@ exports.fetchall = async (req, res) => {
 					const matchingDistrictIds = roleByplace.district.filter((id) =>
 						districtIds.includes(id)
 					);
-					
+
 
 					if (matchingPlaceIds.length > 0) {
 						matchingPlaceIds.map((place) => {
@@ -377,10 +378,17 @@ exports.create = async (req, res) => {
 				return apiResponse.ErrorResponse(res, 'description missing');
 			} else {
 				await population_year_place.create(req.body);
-				return apiResponse.successResponse(
-					res,
-					'population_year_place saved successfully.'
-				);
+
+				const childJson = await createChildJson(req.body.place_id, "populationByPlace")
+				if (childJson === true) {
+					return apiResponse.successResponse(res, 'Data successfully updated.');
+				} else {
+					return apiResponse.successResponse(
+						res,
+						'Data successfully saved but createChildJson unsuccessful',
+
+					);
+				}
 			}
 		} else {
 			return apiResponse.ErrorResponse(
@@ -390,6 +398,45 @@ exports.create = async (req, res) => {
 		}
 	} catch (err) {
 		console.log(err.message);
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.updatebyid = async (req, res) => {
+	try {
+		const condition_id = req.params.id;
+		const token = req.headers.authorization.split(' ')[1];
+		const decodedToken = jwt.verify(token, secret);
+		const userId = decodedToken._id;
+		req.body.updated_by = userId;
+		const condition_data = await population_year_place.findOne({
+			where: { id: condition_id },
+		});
+
+
+		if (condition_data) {
+			if (req.body.place_id) {
+				await population_year_place.update(req.body, {
+					where: { id: condition_id },
+				});
+
+				const childJson = await createChildJson(req.body.place_id, "populationByPlace")
+				if (childJson === true) {
+					return apiResponse.successResponse(res, 'Data successfully updated.');
+				} else {
+					return apiResponse.successResponse(
+						res,
+						'Data successfully saved but createChildJson unsuccessful',
+
+					);
+				}
+			} else {
+				return apiResponse.ErrorResponse(res, 'heading missing');
+			}
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };

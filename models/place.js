@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
 			division_id: DataTypes.INTEGER,
 			district_id: DataTypes.INTEGER,
 			ngo_id: DataTypes.INTEGER,
+			updated_json:DataTypes.JSON
 		},
 		{
 			sequelize,

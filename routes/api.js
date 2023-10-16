@@ -21,6 +21,7 @@ const TagRouter = require('./tag');
 const ReportLogRouter = require('./report_log');
 
 const Filter = require('./filter');
+const Report = require('./report');
 const ngoJot = require('./ngoJot');
 
 const populationYearPlace = require('./population_year_place');
