@@ -8,14 +8,10 @@ function start() {
             const { placeId, updatedData } = job.data;
 
             // Update the Place table with the updated JSON object
-            console.log('timeout');
-            setTimeout(async () => {
-                await Place.update(
-                    { updated_json: updatedData },
-                    { where: { id: placeId } }
-                );
-                console.log('zitu', updatedData)
-            }, 20000);
+            await Place.update(
+                { updated_json: updatedData },
+                { where: { id: placeId } }
+            );
 
         } catch (error) {
             console.error('Error processing job:', error);

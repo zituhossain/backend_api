@@ -7,14 +7,14 @@ const apiRouter = require('./routes/api');
 const apiResponse = require('./helpers/apiResponse');
 const { normalizePort } = require('./helpers/utility');
 const cors = require('cors');
-const {CronJob} = require('cron');
-const {CronTask} = require('./cronJob');
-const {MongoDB} = require('./db');
+const { CronJob } = require('cron');
+const { CronTask } = require('./cronJob');
+const { MongoDB } = require('./db');
 const mongoDB = new MongoDB();
 const mongoose = require("mongoose");
 const { mongo_db_url } = require('./config.js');
-const combineDetailsReportQueue = require('./combineDetailsReportQueue');
-const combineDetailsReportWorker = require('./combineDetailsReportWorker');
+const updatePlaceQueue = require('./updatePlaceQueue');
+const updatePlaceWorker = require('./updatePlaceWorker');
 
 //////////////////////mongo connect
 
@@ -48,22 +48,22 @@ const { multerMiddleware } = require('./helpers/uploadFiles');
 const port = normalizePort(process.env.PORT || '8081');
 
 const db = require('./db/db');
-const  sequelize = db.sequelize;
+const sequelize = db.sequelize;
 sequelize.authenticate()
-.then(() => {
-  console.log('Connection has been established successfully.');
-})
-.catch(err => {
-  console.error('Unable to connect to the database:', err);
-});
- 
-combineDetailsReportQueue
-.isReady()
-.then(() => {
-	combineDetailsReportWorker.start();
-}).catch((error) => {
-	console.error('Error starting the combineDetailsReportQueue:', error);
-});
+	.then(() => {
+		console.log('Connection has been established successfully.');
+	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
+
+updatePlaceQueue
+	.isReady()
+	.then(() => {
+		updatePlaceWorker.start();
+	}).catch((error) => {
+		console.error('Error starting the Queue:', error);
+	});
 const app = express();
 
 // var env = process.env.NODE_ENV || 'development';
@@ -81,18 +81,18 @@ app.use(cookieParser());
 
 const corsOpts = {
 	origin: '*',
-  
+
 	methods: [
-	  'GET',
-	  'POST',
-	  'OPTIONS'
+		'GET',
+		'POST',
+		'OPTIONS'
 	],
-  
+
 	allowedHeaders: [
-	  'Content-Type',
-	  'Access-Control-Allow-Origin: *'
+		'Content-Type',
+		'Access-Control-Allow-Origin: *'
 	],
-  };
+};
 // add multer middleware
 app.disable('x-powered-by');
 // app.use(multerMiddleware.single('file'));
@@ -108,10 +108,10 @@ app.all('*', function (req, res) {
 	return apiResponse.notFoundResponse(res, 'Page not found');
 });
 
-const cronTask = new CronTask({mongoDB});
+const cronTask = new CronTask({ mongoDB });
 const CRON_SCHDULE = `0 */1 * * * *`;
 app.listen(port, () => {
-	const cronJobInit = new CronJob(CRON_SCHDULE, async()=>{
+	const cronJobInit = new CronJob(CRON_SCHDULE, async () => {
 		cronTask.run();
 	});
 	cronJobInit.start();
