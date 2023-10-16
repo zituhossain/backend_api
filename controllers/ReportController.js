@@ -215,23 +215,25 @@ const fetchNgoPlaceHistoryDataJson = async (place_id) => {
 			years.id desc, ypno.event_type DESC,ypno.rank ASC`
 	);
 
+	return ngoPlaceHistory;
+
 	// Process the data
-	const groupedByYear = ngoPlaceHistory.reduce((result, item) => {
-		const { year_id } = item;
-		if (!result[year_id]) {
-			result[year_id] = [];
-		}
-		result[year_id].push(item);
-		return result;
-	}, {});
+	// const groupedByYear = ngoPlaceHistory.reduce((result, item) => {
+	// 	const { year_id } = item;
+	// 	if (!result[year_id]) {
+	// 		result[year_id] = [];
+	// 	}
+	// 	result[year_id].push(item);
+	// 	return result;
+	// }, {});
 
-	// Convert the grouped data into an array of objects
-	const groupedArray = Object.entries(groupedByYear).map(([year_id, data]) => ({
-		year_id: Number(year_id),
-		data,
-	}));
+	// // Convert the grouped data into an array of objects
+	// const groupedArray = Object.entries(groupedByYear).map(([year_id, data]) => ({
+	// 	year_id: Number(year_id),
+	// 	data,
+	// }));
 
-	return groupedArray; // Return the processed data
+	// return groupedArray; // Return the processed data
 };
 
 const fetchPopulationByPlaceDataJson = async (place_id) => {
@@ -485,20 +487,20 @@ const combineDetailsReport = async (req, res) => {
 			)`
 		);
 
-		const groupedByYear = ngoPlaceHistory.reduce((result, item) => {
-			const { year_id } = item;
-			if (!result[year_id]) {
-				result[year_id] = [];
-			}
-			result[year_id].push(item);
-			return result;
-		}, {});
+		// const groupedByYear = ngoPlaceHistory.reduce((result, item) => {
+		// 	const { year_id } = item;
+		// 	if (!result[year_id]) {
+		// 		result[year_id] = [];
+		// 	}
+		// 	result[year_id].push(item);
+		// 	return result;
+		// }, {});
 
-		// Convert the grouped data into an array of objects
-		const groupedArray = Object.entries(groupedByYear).map(([year_id, data]) => ({
-			year_id: Number(year_id),
-			data,
-		}));
+		// // Convert the grouped data into an array of objects
+		// const groupedArray = Object.entries(groupedByYear).map(([year_id, data]) => ({
+		// 	year_id: Number(year_id),
+		// 	data,
+		// }));
 
 
 		const combinedData = {
@@ -509,7 +511,7 @@ const combineDetailsReport = async (req, res) => {
 			type: type,
 			jot1Officer: jot1Officer,
 			jot2Officer: jot2Officer,
-			ngoPlaceHistory: groupedArray,
+			ngoPlaceHistory: ngoPlaceHistory,
 			ngoServedPercentByPlace: ngoServedPercentByPlace,
 			jotPopularity: jotPopularity,
 			placeCommentWithTitle: placeCommentWithTitle,
