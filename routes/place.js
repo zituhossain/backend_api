@@ -49,7 +49,9 @@ router.get('/place_details/:id', PlaceController.placeDetails);
 router.get('/place_details', PlaceController.placeDetailsAll);
 router.post('/all_place_details', PlaceController.allPlaceDetails);
 router.post('/all_place_details_pagination', PlaceController.allPlaceDetailsPagination);
-router.post('/all_place_details_mongo', PlaceController.getPlaceDetailsAllMongo);
+
+// router.post('/all_place_details_mongo', PlaceController.getPlaceDetailsAllMongo);
+// router.get('/place_details_by_id_mongo/:id', PlaceController.getPlaceDetailsByIdMongo);
 
 router.get('/place_history/:id', auth, PlaceController.placeHistory);
 router.get(

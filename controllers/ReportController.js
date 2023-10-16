@@ -2,6 +2,8 @@ const apiResponse = require('../helpers/apiResponse');
 const updatePlaceQueue = require('../updatePlaceQueue');
 const {
 	sequelize,
+	years,
+	Place
 } = require('../models');
 
 // Child Functions
@@ -132,7 +134,7 @@ const fetchJotPopularityData = async (place_id) => {
 	return jotPopularity;
 };
 
-const fetchPlaceCommentTitleDataJson = async (place_id) => {
+const fetchPlaceCommentWithTitleDataJson = async (place_id) => {
 	const [placeCommentWithTitle, placeCommentWithTitleMeta] = await sequelize.query(
 		`SELECT
 		ndi.id ngo_details_info_id,
@@ -212,25 +214,35 @@ const fetchNgoPlaceHistoryDataJson = async (place_id) => {
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0				
 			ORDER BY
-			years.id desc, ypno.event_type DESC,ypno.rank ASC`
+			years.id DESC, ypno.event_type DESC,ypno.rank ASC`
 	);
 
 	// Process the data
-	const groupedByYear = ngoPlaceHistory.reduce((result, item) => {
-		const { year_id } = item;
-		if (!result[year_id]) {
-			result[year_id] = [];
-		}
-		result[year_id].push(item);
-		return result;
-	}, {});
+	// const groupedByYear = ngoPlaceHistory.reduce((result, item) => {
+	// 	const { year_id } = item;
+	// 	if (!result[year_id]) {
+	// 		result[year_id] = [];
+	// 	}
+	// 	result[year_id].push(item);
+	// 	return result;
+	// }, {});
 
-	// Convert the grouped data into an array of objects
-	const groupedArray = Object.entries(groupedByYear).map(([year_id, data]) => ({
-		year_id: Number(year_id),
-		data,
-	}));
+	// // Convert the grouped data into an array of objects
+	// const groupedArray = Object.entries(groupedByYear).map(([year_id, data]) => ({
+	// 	year_id: Number(year_id),
+	// 	data,
+	// }));
+const regroupedData = ngoPlaceHistory.reduce((acc, item) => {
+  const { year_id, ypno_event_type } = item;
+  const key = `${year_id}_${ypno_event_type}`;
+  if (!acc[key]) {
+    acc[key] = [];
+  }
+  acc[key].push(item);
+  return acc;
+}, {});
 
+const groupedArray = Object.values(regroupedData);
 	return groupedArray; // Return the processed data
 };
 
@@ -261,7 +273,7 @@ const fetchPopulationByPlaceDataJson = async (place_id) => {
 
 // Mother Function
 
-const combineDetailsReport = async (req, res) => {
+exports.combineDetailsReport = async (req, res) => {
 	try {
 
 		const id = req.params.id;
@@ -485,20 +497,32 @@ const combineDetailsReport = async (req, res) => {
 			)`
 		);
 
-		const groupedByYear = ngoPlaceHistory.reduce((result, item) => {
-			const { year_id } = item;
-			if (!result[year_id]) {
-				result[year_id] = [];
-			}
-			result[year_id].push(item);
-			return result;
-		}, {});
+		// const groupedByYear = ngoPlaceHistory.reduce((result, item) => {
+		// 	const { year_id } = item;
+		// 	if (!result[year_id]) {
+		// 		result[year_id] = [];
+		// 	}
+		// 	result[year_id].push(item);
+		// 	return result;
+		// }, {});
 
-		// Convert the grouped data into an array of objects
-		const groupedArray = Object.entries(groupedByYear).map(([year_id, data]) => ({
-			year_id: Number(year_id),
-			data,
-		}));
+		// // Convert the grouped data into an array of objects
+		// const groupedArray = Object.entries(groupedByYear).map(([year_id, data]) => ({
+		// 	year_id: Number(year_id),
+		// 	data,
+		// }));
+
+const regroupedData = ngoPlaceHistory.reduce((acc, item) => {
+  const { year_id, ypno_event_type } = item;
+  const key = `${year_id}_${ypno_event_type}`;
+  if (!acc[key]) {
+    acc[key] = [];
+  }
+  acc[key].push(item);
+  return acc;
+}, {});
+
+const groupedArray = Object.values(regroupedData);
 
 
 		const combinedData = {
@@ -530,7 +554,7 @@ const combineDetailsReport = async (req, res) => {
 }
 
 
-const createChildJson = async (id, objectName) => {
+exports.createChildJson = async (id, objectName) => {
 	let [mainObject, mainObjectMeta] = await sequelize.query(
 		`SELECT updated_json FROM places WHERE id = ${id}`
 	);
@@ -540,7 +564,7 @@ const createChildJson = async (id, objectName) => {
 		mainObject[0].updated_json.ngoServedPercentByPlace = ngoServedPercentByPlace;
 	}
 	else if (objectName === "placeCommentWithTitle") {
-		const placeCommentWithTitle = await fetchPlaceCommentTitleDataJson(id);
+		const placeCommentWithTitle = await fetchPlaceCommentWithTitleDataJson(id);
 		mainObject[0].updated_json.placeCommentWithTitle = placeCommentWithTitle;
 	}
 	else if (objectName === "populationByPlace") {
@@ -580,6 +604,96 @@ const createChildJson = async (id, objectName) => {
 	return true;
 }
 
+exports.getPlaceDetailsAllMongo = async (req, res) => {
+	try {
+		const page = parseInt(req.body.page) + 1; // Get the current page from the request query or default to page 1
+		const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or default to 10
+		const offset = (page - 1) * pageSize; // Calculate the offset
+		let placeIds;
+		const yearRow = await years.findOne({
+			order: [['name', 'DESC']],
+		});
+console.log("---------------------inside getPlaceDetailsAllMongo--------------------");
+console.log(req.body);
+		let year = yearRow.id;
 
+		let query = [];
 
-module.exports = { combineDetailsReport, createChildJson, fetchCategoryDataJson, fetchTypeDataJson, fetchJot1OfficerDataJson, fetchJot2OfficerDataJson, fetchNgoServedPercentByPlaceDataJson, fetchJotPopularityData, fetchPlaceCommentTitleDataJson, fetchNgoPopularOfficerDataJson, fetchNgoPlaceHistoryDataJson, fetchPopulationByPlaceDataJson }
+		console.log('fsddsds====>', page, pageSize);
+
+		if (
+			req.body.division_id !== '' &&
+			req.body.district_id !== '' &&
+			req.body.place_id !== ''
+		) {
+			query.push({ id: req.body.place_id });
+		}
+
+		if (req.body.division_id !== '') {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: req.body.division_id,
+				},
+				//limit: pageSize, // Limit the number of results per page
+				//offset: offset, // Skip the appropriate number of rows based on the current page
+			});
+			placeIds = places.map((place) => place.id);
+			console.log('placeIds------------------', placeIds);
+			query.push({ id: placeIds });
+		}
+		if (req.body.division_id !== '' && req.body.district_id !== '') {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: req.body.district_id,
+				},
+				limit: pageSize, // Limit the number of results per page
+				offset: offset, // Skip the appropriate number of rows based on the current page
+			});
+			placeIds = places.map((place) => place.id);
+			query.push({ id: placeIds });
+		}
+
+		const place_data = await Place.findAll({
+			attributes: ['updated_json'],
+			where: query,
+			limit: pageSize, // Limit the number of results per page
+			offset: offset,
+		})
+
+		const updatedJsonValues = place_data.map(entry => entry.updated_json);
+console.log('updatedJsonValues',updatedJsonValues);
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			{
+				data: updatedJsonValues, // Your array elements or JSON data
+				counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
+			}
+		);
+	} catch (err) {
+		console.log("---------------------error getPlaceDetailsAllMongo--------------------");
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.getPlaceDetailsByIdMongo = async (req, res) => {
+	try {
+		const place_data = await Place.findOne({
+			attributes: ['updated_json'],
+			where: {id:req.params.id},
+		})
+
+		return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				place_data
+			);
+	} catch (err) {
+		console.log("---------------------error getPlaceDetailsByIdMongo--------------------");
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+//module.exports = { combineDetailsReport, createChildJson, fetchCategoryDataJson, fetchTypeDataJson, fetchJot1OfficerDataJson, fetchJot2OfficerDataJson, fetchNgoServedPercentByPlaceDataJson, fetchJotPopularityData, fetchPlaceCommentTitleDataJson, fetchNgoPopularOfficerDataJson, fetchNgoPlaceHistoryDataJson, fetchPopulationByPlaceDataJson }
