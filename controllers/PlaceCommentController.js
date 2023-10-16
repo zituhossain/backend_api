@@ -8,6 +8,7 @@ const {
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 const checkUserRoleByPlace = require('./globalController');
+const { createChildJson } = require('./ReportController');
 const { Op } = require('sequelize');
 
 exports.fetchAllComments = async (req, res) => {
@@ -217,17 +218,24 @@ exports.createComments = async (req, res) => {
 			await ngo_details_info_point_wise.update(req.body, {
 				where: { place_id, ngo_details_info_id },
 			});
-			return apiResponse.successResponse(
-				res,
-				'Ngo Details Info updated successfully.'
-			);
+
+
+
 		} else {
 			// Create a new record
 			await ngo_details_info_point_wise.create(req.body);
-			return apiResponse.successResponse(
-				res,
-				'Ngo Details Info saved successfully.'
-			);
+			const childJson = await createChildJson(req.body.place_id, "placeCommentWithTitle")
+
+			if (childJson === true) {
+				return apiResponse.successResponse(res, 'Data successfully Saved.');
+			} else {
+				return apiResponse.successResponse(
+					res,
+					'Data successfully saved but createChildJson unsuccessful',
+
+				);
+			}
+
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
@@ -245,7 +253,19 @@ exports.updateCommentById = async (req, res) => {
 				await ngo_details_info_point_wise.update(req.body, {
 					where: { id: ngo_details_id },
 				});
-				return apiResponse.successResponse(res, 'Data successfully updated.');
+
+				const childJson = await createChildJson(req.body.place_id, "placeCommentWithTitle")
+
+				if (childJson === true) {
+					return apiResponse.successResponse(res, 'Data successfully updated.');
+				} else {
+					return apiResponse.successResponse(
+						res,
+						'Data successfully saved but createChildJson unsuccessful',
+
+					);
+				}
+
 			} else {
 				return apiResponse.ErrorResponse(res, 'place/details missing');
 			}

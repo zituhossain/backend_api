@@ -2,6 +2,7 @@ const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
 const updatePlaceQueue = require('../updatePlaceQueue')
+const { createChildJson } = require('./ReportController');
 const {
 	ngoServedPercentByPlace,
 	ngoJotAddIntoPlace,

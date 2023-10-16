@@ -57,6 +57,8 @@ apiRouter.use('/news_event/', NewsEventRouter);
 
 apiRouter.use('/tag/', TagRouter);
 apiRouter.use('/filter/', Filter);
+apiRouter.use('/report/', Report);
+
 apiRouter.use('/ngo_jot/', ngoJot);
 apiRouter.use('/category/', category);
 apiRouter.use('/config/', config);

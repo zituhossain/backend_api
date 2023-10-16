@@ -133,7 +133,7 @@ const fetchJotPopularityData = async (place_id) => {
 };
 
 const fetchPlaceCommentTitleDataJson = async (place_id) => {
-	const [placeCommentTitle, placeCommentTitleMeta] = await sequelize.query(
+	const [placeCommentWithTitle, placeCommentWithTitleMeta] = await sequelize.query(
 		`SELECT
 		ndi.id ngo_details_info_id,
 		ndi.title,
@@ -144,7 +144,7 @@ const fetchPlaceCommentTitleDataJson = async (place_id) => {
 		WHERE ndipw.place_id = ${place_id}
 		ORDER BY  ndi.view_order`
 	);
-	return placeCommentTitle;
+	return placeCommentWithTitle;
 };
 
 const fetchNgoPopularOfficerDataJson = async (place_id) => {
@@ -424,7 +424,7 @@ const combineDetailsReport = async (req, res) => {
             WHERE nspbp.place_id = ${place_id}`
 		);
 
-		const [placeCommentTitle, placeCommentTitleMeta] = await sequelize.query(
+		const [placeCommentWithTitle, placeCommentWithTitleMeta] = await sequelize.query(
 			`SELECT
             ndi.id ngo_details_info_id,
             ndi.title,
@@ -512,7 +512,7 @@ const combineDetailsReport = async (req, res) => {
 			ngoPlaceHistory: groupedArray,
 			ngoServedPercentByPlace: ngoServedPercentByPlace,
 			jotPopularity: jotPopularity,
-			placeCommentTitle: placeCommentTitle,
+			placeCommentWithTitle: placeCommentWithTitle,
 			ngoPopularOfficer: ngoPopularOfficer,
 			populationByPlace: populationByPlace
 		}
@@ -539,9 +539,9 @@ const createChildJson = async (id, objectName) => {
 		const ngoServedPercentByPlace = await fetchNgoServedPercentByPlaceDataJson(id);
 		mainObject[0].updated_json.ngoServedPercentByPlace = ngoServedPercentByPlace;
 	}
-	else if (objectName === "placeCommentTitle") {
-		const placeCommentTitle = await fetchPlaceCommentTitleDataJson(id);
-		mainObject[0].updated_json.placeCommentTitle = placeCommentTitle;
+	else if (objectName === "placeCommentWithTitle") {
+		const placeCommentWithTitle = await fetchPlaceCommentTitleDataJson(id);
+		mainObject[0].updated_json.placeCommentWithTitle = placeCommentWithTitle;
 	}
 	else if (objectName === "populationByPlace") {
 		const populationByPlace = await fetchPopulationByPlaceDataJson(id);
