@@ -41,6 +41,11 @@ router.post(
 	FilterController.finalReportGenerateOfficerProfileNGO
 );
 router.post(
+	'/finalReportGenerateOfficerProfileCounter',
+	auth,
+	FilterController.finalReportGenerateOfficerProfileNGOCounter
+);
+router.post(
 	'/finalReportGenerateAdminOfficer',
 	auth,
 	FilterController.finalReportGenerateAdminOfficer

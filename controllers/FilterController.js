@@ -612,8 +612,8 @@ exports.finalReportGenerateJot = async (req, res) => {
         FROM
             years
         ) and year_place_ngo_officers.place_id = ngo_place_info.place_id AND ngos.ngo_jots_id = (select id from ngo_jots limit 1) limit 1) as ngo_officer ${custome_query} FROM ngo_place_info` +
-			query +
-			` GROUP BY place_id`
+		query +
+		` GROUP BY place_id`
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -857,8 +857,8 @@ exports.finalReportGenerateDoubleNGO = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT ngo_place_info.*,(select ngo_name from ngo_place_info npi where ngo_id = 1 limit 1) as ngo_name2,(select ngo_name from ngo_place_info npi where ngo_id = 2 limit 1) as ngo_name3,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id}) as ngo_officer_one, (select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name = (select Max(name) from years) and year_place_ngo_officers.place_id = ngo_place_info.place_id and year_place_ngo_officers.ngo_id = ${req.body.ngo_id2}) as ngo_officer_two,(select officers.name from year_place_ngo_officers LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id LEFT JOIN years on years.id = year_place_ngo_officers.year_id where years.name =(select years.name from years order by id DESC LIMIT 1,1) and year_place_ngo_officers.place_id = ngo_place_info.place_id limit 1) as ngo_officer FROM ngo_place_info` +
-			query +
-			` GROUP BY place_id`
+		query +
+		` GROUP BY place_id`
 	);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -991,8 +991,8 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 					ngo_jot_id
 				FROM ngo_place_info2
 				WHERE ypno_status = 1 AND year = ` +
-				query +
-				`
+			query +
+			`
 				ORDER BY place_id, ngo_jot_id
 			) subquery
 			GROUP BY subquery.place_id, subquery.place_name
@@ -1774,7 +1774,7 @@ GROUP BY
 exports.masterReport = async (req, res) => {
 	try {
 		const token = req.headers.authorization.split(' ')[1];
-		let page = parseInt(req.body.page)+1; // Get the current page from the request query or default to page 1
+		let page = parseInt(req.body.page) + 1; // Get the current page from the request query or default to page 1
 		// if(page===0)
 		// 	page=1;
 		const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or default to 10
@@ -2541,16 +2541,16 @@ WHERE npi2.place_id = places.id
 			// 	'all_data fetch successfully.',
 			// 	alldata
 			// );
-			setTimeout(()=>{
-			return apiResponse.successResponseWithData(
-				res,
-				'Data successfully fetched.',
-				{
-					data: alldata, // Your array elements or JSON data
-					counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
-				}
-			);
-		},1);
+			setTimeout(() => {
+				return apiResponse.successResponseWithData(
+					res,
+					'Data successfully fetched.',
+					{
+						data: alldata, // Your array elements or JSON data
+						counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
+					}
+				);
+			}, 1);
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found');
 		}
@@ -2759,8 +2759,8 @@ FROM
   LEFT JOIN ngo_place_info2 AS npi on places.id = npi.place_id
   LEFT JOIN divisions ON places.division_id = divisions.id
   LEFT JOIN districts ON places.district_id = districts.id ` +
-				query +
-				` GROUP BY 
+			query +
+			` GROUP BY 
 				places.id
 		`
 		);
@@ -2973,7 +2973,7 @@ exports.finalReportGenerateOfficerProfileNGO_new = async (req, res) => {
 	}
 	const [alldata, metadata] = await sequelize.query(
 		`SELECT *,GROUP_CONCAT ( DISTINCT heading) as multiple_heading,GROUP_CONCAT ( DISTINCT officers_heading_descriptions.desc) as multiple_desc,places.id as place_id,places.name as place_name,officers.name as officer_name,ngos.name as ngo_name,ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join places on places.id = year_place_ngo_officers.place_id left join officers on officers.id = year_place_ngo_officers.officer_id left join ngos on ngos.id = year_place_ngo_officers.ngo_id` +
-			query
+		query
 	);
 	if (alldata.length > 0) {
 		let final_data = [];
@@ -3006,30 +3006,34 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 	let descType = '';
 	let headingDesc = '';
 
+	let page = parseInt(req.body.page) + 1; // Get the current page from the request query or default to 
+	const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or 
+	const offset = (page - 1) * pageSize; // Calculate the offset
 
 
-	if (req.body.division_id != '') {
+
+	if (req.body.division_id != '' && req.body.division_id != null) {
 		if (query.includes('where')) {
 			query += ` and places.division_id = ${req.body.division_id}`;
 		} else {
 			query += ` where places.division_id = ${req.body.division_id}`;
 		}
 	}
-	if (req.body.district_id != '') {
+	if (req.body.district_id != '' && req.body.district_id != null) {
 		if (query.includes('where')) {
 			query += ` and places.district_id = '${req.body.district_id}'`;
 		} else {
 			query += ` where places.district_id = '${req.body.district_id}'`;
 		}
 	}
-	if (req.body.place_id != '') {
+	if (req.body.place_id != '' && req.body.place_id != null) {
 		if (query.includes('where')) {
 			query += ` and places.id = '${req.body.place_id}'`;
 		} else {
 			query += ` where places.id = '${req.body.place_id}'`;
 		}
 	}
-	if (req.body.heading_id != '') {
+	if (req.body.heading_id != '' && req.body.heading_id != null) {
 		// if(heading.includes('where')){
 		heading += ` and id = '${req.body.heading_id}'`;
 		headingDesc += ` and heading_id = '${req.body.heading_id}'`;
@@ -3038,7 +3042,7 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 		// }
 	}
 
-	if (req.body.type_id != '') {
+	if (req.body.type_id != '' && req.body.type_id != null) {
 		if (type.includes('where')) {
 			type += ` and officer_profile_headings.type_id = '${req.body.type_id}'`;
 			headingType += ` and officer_profile_headings.type = '${req.body.type_id}'`;
@@ -3049,7 +3053,7 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 		descType += ` and officer_profile_headings.type = '${req.body.type_id}'`;
 	}
 
-	if (req.body.ngo_id !== '') {
+	if (req.body.ngo_id !== '' && req.body.ngo_id != null) {
 		if (query.includes('where')) {
 			query += ` and year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`;
 		} else {
@@ -3085,7 +3089,7 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
     ${query}
     GROUP BY year_place_ngo_officers.officer_id
     HAVING description_list IS NOT NULL
-    ORDER BY places.id`);
+    ORDER BY places.id LIMIT ${pageSize} OFFSET ${offset}`);
 	console.log('alldata', alldata);
 	if (alldata.length > 0) {
 		const userId = report.getUserId(req);
@@ -3096,12 +3100,12 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 			alldata[i].description_list =
 				alldata[i].description_list !== null
 					? alldata[i].description_list.split(',')?.map((res) => {
-							const desc = res.split('/-/');
-							console.log(desc[2]);
-							const newDesc = decryptHash(desc[2]);
-							console.log(newDesc);
-							return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
-					  })
+						const desc = res.split('/-/');
+						console.log(desc[2]);
+						const newDesc = decryptHash(desc[2]);
+						console.log(newDesc);
+						return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
+					})
 					: alldata[i].description_list;
 			// let decoded_desc = "";
 			// if(current_desc){
@@ -3122,7 +3126,6 @@ exports.finalReportGenerateOfficerProfileNGO = async (req, res) => {
 	}
 };
 
-
 exports.finalReportGenerateOfficerProfileNGOCounter = async (req, res) => {
 	let query = 'where years.id = (select MAX(id) from years)';
 	let type = '';
@@ -3132,30 +3135,28 @@ exports.finalReportGenerateOfficerProfileNGOCounter = async (req, res) => {
 	let headingDesc = '';
 
 
-
-
-	if (req.body.division_id != '') {
+	if (req.body.division_id != '' && req.body.division_id != null) {
 		if (query.includes('where')) {
 			query += ` and places.division_id = ${req.body.division_id}`;
 		} else {
 			query += ` where places.division_id = ${req.body.division_id}`;
 		}
 	}
-	if (req.body.district_id != '') {
+	if (req.body.district_id != '' && req.body.district_id != null) {
 		if (query.includes('where')) {
 			query += ` and places.district_id = '${req.body.district_id}'`;
 		} else {
 			query += ` where places.district_id = '${req.body.district_id}'`;
 		}
 	}
-	if (req.body.place_id != '') {
+	if (req.body.place_id != '' && req.body.place_id != null) {
 		if (query.includes('where')) {
 			query += ` and places.id = '${req.body.place_id}'`;
 		} else {
 			query += ` where places.id = '${req.body.place_id}'`;
 		}
 	}
-	if (req.body.heading_id != '') {
+	if (req.body.heading_id != '' && req.body.heading_id != null) {
 		// if(heading.includes('where')){
 		heading += ` and id = '${req.body.heading_id}'`;
 		headingDesc += ` and heading_id = '${req.body.heading_id}'`;
@@ -3164,7 +3165,7 @@ exports.finalReportGenerateOfficerProfileNGOCounter = async (req, res) => {
 		// }
 	}
 
-	if (req.body.type_id != '') {
+	if (req.body.type_id != '' && req.body.type_id != null) {
 		if (type.includes('where')) {
 			type += ` and officer_profile_headings.type_id = '${req.body.type_id}'`;
 			headingType += ` and officer_profile_headings.type = '${req.body.type_id}'`;
@@ -3175,7 +3176,7 @@ exports.finalReportGenerateOfficerProfileNGOCounter = async (req, res) => {
 		descType += ` and officer_profile_headings.type = '${req.body.type_id}'`;
 	}
 
-	if (req.body.ngo_id !== '') {
+	if (req.body.ngo_id !== '' && req.body.ngo_id != null) {
 		if (query.includes('where')) {
 			query += ` and year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`;
 		} else {
@@ -3222,12 +3223,12 @@ exports.finalReportGenerateOfficerProfileNGOCounter = async (req, res) => {
 			alldata[i].description_list =
 				alldata[i].description_list !== null
 					? alldata[i].description_list.split(',')?.map((res) => {
-							const desc = res.split('/-/');
-							console.log(desc[2]);
-							const newDesc = decryptHash(desc[2]);
-							console.log(newDesc);
-							return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
-					  })
+						const desc = res.split('/-/');
+						console.log(desc[2]);
+						const newDesc = decryptHash(desc[2]);
+						console.log(newDesc);
+						return desc[0].concat('/-/', desc[1]).concat('/-/', newDesc);
+					})
 					: alldata[i].description_list;
 			// let decoded_desc = "";
 			// if(current_desc){
@@ -3241,41 +3242,118 @@ exports.finalReportGenerateOfficerProfileNGOCounter = async (req, res) => {
 		return apiResponse.successResponseWithData(
 			res,
 			'all_data fetch successfully.',
-			final_data
+			final_data.length
 		);
 	} else {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
 
+// exports.finalReportGenerateOfficerProfileNGOCounter = async (req, res) => {
+// 	let query = 'where years.id = (select MAX(id) from years)';
+// 	let type = '';
+// 	let heading = '';
+// 	let headingType = '';
+// 	let descType = '';
+// 	let headingDesc = '';
+
+
+
+
+// 	if (req.body.division_id != '' && req.body.division_id != null) {
+// 		if (query.includes('where')) {
+// 			query += ` and places.division_id = ${req.body.division_id}`;
+// 		} else {
+// 			query += ` where places.division_id = ${req.body.division_id}`;
+// 		}
+// 	}
+// 	if (req.body.district_id != '' && req.body.district_id != null) {
+// 		if (query.includes('where')) {
+// 			query += ` and places.district_id = '${req.body.district_id}'`;
+// 		} else {
+// 			query += ` where places.district_id = '${req.body.district_id}'`;
+// 		}
+// 	}
+// 	if (req.body.place_id != '' && req.body.place_id != null) {
+// 		if (query.includes('where')) {
+// 			query += ` and places.id = '${req.body.place_id}'`;
+// 		} else {
+// 			query += ` where places.id = '${req.body.place_id}'`;
+// 		}
+// 	}
+// 	if (req.body.heading_id != '' && req.body.heading_id != null) {
+// 		// if(heading.includes('where')){
+// 		heading += ` and id = '${req.body.heading_id}'`;
+// 		headingDesc += ` and heading_id = '${req.body.heading_id}'`;
+// 		// }else{
+// 		//     heading += ` where heading_id = '${req.body.heading_id}'`
+// 		// }
+// 	}
+
+// 	if (req.body.type_id != '' && req.body.type_id != null) {
+// 		if (type.includes('where')) {
+// 			type += ` and officer_profile_headings.type_id = '${req.body.type_id}'`;
+// 			headingType += ` and officer_profile_headings.type = '${req.body.type_id}'`;
+// 		} else {
+// 			type += ` where id = '${req.body.type_id}'`;
+// 			headingType += ` where officer_profile_headings.type = '${req.body.type_id}'`;
+// 		}
+// 		descType += ` and officer_profile_headings.type = '${req.body.type_id}'`;
+// 	}
+
+// 	if (req.body.ngo_id !== '' && req.body.ngo_id != null) {
+// 		if (query.includes('where')) {
+// 			query += ` and year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`;
+// 		} else {
+// 			query += ` where year_place_ngo_officers.ngo_id = '${req.body.ngo_id}'`;
+// 		}
+// 	}
+// 	// const [alldata, metadata] = await sequelize.query(`SELECT *,places.id as place_id,places.name as place_name,officers.name as officer_name,ngos.name as ngo_name,ngos.id as ngo_id FROM year_place_ngo_officers LEFT JOIN officers_heading_descriptions ON year_place_ngo_officers.officer_id = officers_heading_descriptions.officer_id and year_place_ngo_officers.year_id = officers_heading_descriptions.officer_id left join officer_profile_headings on officer_profile_headings.id = officers_heading_descriptions.heading_id left join years on years.id = year_place_ngo_officers.year_id left join places on places.id = year_place_ngo_officers.place_id left join officers on officers.id = year_place_ngo_officers.officer_id left join ngos on ngos.id = year_place_ngo_officers.ngo_id`+query);
+// 	// const [alldata, metadata] = await sequelize.query(
+// 	// 	`select (select GROUP_CONCAT(concat(id,'/-/',type)) from profile_types ${type} ORDER by sort) as type_list,(select GROUP_CONCAT(concat(type,'/-/',id,'/-/',heading)) from officer_profile_headings ${headingType}${heading} ORDER by view_sort,type) heading_list,(select GROUP_CONCAT(CONCAT(heading_id,'/-/',type,'/-/',officers_heading_descriptions.desc)) from officers_heading_descriptions left join officer_profile_headings on officers_heading_descriptions.heading_id = officer_profile_headings.id where officer_id = year_place_ngo_officers.officer_id and year_id = year_place_ngo_officers.year_id ${descType}${headingDesc} order by heading_id) description_list, places.id as place_id,places.name as place_name,ngos.name as ngo_name,officers.name as officer_name,officers.image as officer_photo,places.area from places LEFT join year_place_ngo_officers on year_place_ngo_officers.place_id = places.id LEFT join ngos on ngos.id = year_place_ngo_officers.ngo_id LEFT JOIN officers on officers.id = year_place_ngo_officers.officer_id left JOIN years on years.id = year_place_ngo_officers.year_id ${query} GROUP by year_place_ngo_officers.officer_id  order by places.id`
+// 	// );
+// 	const [alldata, metadata] = await sequelize.query(`
+//     SELECT COUNT(DISTINCT year_place_ngo_officers.officer_id) AS total_officer_profile
+//     FROM places
+//     LEFT JOIN year_place_ngo_officers ON year_place_ngo_officers.place_id = places.id
+//     LEFT JOIN ngos ON ngos.id = year_place_ngo_officers.ngo_id
+//     LEFT JOIN officers ON officers.id = year_place_ngo_officers.officer_id
+//     LEFT JOIN years ON years.id = year_place_ngo_officers.year_id
+//     ${query} `);
+// 	if (alldata.length > 0) {
+// 		return apiResponse.successResponseWithData(
+// 			res,
+// 			'all_data fetch successfully.',
+// 			alldata
+// 		);
+// 	} else {
+// 		return apiResponse.ErrorResponse(res, 'No data found');
+// 	}
+// };
+
 exports.finalReportGenerateAdminOfficer = async (req, res) => {
 	let query = '';
 
-	let page = parseInt(req.body.page)+1; // Get the current page from the request query or default to page 1
-	// if(page===0)
-	// 	page=1;
-	const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or default to 10
+	let page = parseInt(req.body.page) + 1; // Get the current page from the request query or default to 
+	const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or 
 	const offset = (page - 1) * pageSize; // Calculate the offset
 
 
-	if (req.body.division_id != '') {
+	if (req.body.division_id != '' && req.body.division_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officers.division_id = '${req.body.division_id}'`;
 		} else {
 			query += ` where administration_officers.division_id = '${req.body.division_id}'`;
 		}
 	}
-	if (req.body.district_id != '') {
-		const get_district = await District.findOne({
-			where: { id: req.body.district_id },
-		});
+	if (req.body.district_id != '' && req.body.district_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officers.district_id = '${req.body.district_id}'`;
 		} else {
 			query += ` where administration_officers.district_id = '${req.body.district_id}'`;
 		}
 	}
-	if (req.body.place_id != '') {
+	if (req.body.place_id != '' && req.body.place_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officers.place_id = '${req.body.place_id}'`;
 		} else {
@@ -3283,21 +3361,21 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
 		}
 	}
 
-	if (req.body.admin_office_id != '') {
+	if (req.body.admin_office_id != '' && req.body.admin_office_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
 		} else {
 			query += ` where administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
 		}
 	}
-	if (req.body.admin_officer_type_id != '') {
+	if (req.body.admin_officer_type_id != '' && req.body.admin_officer_type_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
 		} else {
 			query += ` where administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
 		}
 	}
-	query += ` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`;
+	// query += ` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`;
 	const [alldata, metadata] = await sequelize.query(
 		`select 
   *, 
@@ -3315,14 +3393,14 @@ from
   left join ngos on ngos.id = administration_officers.ngo_id` + query + ` LIMIT ${pageSize} OFFSET ${offset}`
 	);
 	if (alldata.length > 0) {
-		setTimeout(()=>{
+		setTimeout(() => {
 			return apiResponse.successResponseWithData(
-			res,
-			'all_data fetch successfully.',
-			alldata
-		);
-		},10000);
-		
+				res,
+				'all_data fetch successfully.',
+				alldata
+			);
+		}, 10000);
+
 
 
 	} else {
@@ -3334,26 +3412,21 @@ from
 exports.finalReportGenerateAdminOfficerCounter = async (req, res) => {
 	let query = '';
 
-
-
-	if (req.body.division_id != '') {
+	if (req.body.division_id != '' && req.body.division_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officers.division_id = '${req.body.division_id}'`;
 		} else {
 			query += ` where administration_officers.division_id = '${req.body.division_id}'`;
 		}
 	}
-	if (req.body.district_id != '') {
-		const get_district = await District.findOne({
-			where: { id: req.body.district_id },
-		});
+	if (req.body.district_id != '' && req.body.district_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officers.district_id = '${req.body.district_id}'`;
 		} else {
 			query += ` where administration_officers.district_id = '${req.body.district_id}'`;
 		}
 	}
-	if (req.body.place_id != '') {
+	if (req.body.place_id != '' && req.body.place_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officers.place_id = '${req.body.place_id}'`;
 		} else {
@@ -3361,21 +3434,21 @@ exports.finalReportGenerateAdminOfficerCounter = async (req, res) => {
 		}
 	}
 
-	if (req.body.admin_office_id != '') {
+	if (req.body.admin_office_id != '' && req.body.admin_office_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
 		} else {
 			query += ` where administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
 		}
 	}
-	if (req.body.admin_officer_type_id != '') {
+	if (req.body.admin_officer_type_id != '' && req.body.admin_officer_type_id != null) {
 		if (query.includes('where')) {
 			query += ` and administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
 		} else {
 			query += ` where administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
 		}
 	}
-	query += ` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`;
+	// query += ` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`;
 	const [alldata, metadata] = await sequelize.query(
 		`select 
   COUNT(administration_officers.id) as total_officer_count
