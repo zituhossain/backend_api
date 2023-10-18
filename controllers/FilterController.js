@@ -3392,7 +3392,7 @@ from
   administration_officers as officer
   left join administration_offices as office on officer.administration_office_id = office.id 
   left join administration_officer_types as officeType on officer.designation = officeType.id
-  left join ngos on ngos.id = officer.ngo_id LIMIT 2 OFFSET 0;`
+  left join ngos on ngos.id = officer.ngo_id ` + query + ` LIMIT ${pageSize} OFFSET ${offset}`
 	);
 	if (alldata.length > 0) {
 		setTimeout(() => {
