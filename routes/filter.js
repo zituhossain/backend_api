@@ -4,8 +4,8 @@ const auth = require('../middlewares/jwt');
 const router = express.Router();
 
 router.get('/divisions', FilterController.divisions);
-router.get('/places_by_distict_id/:id', FilterController.placesByDistricId);
-router.get('/district_by_division_id/:id', FilterController.districtsByDivisionId);
+router.get('/places_by_distict_id/:id', auth,FilterController.placesByDistricId);
+router.get('/district_by_division_id/:id', auth, FilterController.districtsByDivisionId);
 
 router.post('/reportTest', auth, FilterController.reportTest);
 router.post(
