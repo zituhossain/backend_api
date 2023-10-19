@@ -12,6 +12,8 @@ const bcrypt = require('bcrypt');
 const IP = require('ip');
 let ipAddress = IP.address();
 const { Op } = require('sequelize');
+const { roleByPlaceId } = require('../helpers/roleByPlace');
+const { use } = require('passport');
 /**
  * User registration.
  *
@@ -215,6 +217,9 @@ exports.login = async (req, res) => {
 	const { username, password1, password2 } = req.body;
 	try {
 		const user = await User.findOne({ where: { username: req.body.username } });
+		const globalData = await roleByPlaceId(user.role_id);
+		global.globalData = globalData
+		console.log("globalData", global.globalData)
 		if (user) {
 			if (password2 === '') {
 				const passwordmatch = await dycryptandmatch(password1, user.password1);
