@@ -6,6 +6,7 @@ const router = express.Router();
 router.get('/combine_report/:id', ReportController.combineDetailsReport);
 
 router.post('/all_place_details_mongo', ReportController.getPlaceDetailsAllMongo);
+router.post('/all_place_details_mongo_counter', ReportController.getPlaceDetailsAllMongoCounter);
 router.get('/place_details_by_id_mongo/:id', ReportController.getPlaceDetailsByIdMongo);
 
 module.exports = router;

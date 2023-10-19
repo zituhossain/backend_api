@@ -662,18 +662,93 @@ console.log(req.body);
 			offset: offset,
 		})
 
-		const updatedJsonValues = place_data.map(entry => entry.updated_json);
-console.log('updatedJsonValues',updatedJsonValues);
+		const data = place_data.map(entry => entry.updated_json);
+//console.log('updatedJsonValues',updatedJsonValues);
+		return apiResponse.successResponseWithData(
+			res,
+			'Data successfully fetched.',
+			data
+		);
+	} catch (err) {
+		console.log("---------------------error getPlaceDetailsAllMongo--------------------");
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
+exports.getPlaceDetailsAllMongoCounter = async (req, res) => {
+	try {
+		// const page = parseInt(req.body.page) + 1; // Get the current page from the request query or default to page 1
+		// const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or default to 10
+		// const offset = (page - 1) * pageSize; // Calculate the offset
+		let placeIds;
+		// const yearRow = await years.findOne({
+		// 	order: [['name', 'DESC']],
+		// });
+console.log("---------------------inside getPlaceDetailsAllMongo counter--------------------");
+console.log(req.body);
+		// let year = yearRow.id;
+
+		let query = [];
+
+
+
+		if (
+			req.body.division_id !== '' &&
+			req.body.district_id !== '' &&
+			req.body.place_id !== ''
+		) {
+			query.push({ id: req.body.place_id });
+		}
+
+		if (req.body.division_id !== '') {
+			console.log('divisionid');
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					division_id: req.body.division_id,
+				},
+				//limit: pageSize, // Limit the number of results per page
+				//offset: offset, // Skip the appropriate number of rows based on the current page
+			});
+			placeIds = places.map((place) => place.id);
+			
+			query.push({ id: placeIds });
+		}
+		if (req.body.division_id !== '' && req.body.district_id !== '') {
+			const places = await Place.findAll({
+				attributes: ['id'],
+				where: {
+					district_id: req.body.district_id,
+				},
+				limit: pageSize, // Limit the number of results per page
+				offset: offset, // Skip the appropriate number of rows based on the current page
+			});
+			placeIds = places.map((place) => place.id);
+			query.push({ id: placeIds });
+			console.log('placeIds------------------', placeIds);
+		}
+
+
+
+const placeDataAndCount = await Place.findAndCountAll({
+  attributes: ['updated_json'],
+  where: query,
+});
+
+const placeData = placeDataAndCount.rows; // The actual data
+const resultCount = placeDataAndCount.count; // The count of results
+
+
+		console.log('length',resultCount);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
 			{
-				data: updatedJsonValues, // Your array elements or JSON data
-				counter: placeIds ? placeIds.length : null, // Your additional data (you can replace 42 with the desired value)
+				total_place_count: resultCount ? resultCount : null, // Your additional data (you can replace 42 with the desired value)
 			}
 		);
 	} catch (err) {
-		console.log("---------------------error getPlaceDetailsAllMongo--------------------");
+		console.log("---------------------error getPlaceDetailsAllMongoCounter--------------------");
 		return apiResponse.ErrorResponse(res, err.message);
 	}
 };
