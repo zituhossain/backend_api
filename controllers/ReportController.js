@@ -24,6 +24,21 @@ const fetchCategoryDataJson = async (place_id) => {
 	return category;
 };
 
+const fetchAllCategoryDataJson = async (place_id) => {
+
+	const [categories, categoriesMeta] = await sequelize.query(
+		`SELECT
+		ngo_categories.color_code,
+		ngo_categories.short_name,
+		ngo_categories.name,
+		ngo_categories.values
+		FROM ngo_categories
+		WHERE ngo_categories.type = 1`
+	);
+
+	return categories;
+};
+
 const fetchTypeDataJson = async (place_id) => {
 	const [type, typeMeta] = await sequelize.query(
 		`SELECT
@@ -295,6 +310,16 @@ exports.combineDetailsReport = async (req, res) => {
 		const place_name = place.length > 0 ? place[0].name : null;
 		const place_area = place.length > 0 ? place[0].area : null;
 
+		const [categories, categoriesMeta] = await sequelize.query(
+			`SELECT
+			ngo_categories.color_code,
+			ngo_categories.short_name,
+			ngo_categories.name,
+			ngo_categories.values
+			FROM ngo_categories
+			WHERE ngo_categories.type = 1`
+		);
+
 		const [category, categoryMeta] = await sequelize.query(
 			`SELECT
 			ngo_categories.color_code,
@@ -529,6 +554,7 @@ const groupedArray = Object.values(regroupedData);
 			place_id: place_id,
 			place_name: place_name,
 			place_area: place_area,
+			categories: categories,
 			category: category,
 			type: type,
 			jot1Officer: jot1Officer,
