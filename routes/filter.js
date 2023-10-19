@@ -3,6 +3,7 @@ const FilterController = require('../controllers/FilterController');
 const auth = require('../middlewares/jwt');
 const router = express.Router();
 
+
 router.get('/divisions', FilterController.divisions);
 router.get('/places_by_distict_id/:id', auth,FilterController.placesByDistricId);
 router.get('/district_by_division_id/:id', auth, FilterController.districtsByDivisionId);

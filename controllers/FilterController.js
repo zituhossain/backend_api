@@ -3338,41 +3338,40 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
 	const pageSize = parseInt(req.body.pageSize) || 10; // Get the page size from the request query or 
 	const offset = (page - 1) * pageSize; // Calculate the offset
 
-
 	if (req.body.division_id != '' && req.body.division_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officers.division_id = '${req.body.division_id}'`;
+			query += ` and officer.division_id = ${req.body.division_id}`;
 		} else {
-			query += ` where administration_officers.division_id = '${req.body.division_id}'`;
+			query += ` where officer.division_id = ${req.body.division_id}`;
 		}
 	}
 	if (req.body.district_id != '' && req.body.district_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officers.district_id = '${req.body.district_id}'`;
+			query += ` and officer.district_id = ${req.body.district_id}`;
 		} else {
-			query += ` where administration_officers.district_id = '${req.body.district_id}'`;
+			query += ` where officer.district_id = ${req.body.district_id}`;
 		}
 	}
 	if (req.body.place_id != '' && req.body.place_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officers.place_id = '${req.body.place_id}'`;
+			query += ` and officer.place_id = ${req.body.place_id}`;
 		} else {
-			query += ` where administration_officers.place_id = '${req.body.place_id}'`;
+			query += ` where officer.place_id = ${req.body.place_id}`;
 		}
 	}
 
 	if (req.body.admin_office_id != '' && req.body.admin_office_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
+			query += ` and office.id = ${req.body.admin_office_id}`;
 		} else {
-			query += ` where administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
+			query += ` where office.id = ${req.body.admin_office_id}`;
 		}
 	}
 	if (req.body.admin_officer_type_id != '' && req.body.admin_officer_type_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
+			query += ` and officeType.id = ${req.body.admin_officer_type_id}`;
 		} else {
-			query += ` where administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
+			query += ` where officeType.id = ${req.body.admin_officer_type_id}`;
 		}
 	}
 	// query += ` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`;
@@ -3385,14 +3384,14 @@ exports.finalReportGenerateAdminOfficer = async (req, res) => {
   officer.name as officer_name,
   officer.id as id,
   officer.place_id as place_id,
-  ngos.name as ngo_name,
-  ngos.short_name as ngo_short_name,
-  ngos.color_code as ngo_color_code
+  ngo.name as ngo_name,
+  ngo.short_name as ngo_short_name,
+  ngo.color_code as ngo_color_code
 from 
   administration_officers as officer
   left join administration_offices as office on officer.administration_office_id = office.id 
   left join administration_officer_types as officeType on officer.designation = officeType.id
-  left join ngos on ngos.id = officer.ngo_id ` + query + ` LIMIT ${pageSize} OFFSET ${offset}`
+  left join ngos as ngo on ngo.id = officer.ngo_id ` + query + ` LIMIT ${pageSize} OFFSET ${offset}`
 	);
 	if (alldata.length > 0) {
 		setTimeout(() => {
@@ -3417,49 +3416,49 @@ exports.finalReportGenerateAdminOfficerCounter = async (req, res) => {
 
 	if (req.body.division_id != '' && req.body.division_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officers.division_id = '${req.body.division_id}'`;
+			query += ` and officer.division_id = ${req.body.division_id}`;
 		} else {
-			query += ` where administration_officers.division_id = '${req.body.division_id}'`;
+			query += ` where officer.division_id = ${req.body.division_id}`;
 		}
 	}
 	if (req.body.district_id != '' && req.body.district_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officers.district_id = '${req.body.district_id}'`;
+			query += ` and officer.district_id = '${req.body.district_id}'`;
 		} else {
-			query += ` where administration_officers.district_id = '${req.body.district_id}'`;
+			query += ` where officer.district_id = '${req.body.district_id}'`;
 		}
 	}
 	if (req.body.place_id != '' && req.body.place_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officers.place_id = '${req.body.place_id}'`;
+			query += ` and officer.place_id = '${req.body.place_id}'`;
 		} else {
-			query += ` where administration_officers.place_id = '${req.body.place_id}'`;
+			query += ` where officer.place_id = '${req.body.place_id}'`;
 		}
 	}
 
 	if (req.body.admin_office_id != '' && req.body.admin_office_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
+			query += ` and office.id = '${req.body.admin_office_id}'`;
 		} else {
-			query += ` where administration_officer_types.administration_office_id = '${req.body.admin_office_id}'`;
+			query += ` where office.id = '${req.body.admin_office_id}'`;
 		}
 	}
 	if (req.body.admin_officer_type_id != '' && req.body.admin_officer_type_id != null) {
 		if (query.includes('where')) {
-			query += ` and administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
+			query += ` and officeType.id = '${req.body.admin_officer_type_id}'`;
 		} else {
-			query += ` where administration_officer_types.id = '${req.body.admin_officer_type_id}'`;
+			query += ` where officeType.id = '${req.body.admin_officer_type_id}'`;
 		}
 	}
 	// query += ` order by administration_offices.ordering, administration_officer_types.view_sort, administration_officers.ordering IS NULL, administration_officers.ordering`;
 	const [alldata, metadata] = await sequelize.query(
 		`select 
-  COUNT(administration_officers.id) as total_officer_count
+  COUNT(officer.id) as total_officer_count
 from 
-  administration_officers 
-  left join administration_offices on administration_officers.administration_office_id = administration_offices.id 
-  left join administration_officer_types on administration_officers.designation = administration_officer_types.id
-  left join ngos on ngos.id = administration_officers.ngo_id` + query
+  administration_officers as officer
+  left join administration_offices as office on officer.administration_office_id = office.id 
+  left join administration_officer_types as officeType on officer.designation = officeType.id
+  left join ngos as ngo on ngo.id = officer.ngo_id` + query
 	);
 	if (alldata.length > 0) {
 		return apiResponse.successResponseWithData(
