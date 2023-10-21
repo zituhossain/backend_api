@@ -183,8 +183,8 @@ FROM
   LEFT JOIN places ON places.id = pyp.place_id 
 WHERE 
   ` +
-				query +
-				`
+			query +
+			`
   AND pyp.year_id = (
     SELECT 
       MAX(id) AS year_id 
@@ -257,8 +257,8 @@ exports.getbyDisId = async (req, res) => {
 		try {
 			const [results, metadata] = await population_year_place.sequelize.query(
 				'select sum(pyp.minority) as total_minority,sum(pyp.minority1) as total_minority1,sum(pyp.minority2) as total_minority2,sum(pyp.total_population) as total_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female,sum(pyp.minority) as total_minority,sum(pyp.minority1) as total_minority1,sum(pyp.minority2) as total_minority2 from population_year_places pyp left join places on places.id = pyp.place_id where places.district_id = ' +
-					disId +
-					' and year_id = (select max(id) as year_id from years)'
+				disId +
+				' and year_id = (select max(id) as year_id from years)'
 			);
 
 			return apiResponse.successResponseWithData(
@@ -282,8 +282,8 @@ exports.getbyPlaceId = async (req, res) => {
 		try {
 			const [results, metadata] = await population_year_place.sequelize.query(
 				'select sum(pyp.total_population) as total_population,sum(pyp.male) as total_male,sum(pyp.female) as total_female,sum(pyp.minority) as total_minority,sum(pyp.minority1) as total_minority1,sum(pyp.minority2) as total_minority2 from population_year_places pyp left join places on places.id = pyp.place_id where places.id = ' +
-					placeId +
-					' and year_id = (select max(id) as year_id from years)'
+				placeId +
+				' and year_id = (select max(id) as year_id from years)'
 			);
 
 			return apiResponse.successResponseWithData(
@@ -306,8 +306,8 @@ exports.getMinoritybyPlaceId = async (req, res) => {
 		try {
 			const [results, metadata] = await population_year_place.sequelize.query(
 				'select sum(pyp.minority) as total_minority,sum(pyp.minority1) as total_minority1,sum(pyp.minority2) as total_minority2 from population_year_places pyp left join places on places.id = pyp.place_id where places.id = ' +
-					placeId +
-					' and year_id = (select max(id) as year_id from years)'
+				placeId +
+				' and year_id = (select max(id) as year_id from years)'
 			);
 
 			return apiResponse.successResponseWithData(
@@ -331,8 +331,8 @@ exports.getbyDivId = async (req, res) => {
 		try {
 			const [results, metadata] = await population_year_place.sequelize.query(
 				'select sum(pyp.total_population) as total_population, sum(pyp.minority) as total_minority, sum(pyp.minority1) as total_minority1, sum(pyp.minority2) as total_minority2,sum(pyp.male) as total_male,sum(pyp.female) as total_female,sum(pyp.minority) as total_minority,sum(pyp.minority1) as total_minority1,sum(pyp.minority2) as total_minority2 from population_year_places pyp left join places on places.id = pyp.place_id where division_id = ' +
-					divId +
-					' and year_id = (select max(id) as year_id from years)'
+				divId +
+				' and year_id = (select max(id) as year_id from years)'
 			);
 
 			return apiResponse.successResponseWithData(
@@ -441,32 +441,32 @@ exports.updatebyid = async (req, res) => {
 	}
 };
 
-exports.updatebyid = async (req, res) => {
-	try {
-		const condition_id = req.params.id;
-		const token = req.headers.authorization.split(' ')[1];
-		const decodedToken = jwt.verify(token, secret);
-		const userId = decodedToken._id;
-		req.body.updated_by = userId;
-		const condition_data = await population_year_place.findOne({
-			where: { id: condition_id },
-		});
-		if (condition_data) {
-			if (req.body.place_id) {
-				await population_year_place.update(req.body, {
-					where: { id: condition_id },
-				});
-				return apiResponse.successResponse(res, 'Data successfully updated.');
-			} else {
-				return apiResponse.ErrorResponse(res, 'heading missing');
-			}
-		} else {
-			return apiResponse.ErrorResponse(res, 'No matching query found');
-		}
-	} catch (err) {
-		return apiResponse.ErrorResponse(res, err.message);
-	}
-};
+// exports.updatebyid = async (req, res) => {
+// 	try {
+// 		const condition_id = req.params.id;
+// 		const token = req.headers.authorization.split(' ')[1];
+// 		const decodedToken = jwt.verify(token, secret);
+// 		const userId = decodedToken._id;
+// 		req.body.updated_by = userId;
+// 		const condition_data = await population_year_place.findOne({
+// 			where: { id: condition_id },
+// 		});
+// 		if (condition_data) {
+// 			if (req.body.place_id) {
+// 				await population_year_place.update(req.body, {
+// 					where: { id: condition_id },
+// 				});
+// 				return apiResponse.successResponse(res, 'Data successfully updated.');
+// 			} else {
+// 				return apiResponse.ErrorResponse(res, 'heading missing');
+// 			}
+// 		} else {
+// 			return apiResponse.ErrorResponse(res, 'No matching query found');
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
 
 exports.TotalPopulationMinority = async (req, res) => {
 	try {

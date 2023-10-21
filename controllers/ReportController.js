@@ -247,17 +247,17 @@ const fetchNgoPlaceHistoryDataJson = async (place_id) => {
 	// 	year_id: Number(year_id),
 	// 	data,
 	// }));
-const regroupedData = ngoPlaceHistory.reduce((acc, item) => {
-  const { year_id, ypno_event_type } = item;
-  const key = `${year_id}_${ypno_event_type}`;
-  if (!acc[key]) {
-    acc[key] = [];
-  }
-  acc[key].push(item);
-  return acc;
-}, {});
+	const regroupedData = ngoPlaceHistory.reduce((acc, item) => {
+		const { year_id, ypno_event_type } = item;
+		const key = `${year_id}_${ypno_event_type}`;
+		if (!acc[key]) {
+			acc[key] = [];
+		}
+		acc[key].push(item);
+		return acc;
+	}, {});
 
-const groupedArray = Object.values(regroupedData);
+	const groupedArray = Object.values(regroupedData);
 	return groupedArray; // Return the processed data
 };
 
@@ -537,17 +537,17 @@ exports.combineDetailsReport = async (req, res) => {
 		// 	data,
 		// }));
 
-const regroupedData = ngoPlaceHistory.reduce((acc, item) => {
-  const { year_id, ypno_event_type } = item;
-  const key = `${year_id}_${ypno_event_type}`;
-  if (!acc[key]) {
-    acc[key] = [];
-  }
-  acc[key].push(item);
-  return acc;
-}, {});
+		const regroupedData = ngoPlaceHistory.reduce((acc, item) => {
+			const { year_id, ypno_event_type } = item;
+			const key = `${year_id}_${ypno_event_type}`;
+			if (!acc[key]) {
+				acc[key] = [];
+			}
+			acc[key].push(item);
+			return acc;
+		}, {});
 
-const groupedArray = Object.values(regroupedData);
+		const groupedArray = Object.values(regroupedData);
 
 
 		const combinedData = {
@@ -581,54 +581,57 @@ const groupedArray = Object.values(regroupedData);
 
 
 exports.createChildJson = async (id, objectName) => {
-	let [mainObject, mainObjectMeta] = await sequelize.query(
-		`SELECT updated_json FROM places WHERE id = ${id}`
-	);
+	try {
+		const mainObject = await sequelize.models.Place.findByPk(id);
+		if (!mainObject) {
+			throw new Error(`Place with ID ${id} not found.`);
+		}
 
-	if (objectName === "ngoServedPercentByPlace") {
-		const ngoServedPercentByPlace = await fetchNgoServedPercentByPlaceDataJson(id);
-		mainObject[0].updated_json.ngoServedPercentByPlace = ngoServedPercentByPlace;
-	}
-	else if (objectName === "placeCommentWithTitle") {
-		const placeCommentWithTitle = await fetchPlaceCommentWithTitleDataJson(id);
-		mainObject[0].updated_json.placeCommentWithTitle = placeCommentWithTitle;
-	}
-	else if (objectName === "populationByPlace") {
-		const populationByPlace = await fetchPopulationByPlaceDataJson(id);
-		mainObject[0].updated_json.populationByPlace = populationByPlace;
-	}
-	// else if (objectName === "jot1Officer") {
-	// 	const jot1Officer = await fetchJot1OfficerDataJson(id);
-	// 	mainObject[0].updated_json.jot1Officer = jot1Officer;
-	// }
-	// else if (objectName === "jot2Officer") {
-	// 	const jot2Officer = await fetchJot2OfficerDataJson(id);
-	// 	mainObject[0].updated_json.jot2Officer = jot2Officer;
-	// }
-	// else if (objectName === "ngoPopularOfficer") {
-	// 	const ngoPopularOfficer = await fetchNgoPopularOfficerDataJson(id);
-	// 	mainObject[0].updated_json.ngoPopularOfficer = ngoPopularOfficer;
-	// }
-	else if (objectName[0] === "ngoPopularOfficer" && objectName[1] === "jot1Officer" && objectName[2] === "jot2Officer" && objectName[3] === "ngoPlaceHistory") {
-		const ngoPopularOfficer = await fetchNgoPopularOfficerDataJson(id);
-		mainObject[0].updated_json.ngoPopularOfficer = ngoPopularOfficer;
-		const jot1Officer = await fetchJot1OfficerDataJson(id);
-		mainObject[0].updated_json.jot1Officer = jot1Officer;
-		const jot2Officer = await fetchJot2OfficerDataJson(id);
-		mainObject[0].updated_json.jot2Officer = jot2Officer;
-		const ngoPlaceHistory = await fetchNgoPlaceHistoryDataJson(id);
-		mainObject[0].updated_json.ngoPlaceHistory = ngoPlaceHistory;
-	}
-	else if (objectName[0] === "type" && objectName[1] === "category") {
-		const category = await fetchCategoryDataJson(id);
-		const type = await fetchTypeDataJson(id);
-		mainObject[0].updated_json.category = category;
-		mainObject[0].updated_json.type = type;
-	}
+		let updatedJson = mainObject.updated_json ? JSON.parse(mainObject.updated_json) : {};
 
-	updatePlaceQueue.add({ placeId: id, updatedData: mainObject[0].updated_json });
-	return true;
-}
+		if (objectName === "ngoServedPercentByPlace") {
+			const ngoServedPercentByPlace = await fetchNgoServedPercentByPlaceDataJson(id);
+			updatedJson.ngoServedPercentByPlace = ngoServedPercentByPlace;
+		} else if (objectName === "placeCommentWithTitle") {
+			const placeCommentWithTitle = await fetchPlaceCommentWithTitleDataJson(id);
+			updatedJson.placeCommentWithTitle = placeCommentWithTitle;
+		} else if (objectName === "populationByPlace") {
+			const populationByPlace = await fetchPopulationByPlaceDataJson(id);
+			updatedJson.populationByPlace = populationByPlace;
+		} else if (
+			objectName[0] === "ngoPopularOfficer" &&
+			objectName[1] === "jot1Officer" &&
+			objectName[2] === "jot2Officer" &&
+			objectName[3] === "ngoPlaceHistory"
+		) {
+			const ngoPopularOfficer = await fetchNgoPopularOfficerDataJson(id);
+			const jot1Officer = await fetchJot1OfficerDataJson(id);
+			const jot2Officer = await fetchJot2OfficerDataJson(id);
+			const ngoPlaceHistory = await fetchNgoPlaceHistoryDataJson(id);
+
+			updatedJson.ngoPopularOfficer = ngoPopularOfficer;
+			updatedJson.jot1Officer = jot1Officer;
+			updatedJson.jot2Officer = jot2Officer;
+			updatedJson.ngoPlaceHistory = ngoPlaceHistory;
+		} else if (objectName[0] === "type" && objectName[1] === "category") {
+			const category = await fetchCategoryDataJson(id);
+			const type = await fetchTypeDataJson(id);
+			updatedJson.category = category;
+			updatedJson.type = type;
+		}
+
+		// Convert the JSON object back to a JSON string before storing
+		mainObject.updated_json = updatedJson;
+
+		// Update and save the Place model
+		updatePlaceQueue.add({ placeId: id, updatedData: updatedJson });
+
+		return true;
+	} catch (error) {
+		console.error('Error creating child JSON:', error);
+		return false;
+	}
+};
 
 exports.getPlaceDetailsAllMongo = async (req, res) => {
 	try {
@@ -639,8 +642,8 @@ exports.getPlaceDetailsAllMongo = async (req, res) => {
 		const yearRow = await years.findOne({
 			order: [['name', 'DESC']],
 		});
-console.log("---------------------inside getPlaceDetailsAllMongo--------------------");
-console.log(req.body);
+		console.log("---------------------inside getPlaceDetailsAllMongo--------------------");
+		console.log(req.body);
 		let year = yearRow.id;
 
 		let query = [];
@@ -689,7 +692,7 @@ console.log(req.body);
 		})
 
 		const data = place_data.map(entry => entry.updated_json);
-//console.log('updatedJsonValues',updatedJsonValues);
+		//console.log('updatedJsonValues',updatedJsonValues);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -710,8 +713,8 @@ exports.getPlaceDetailsAllMongoCounter = async (req, res) => {
 		// const yearRow = await years.findOne({
 		// 	order: [['name', 'DESC']],
 		// });
-console.log("---------------------inside getPlaceDetailsAllMongo counter--------------------");
-console.log(req.body);
+		console.log("---------------------inside getPlaceDetailsAllMongo counter--------------------");
+		console.log(req.body);
 		// let year = yearRow.id;
 
 		let query = [];
@@ -737,7 +740,7 @@ console.log(req.body);
 				//offset: offset, // Skip the appropriate number of rows based on the current page
 			});
 			placeIds = places.map((place) => place.id);
-			
+
 			query.push({ id: placeIds });
 		}
 		if (req.body.division_id !== '' && req.body.district_id !== '') {
@@ -756,16 +759,16 @@ console.log(req.body);
 
 
 
-const placeDataAndCount = await Place.findAndCountAll({
-  attributes: ['updated_json'],
-  where: query,
-});
+		const placeDataAndCount = await Place.findAndCountAll({
+			attributes: ['updated_json'],
+			where: query,
+		});
 
-const placeData = placeDataAndCount.rows; // The actual data
-const resultCount = placeDataAndCount.count; // The count of results
+		const placeData = placeDataAndCount.rows; // The actual data
+		const resultCount = placeDataAndCount.count; // The count of results
 
 
-		console.log('length',resultCount);
+		console.log('length', resultCount);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -783,14 +786,14 @@ exports.getPlaceDetailsByIdMongo = async (req, res) => {
 	try {
 		const place_data = await Place.findOne({
 			attributes: ['updated_json'],
-			where: {id:req.params.id},
+			where: { id: req.params.id },
 		})
 
 		return apiResponse.successResponseWithData(
-				res,
-				'Data successfully fetched.',
-				place_data
-			);
+			res,
+			'Data successfully fetched.',
+			place_data
+		);
 	} catch (err) {
 		console.log("---------------------error getPlaceDetailsByIdMongo--------------------");
 		return apiResponse.ErrorResponse(res, err.message);

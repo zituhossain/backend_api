@@ -739,8 +739,8 @@ exports.getPlacesByDivision = async (req, res) => {
 				(element) => element === parseInt(req.params.id)
 			) !== undefined
 				? roleByplace.division.find(
-						(element) => element === parseInt(req.params.id)
-				  )
+					(element) => element === parseInt(req.params.id)
+				)
 				: 0;
 		const matchingDistrictIds = roleByplace.district.filter((id) =>
 			districtIds.includes(id)
@@ -1747,8 +1747,8 @@ exports.placeHistory = async (req, res) => {
 			LEFT JOIN population_year_places ON ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id AND ypno.event_type = population_year_places.event_type
 			WHERE
 				places.id = ` +
-				place_id +
-				`
+			place_id +
+			`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0				
 			ORDER BY
@@ -1976,12 +1976,25 @@ exports.addNgoServedPercent = async (req, res) => {
 					});
 				}
 			}
+
 		}
 
-		return apiResponse.successResponse(
-			res,
-			'addNgoServedPercent - Data successfully saved.'
-		);
+		const childJson = await createChildJson(req.body.place_id, "ngoServedPercentByPlace")
+
+		if (childJson === true) {
+			return apiResponse.successResponse(res, 'Data successfully Saved.');
+		} else {
+			return apiResponse.successResponse(
+				res,
+				'Data successfully saved but createChildJson unsuccessful',
+
+			);
+		}
+
+		// return apiResponse.successResponse(
+		// 	res,
+		// 	'addNgoServedPercent - Data successfully saved.'
+		// );
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
@@ -2669,14 +2682,14 @@ exports.categoryBColor = async (req, res) => {
 		);
 
 		if (results.length > 0) {
-			setTimeout(()=>{
+			setTimeout(() => {
 				return apiResponse.successResponseWithData(
 					res,
 					'Data fetch successfull.',
 					results
 				);
-			},1);
-			
+			}, 1);
+
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found!!!');
 		}
