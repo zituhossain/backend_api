@@ -34,18 +34,18 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
 		// 		year_id: currentOfficer.year_id,
 		// 	},
 		// });
-		let check_if_exist_officer = await year_place_ngo_officer.findAll({
-			raw: true,
-			where: {
-				ngo_id: currentOfficer.ngo_id,
-				year_id: currentOfficer.year_id,
-				place_id: currentOfficer.place_id,
-			},
-		});
-		console.log(
-			'check_if_exist_officercheck_if_exist_officer',
-			check_if_exist_officer
-		);
+		// let check_if_exist_officer = await year_place_ngo_officer.findAll({
+		// 	raw: true,
+		// 	where: {
+		// 		ngo_id: currentOfficer.ngo_id,
+		// 		year_id: currentOfficer.year_id,
+		// 		place_id: currentOfficer.place_id,
+		// 	},
+		// });
+		// console.log(
+		// 	'check_if_exist_officercheck_if_exist_officer',
+		// 	check_if_exist_officer
+		// );
 		// if (check_if_exist_officer.length == 1) {
 		// 	await Place.update(
 		// 		{
@@ -59,11 +59,23 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
 		// } else if (check_if_exist.length === 1) {
 		// 	await NgoServed.destroy({ where: { ngo_id: currentOfficer.ngo_id } });
 		// }
+		
 		await year_place_ngo_officer.destroy({ where: { id: row_id } });
+		const data = ["ngoPopularOfficer", "jot1Officer", "jot2Officer", "ngoPlaceHistory"];
+		const childJson = await createChildJson(currentOfficer.place_id, data);
+
+		if (childJson === true) {
+			return apiResponse.successResponse(res, 'Data successfully deleted');
+		} else {
+			return apiResponse.successResponse(
+				res,
+				'Data successfully deleted but createChildJson unsuccessful',
+
+			);
+		}
 		// await officers_heading_description.destroy({
 		// 	where: { officer_id: currentOfficer.officer_id },
 		// });
-		return apiResponse.successResponse(res, 'data successfully deleted');
 	} else {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
@@ -1223,15 +1235,15 @@ exports.getYearPlaceNgoOfficersWithConditionsForMap = async (req, res) => {
 		);
 
 		if (results) {
-			setTimeout(()=>{
+			setTimeout(() => {
 				return apiResponse.successResponseWithData(
 					res,
 					'Data successfully fetched.',
 					results
 				);
 
-			},1);
-			
+			}, 1);
+
 		} else {
 			return apiResponse.ErrorResponse(res, 'No matching query found');
 		}

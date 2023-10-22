@@ -288,7 +288,17 @@ exports.deleteCommentById = async (req, res) => {
 			await ngo_details_info_point_wise.destroy({
 				where: { id: ngo_details_info_point_wises_id },
 			});
-			return apiResponse.successResponse(res, 'Data deleted successfully.');
+			const childJson = await createChildJson(ngo_details_info_point_wises_data[0]['place_id'], "placeCommentWithTitle")
+
+				if (childJson === true) {
+					return apiResponse.successResponse(res, 'Delete successfully.');
+				} else {
+					return apiResponse.successResponse(
+						res,
+						'Delete successfully but createChildJson unsuccessful',
+
+					);
+				}
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found!!!');
 		}
