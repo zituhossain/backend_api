@@ -11,9 +11,9 @@ const { CronJob } = require('cron');
 const { CronTask } = require('./cronJob');
 const { MongoDB } = require('./db');
 const mongoDB = new MongoDB();
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const { mongo_db_url } = require('./config.js');
-const updatePlaceQueue = require('./updatePlaceQueue');
+const { updatePlaceQueue, masterReportQueue } = require('./updatePlaceQueue');
 const updatePlaceWorker = require('./updatePlaceWorker');
 
 //////////////////////mongo connect
@@ -49,11 +49,12 @@ const port = normalizePort(process.env.PORT || '8081');
 
 const db = require('./db/db');
 const sequelize = db.sequelize;
-sequelize.authenticate()
+sequelize
+	.authenticate()
 	.then(() => {
 		console.log('Connection has been established successfully.');
 	})
-	.catch(err => {
+	.catch((err) => {
 		console.error('Unable to connect to the database:', err);
 	});
 
@@ -61,9 +62,11 @@ updatePlaceQueue
 	.isReady()
 	.then(() => {
 		updatePlaceWorker.start();
-	}).catch((error) => {
+	})
+	.catch((error) => {
 		console.error('Error starting the Queue:', error);
 	});
+
 const app = express();
 
 // var env = process.env.NODE_ENV || 'development';
@@ -82,16 +85,9 @@ app.use(cookieParser());
 const corsOpts = {
 	origin: '*',
 
-	methods: [
-		'GET',
-		'POST',
-		'OPTIONS'
-	],
+	methods: ['GET', 'POST', 'OPTIONS'],
 
-	allowedHeaders: [
-		'Content-Type',
-		'Access-Control-Allow-Origin: *'
-	],
+	allowedHeaders: ['Content-Type', 'Access-Control-Allow-Origin: *'],
 };
 // add multer middleware
 app.disable('x-powered-by');
@@ -117,4 +113,3 @@ app.listen(port, () => {
 	cronJobInit.start();
 	console.log('Server started on :', `http://localhost:${port}`);
 });
-
