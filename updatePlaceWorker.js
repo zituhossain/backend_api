@@ -17,18 +17,18 @@ function start() {
 		}
 	});
 	// Process jobs for the masterReportQueue
-	masterReportQueue.process(async (job) => {
-		try {
-			const { placeId, masterReportData } = job.data;
-			// Update the Place table with the master report data
-			await Place.update(
-				{ master_report_json: masterReportData },
-				{ where: { id: placeId } }
-			);
-		} catch (error) {
-			console.error('Error processing masterReportQueue job:', error);
-		}
-	});
+	// masterReportQueue.process(async (job) => {
+	// 	try {
+	// 		const { placeId, masterReportData } = job.data;
+	// 		// Update the Place table with the master report data
+	// 		await Place.update(
+	// 			{ master_report_json: masterReportData },
+	// 			{ where: { id: placeId } }
+	// 		);
+	// 	} catch (error) {
+	// 		console.error('Error processing masterReportQueue job:', error);
+	// 	}
+	// });
 }
 
 module.exports = { start };

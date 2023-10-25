@@ -815,10 +815,10 @@ exports.combineMasterReport = async (req, res) => {
 		};
 
 		// Update the Place table with the combined data
-		masterReportQueue.add({
-			placeId: place_id,
-			masterReportData: combinedData,
-		});
+		// masterReportQueue.add({
+		// 	placeId: place_id,
+		// 	masterReportData: combinedData,
+		// });
 
 		return apiResponse.successResponseWithData(
 			res,

@@ -7,5 +7,5 @@ const redisConfig = {
 };
 
 const updatePlaceQueue = new Queue('updatePlace', redisConfig);
-const masterReportQueue = new Queue('masterReport', redisConfig);
-module.exports = { updatePlaceQueue, masterReportQueue };
+// const masterReportQueue = new Queue('masterReport', redisConfig);
+module.exports = { updatePlaceQueue };

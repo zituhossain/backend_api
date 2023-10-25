@@ -13,7 +13,7 @@ const { MongoDB } = require('./db');
 const mongoDB = new MongoDB();
 const mongoose = require('mongoose');
 const { mongo_db_url } = require('./config.js');
-const { updatePlaceQueue, masterReportQueue } = require('./updatePlaceQueue');
+const { updatePlaceQueue } = require('./updatePlaceQueue');
 const updatePlaceWorker = require('./updatePlaceWorker');
 
 //////////////////////mongo connect
