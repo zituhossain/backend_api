@@ -552,36 +552,56 @@ console.log(results);
 //     place_id;
 
 
+
+
+// SELECT
+//   n.place_id,
+//   n.year,
+//   n.place_name,
+//   n.officer_name,
+//   n.ngo_name
+// FROM ngo_place_info2 n
+// WHERE n.ypno_rank = 1 
+// AND n.year = (
+//   SELECT MAX(year)
+//   FROM ngo_place_info2
+//   WHERE place_id = n.place_id AND ypno_rank=1
+// )
+// ORDER BY n.place_id ASC;
+
+
+// SELECT
+//   n.place_id,
+//   n.year_id,
+//   n.officer_id,
+//   n.ngo_id
+// FROM year_place_ngo_officers n
+// WHERE n.rank = 1
+// AND n.year_id = (
+//   SELECT MAX(year_id)
+//   FROM year_place_ngo_officers
+//   WHERE place_id = n.place_id AND rank=1
+// )
+// ORDER BY n.place_id ASC;
+
+
 exports.totalPlaceCountPopularOfficerWithoutNgoId6 = async (req, res) => {
 	try {
 		const [results, metadata] = await Ngo.sequelize.query(
 			`SELECT
-    y.place_id,
-    y.ngo_id,
-    y.officer_id,
-    MAX(y.year_id) AS max_year_id,
-    COUNT(DISTINCT y.place_id) AS total_place_count
-FROM
-    (
-        SELECT
-            place_id,
-            MAX(id) AS max_id
-        FROM
-            year_place_ngo_officers
-        WHERE
-            rank = 1
-            AND status = 0
-            AND ngo_id != 6
-        GROUP BY
-            place_id
-    ) AS latest_entries
-JOIN year_place_ngo_officers y
-ON
-    latest_entries.place_id = y.place_id
-    AND latest_entries.max_id = y.id
-GROUP BY
-    y.place_id;;
-`
+  n.place_id,
+  n.year,
+  n.place_name,
+  n.officer_name,
+  n.ngo_name
+FROM ngo_place_info2 n
+WHERE n.ypno_rank = 1 AND n.ypno_status=0 AND ngo_id!=6
+AND n.year = (
+  SELECT MAX(year)
+  FROM ngo_place_info2
+  WHERE place_id = n.place_id AND ypno_rank=1 AND ypno_status=0
+)
+ORDER BY n.place_id ASC;`
 		);
 console.log('------------adfasdfasd------------');
 console.log(results);
