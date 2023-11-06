@@ -3,7 +3,7 @@ const {
 	ngo_details_info_point_wise,
 	Place,
 	ngo_details_info,
-	District
+	District,
 } = require('../models');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
@@ -83,14 +83,14 @@ exports.fetchAllComments = async (req, res) => {
 		);
 		allNgoDetails = await ngo_details_info_point_wise.findAll({
 			include: [Place, ngo_details_info],
-			where: {place_id: arr},
+			where: { place_id: arr },
 		});
 	} else {
 		allNgoDetails = await ngo_details_info_point_wise.findAll({
 			include: [Place, ngo_details_info],
 		});
 	}
-	
+
 	if (allNgoDetails) {
 		return apiResponse.successResponseWithData(
 			res,
@@ -219,23 +219,35 @@ exports.createComments = async (req, res) => {
 				where: { place_id, ngo_details_info_id },
 			});
 
-
-
-		} else {
-			// Create a new record
-			await ngo_details_info_point_wise.create(req.body);
-			const childJson = await createChildJson(req.body.place_id, "placeCommentWithTitle")
+			const childJson = await createChildJson(
+				req.body.place_id,
+				'placeCommentWithTitle'
+			);
 
 			if (childJson === true) {
 				return apiResponse.successResponse(res, 'Data successfully Saved.');
 			} else {
 				return apiResponse.successResponse(
 					res,
-					'Data successfully saved but createChildJson unsuccessful',
-
+					'Data successfully saved but createChildJson unsuccessful'
 				);
 			}
+		} else {
+			// Create a new record
+			await ngo_details_info_point_wise.create(req.body);
+			const childJson = await createChildJson(
+				req.body.place_id,
+				'placeCommentWithTitle'
+			);
 
+			if (childJson === true) {
+				return apiResponse.successResponse(res, 'Data successfully Saved.');
+			} else {
+				return apiResponse.successResponse(
+					res,
+					'Data successfully saved but createChildJson unsuccessful'
+				);
+			}
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
@@ -254,18 +266,19 @@ exports.updateCommentById = async (req, res) => {
 					where: { id: ngo_details_id },
 				});
 
-				const childJson = await createChildJson(req.body.place_id, "placeCommentWithTitle")
+				const childJson = await createChildJson(
+					req.body.place_id,
+					'placeCommentWithTitle'
+				);
 
 				if (childJson === true) {
 					return apiResponse.successResponse(res, 'Data successfully updated.');
 				} else {
 					return apiResponse.successResponse(
 						res,
-						'Data successfully saved but createChildJson unsuccessful',
-
+						'Data successfully saved but createChildJson unsuccessful'
 					);
 				}
-
 			} else {
 				return apiResponse.ErrorResponse(res, 'place/details missing');
 			}
@@ -288,17 +301,19 @@ exports.deleteCommentById = async (req, res) => {
 			await ngo_details_info_point_wise.destroy({
 				where: { id: ngo_details_info_point_wises_id },
 			});
-			const childJson = await createChildJson(ngo_details_info_point_wises_data[0]['place_id'], "placeCommentWithTitle")
+			const childJson = await createChildJson(
+				ngo_details_info_point_wises_data[0]['place_id'],
+				'placeCommentWithTitle'
+			);
 
-				if (childJson === true) {
-					return apiResponse.successResponse(res, 'Delete successfully.');
-				} else {
-					return apiResponse.successResponse(
-						res,
-						'Delete successfully but createChildJson unsuccessful',
-
-					);
-				}
+			if (childJson === true) {
+				return apiResponse.successResponse(res, 'Delete successfully.');
+			} else {
+				return apiResponse.successResponse(
+					res,
+					'Delete successfully but createChildJson unsuccessful'
+				);
+			}
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found!!!');
 		}
