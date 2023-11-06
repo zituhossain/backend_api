@@ -243,7 +243,7 @@ exports.finalReportGenerateCategory = async (req, res) => {
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
-*/
+
 
 exports.finalReportGenerateCategory = async (req, res) => {
 	// let query = `SELECT ngo_place_info.*,
@@ -374,6 +374,7 @@ ORDER BY npi.place_id`;
 		return apiResponse.ErrorResponse(res, 'No data found');
 	}
 };
+*/
 /*
 SELECT
   place.id AS place_id,
@@ -401,6 +402,95 @@ LEFT JOIN
 GROUP BY
   place.id, place.name;
 */
+
+
+exports.finalReportGenerateCategory = async (req, res) => {
+	console.log('-----------------------reportTest----------');
+	let currentNgoId;
+	if (req.body.ngo_id == '' || req.body.ngo_id == null) currentNgoId = 6;
+	else currentNgoId = req.body.ngo_id;
+	console.log('currentNgoId ', currentNgoId);
+	let mainQuery =
+		`
+	SELECT 
+	npi.place_id AS place_id, 
+	npi.place_name AS place_name,
+	npi.place_area AS place_area, 
+	npi.category_short_name AS category_short_name, 
+	npi.place_type_short_name AS place_type_short_name, 
+  ngo_officers.ngo_officer_list AS officer_list, 
+  nspbp.percent AS ngo_popularity, 
+  places.updated_json as updated_json 
+  FROM ngo_place_info2 AS npi 
+  LEFT JOIN places on places.id = npi.place_id 
+	LEFT JOIN (
+        SELECT 
+        npi2.place_id AS place_id, 
+        npi2.year AS year,
+        CONCAT('[',GROUP_CONCAT(
+            JSON_OBJECT(
+             'officer_name', IFNULL(officer_name, NULL),
+             'ngo_name', IFNULL(ngo_name, NULL),
+             'officer_photo', IFNULL(officer_photo, NULL),
+             'ypno_popularity', IFNULL(ypno_popularity, NULL),
+             'ypno_view_order', IFNULL(ypno_view_order, NULL),
+             'ypno_status', IFNULL(ypno_status, NULL),
+             'event_type', IFNULL(ypno_event_type, NULL)
+             ) 
+            ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), 
+            -ngo_view_order DESC, -ypno_view_order DESC, officer_id 
+        ),']') AS ngo_officer_list 
+        FROM ngo_place_info2 AS npi2 
+        WHERE npi2.year = (SELECT MAX(name) from years WHERE type=0) AND npi2.ngo_id=` +
+		currentNgoId +
+		`
+        GROUP BY npi2.place_id 
+    ) AS ngo_officers ON npi.place_id = ngo_officers.place_id 
+	LEFT JOIN ngo_served_percent_by_palces AS nspbp on (nspbp.place_id = npi.place_id AND nspbp.ngo_id=` +
+		currentNgoId +
+		`)`;
+
+	let query = '';
+	if (req.body.place_id !== '') {
+		query += ` WHERE npi.place_id = '${req.body.place_id}'`;
+	} else if (req.body.district_id !== '') {
+		query += ` WHERE npi.district_id = '${req.body.district_id}'`;
+	} else if (req.body.division_id !== '') {
+		query += ` WHERE npi.division_id = '${req.body.division_id}'`;
+	}
+
+	if (
+		req.body.category &&
+		req.body.category !== '' &&
+		req.body.category !== null
+	) {
+		if (query.includes('WHERE')) {
+			query += ` AND npi.category_id = '${req.body.category}'`;
+		} else {
+			query += ` WHERE npi.category_id = '${req.body.category}'`;
+		}
+	}
+
+	mainQuery =
+		mainQuery +
+		query +
+		` GROUP BY npi.place_id
+ORDER BY npi.place_id`;
+
+	// const [alldata, metadata] = await sequelize.query(`SELECT * FROM ngo_place_info` + query + ` GROUP BY officer_name`);
+	//console.log('query', mainQuery);
+	const [alldata, metadata] = await sequelize.query(mainQuery);
+	if (alldata.length > 0) {
+		return apiResponse.successResponseWithData(
+			res,
+			'all_data fetch successfully.',
+			alldata
+		);
+	} else {
+		console.log('faile queyr: ', mainQuery);
+		return apiResponse.ErrorResponse(res, 'No data found');
+	}
+};
 exports.reportTest = async (req, res) => {
 	// let query = `SELECT ngo_place_info.*,
 	// (SELECT officers.name from year_place_ngo_officers LEFT JOIN officers
