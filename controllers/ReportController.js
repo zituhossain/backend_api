@@ -1010,8 +1010,8 @@ exports.getPlaceDetailsAllMongoCounter = async (req, res) => {
 				where: {
 					district_id: req.body.district_id,
 				},
-				limit: pageSize, // Limit the number of results per page
-				offset: offset, // Skip the appropriate number of rows based on the current page
+				//limit: pageSize, // Limit the number of results per page
+				//offset: offset, // Skip the appropriate number of rows based on the current page
 			});
 			placeIds = places.map((place) => place.id);
 			query.push({ id: placeIds });
