@@ -1,7 +1,7 @@
 const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
-const updatePlaceQueue = require('../updatePlaceQueue')
+const updatePlaceQueue = require('../updatePlaceQueue');
 const { createChildJson } = require('./ReportController');
 const {
 	ngoServedPercentByPlace,
@@ -739,8 +739,8 @@ exports.getPlacesByDivision = async (req, res) => {
 				(element) => element === parseInt(req.params.id)
 			) !== undefined
 				? roleByplace.division.find(
-					(element) => element === parseInt(req.params.id)
-				)
+						(element) => element === parseInt(req.params.id)
+				  )
 				: 0;
 		const matchingDistrictIds = roleByplace.district.filter((id) =>
 			districtIds.includes(id)
@@ -1747,8 +1747,8 @@ exports.placeHistory = async (req, res) => {
 			LEFT JOIN population_year_places ON ypno.year_id = population_year_places.year_id AND ypno.place_id = population_year_places.place_id AND ypno.event_type = population_year_places.event_type
 			WHERE
 				places.id = ` +
-			place_id +
-			`
+				place_id +
+				`
 				AND ypno.rank IS NOT NULL
 				AND ypno.rank <> 0				
 			ORDER BY
@@ -1976,18 +1976,19 @@ exports.addNgoServedPercent = async (req, res) => {
 					});
 				}
 			}
-
 		}
 
-		const childJson = await createChildJson(req.body.place_id, "ngoServedPercentByPlace")
+		const childJson = await createChildJson(
+			req.body.place_id,
+			'ngoServedPercentByPlace'
+		);
 
 		if (childJson === true) {
 			return apiResponse.successResponse(res, 'Data successfully Saved.');
 		} else {
 			return apiResponse.successResponse(
 				res,
-				'Data successfully saved but createChildJson unsuccessful',
-
+				'Data successfully saved but createChildJson unsuccessful'
 			);
 		}
 
@@ -2015,16 +2016,15 @@ exports.createPlaceCategoryType = async (req, res) => {
 			} else {
 				await ngo_category_b.create(req.body);
 
-				const data = ["type", "category"]
+				const data = ['type', 'category'];
 
-				const childJson = await createChildJson(req.body.place_id, data)
+				const childJson = await createChildJson(req.body.place_id, data);
 				if (childJson === true) {
 					return apiResponse.successResponse(res, 'Data successfully updated.');
 				} else {
 					return apiResponse.successResponse(
 						res,
-						'Data successfully saved but createChildJson unsuccessful',
-
+						'Data successfully saved but createChildJson unsuccessful'
 					);
 				}
 			}
@@ -2048,22 +2048,19 @@ exports.updatePlaceCategoryType = async (req, res) => {
 					where: { place_id: req.body.place_id },
 				});
 
-				const data = ["type", "category"]
+				const data = ['type', 'category'];
 
-				const childJson = await createChildJson(req.body.place_id, data)
+				const childJson = await createChildJson(req.body.place_id, data);
 				if (childJson === true) {
 					return apiResponse.successResponse(res, 'Data successfully updated.');
 				} else {
 					return apiResponse.successResponse(
 						res,
-						'Data successfully saved but createChildJson unsuccessful',
-
+						'Data successfully saved but createChildJson unsuccessful'
 					);
 				}
 
 				// console.log('child', childJson1, childJson2)
-
-
 			} else {
 				return apiResponse.ErrorResponse(res, 'No matching data found.');
 			}
@@ -2218,7 +2215,17 @@ exports.deletePlaceCategoryType = async (req, res) => {
 			await ngo_category_b.destroy({
 				where: { id: id },
 			});
-			return apiResponse.successResponse(res, 'Data successfully deleted.');
+			const data = ['type', 'category'];
+
+			const childJson = await createChildJson(existData.place_id, data);
+			if (childJson === true) {
+				return apiResponse.successResponse(res, 'Data successfully deleted.');
+			} else {
+				return apiResponse.successResponse(
+					res,
+					'Data successfully deleted but createChildJson unsuccessful'
+				);
+			}
 		} else {
 			return apiResponse.ErrorResponse(res, 'No matching query found');
 		}
@@ -2689,7 +2696,6 @@ exports.categoryBColor = async (req, res) => {
 					results
 				);
 			}, 1);
-
 		} else {
 			return apiResponse.ErrorResponse(res, 'No data found!!!');
 		}
