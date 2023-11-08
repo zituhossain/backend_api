@@ -262,11 +262,12 @@ exports.login = async (req, res) => {
 							privilege_url: final_array,
 						};
 						const jwtPayload = userData;
-						const jwtData = {
-							expiresIn: process.env.JWT_TIMEOUT_DURATION,
-						};
+						// const jwtData = {
+						// 	expiresIn: process.env.JWT_TIMEOUT_DURATION,
+						// };
 						const secret = process.env.JWT_SECRET;
-						const token = jwt.sign(jwtPayload, secret, jwtData);
+						// const token = jwt.sign(jwtPayload, secret, jwtData);
+						const token = jwt.sign(jwtPayload, secret);
 						try {
 							ipAddress =
 								req.headers['x-forwarded-for'] ||
@@ -302,7 +303,7 @@ exports.login = async (req, res) => {
 							console.log('login error: ', err.message);
 						}
 						const globalData = await roleByPlaceId(user.role_id);
-						global.globalData = globalData
+						global.globalData = globalData;
 						return apiResponse.successResponseWithDataNToken(
 							res,
 							'login successfull.',
