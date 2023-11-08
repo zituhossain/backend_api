@@ -1062,4 +1062,41 @@ exports.getPlaceDetailsByIdMongo = async (req, res) => {
 	}
 };
 
+
+exports.updateAllPlacesWithCategoryData = async () => {
+	try {
+		// Fetch the latest category data from your source
+		const latestCategoryData = await fetchAllCategoryDataJson();
+
+		// Fetch all places
+		const places = await Place.findAll();
+
+		for (const place of places) {
+			const place_id = place.id;
+
+			// Get the existing updated_json object
+			const existingData = place.updated_json ? JSON.parse(place.updated_json) : {};
+
+			// Merge the existing data with the updated data
+			const updatedData = { ...existingData, categories: latestCategoryData };
+
+			// Convert the merged data back to a JSON string
+			// const updatedJsonString = JSON.stringify(updatedData);
+
+			// Update the place's updated_json column
+			await Place.update({ updated_json: updatedData }, { where: { id: place_id } });
+
+			// Add the place update to the queue
+			updatePlaceQueue.add({
+				placeId: place_id,
+				updatedData: updatedData,
+			});
+		}
+
+		console.log('All places updated with the latest category data');
+	} catch (err) {
+		console.error('Error updating all places:', err);
+	}
+};
+
 //module.exports = { combineDetailsReport, createChildJson, fetchCategoryDataJson, fetchTypeDataJson, fetchJot1OfficerDataJson, fetchJot2OfficerDataJson, fetchNgoServedPercentByPlaceDataJson, fetchJotPopularityData, fetchPlaceCommentTitleDataJson, fetchNgoPopularOfficerDataJson, fetchNgoPlaceHistoryDataJson, fetchPopulationByPlaceDataJson }
