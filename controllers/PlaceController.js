@@ -1,7 +1,7 @@
 const { model } = require('mongoose');
 const apiResponse = require('../helpers/apiResponse');
 const checkUserRoleByPlace = require('./globalController');
-const updatePlaceQueue = require('../updatePlaceQueue');
+const { updatePlaceQueue } = require('../updatePlaceQueue');
 const { createChildJson } = require('./ReportController');
 const {
 	ngoServedPercentByPlace,
@@ -445,18 +445,88 @@ exports.deleteplacebyid = async (req, res) => {
 	}
 };
 
+// exports.updatePlace = async (req, res) => {
+// 	try {
+// 		const place_id = req.params.id;
+// 		if (
+// 			req.body.name &&
+// 			req.body.area &&
+// 			req.body.district_id &&
+// 			req.body.division_id
+// 		) {
+// 			const if_place_exists = await Place.findOne({ where: { id: place_id } });
+// 			if (if_place_exists) {
+// 				await Place.update(req.body, { where: { id: place_id } });
+// 				return apiResponse.successResponse(res, 'Data successfully updated.');
+// 			} else {
+// 				return apiResponse.ErrorResponse(res, 'No matching data found.');
+// 			}
+// 		} else {
+// 			return apiResponse.ErrorResponse(
+// 				res,
+// 				'name/area/district_id/division_id is missing.'
+// 			);
+// 		}
+// 	} catch (err) {
+// 		return apiResponse.ErrorResponse(res, err.message);
+// 	}
+// };
+
 exports.updatePlace = async (req, res) => {
 	try {
 		const place_id = req.params.id;
+
+		// Construct the updatedData object
+		const updatedData = {
+			place_id: place_id,
+			place_name: req.body.name,
+			place_area: req.body.area,
+			district_id: req.body.district_id,
+			division_id: req.body.division_id,
+		};
+
 		if (
 			req.body.name &&
 			req.body.area &&
 			req.body.district_id &&
 			req.body.division_id
 		) {
-			const if_place_exists = await Place.findOne({ where: { id: place_id } });
-			if (if_place_exists) {
-				await Place.update(req.body, { where: { id: place_id } });
+			const existingPlace = await Place.findOne({ where: { id: place_id } });
+			if (existingPlace) {
+				// Convert the existing JSON string to an object
+				let existingData = {};
+				if (existingPlace.updated_json) {
+					try {
+						existingData = JSON.parse(existingPlace.updated_json);
+					} catch (err) {
+						return apiResponse.ErrorResponse(
+							res,
+							'Error parsing existing data.'
+						);
+					}
+				}
+
+				// Merge existingData with updatedData
+				const mergedData = { ...existingData, ...updatedData };
+
+				// Update the Place table with the merged JSON data
+				await Place.update(
+					{
+						name: req.body.name,
+						area: req.body.area,
+						district_id: req.body.district_id,
+						division_id: req.body.division_id,
+						updated_json: mergedData,
+					},
+					{ where: { id: place_id } }
+				);
+
+				// Enqueue the update to the queue
+				updatePlaceQueue.add({
+					placeId: place_id,
+					updatedData: mergedData,
+				});
+
 				return apiResponse.successResponse(res, 'Data successfully updated.');
 			} else {
 				return apiResponse.ErrorResponse(res, 'No matching data found.');
