@@ -15,6 +15,7 @@ const mongoose = require('mongoose');
 const { mongo_db_url } = require('./config.js');
 const { updatePlaceQueue } = require('./updatePlaceQueue');
 const updatePlaceWorker = require('./updatePlaceWorker');
+const { spawn } = require('child_process');
 
 //////////////////////mongo connect
 
@@ -112,4 +113,20 @@ app.listen(port, () => {
 	});
 	cronJobInit.start();
 	console.log('Server started on :', `http://localhost:${port}`);
+
+	// Spawn a new child process for the worker script
+	const workerProcess = spawn('node', ['updatePlaceWorker.js']);
+
+	// Handle events from the worker process
+	workerProcess.stdout.on('data', (data) => {
+		console.log(`Worker process stdout: ${data}`);
+	});
+
+	workerProcess.stderr.on('data', (data) => {
+		console.error(`Worker process stderr: ${data}`);
+	});
+
+	workerProcess.on('close', (code) => {
+		console.log(`Worker process exited with code ${code}`);
+	});
 });

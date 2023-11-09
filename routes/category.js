@@ -4,10 +4,10 @@ const auth = require('../middlewares/jwt');
 const router = express.Router();
 const base_dir_config = require('../config.js');
 
-router.post('/create', CategoryController.create);
-router.put('/update/:id', CategoryController.categoryUpdate);
-router.get('/getAll', CategoryController.getAll);
-router.get('/get/:id', CategoryController.get);
-router.delete('/delete/:id', CategoryController.delete);
+router.post('/create', CategoryController.createCategory);
+router.put('/update/:id', CategoryController.updateCategory);
+router.get('/getAll', CategoryController.getAllCategory);
+router.get('/get/:id', CategoryController.getCategoryById);
+router.delete('/delete/:id', CategoryController.deleteCategory);
 
 module.exports = router;

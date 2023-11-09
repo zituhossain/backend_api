@@ -1,6 +1,11 @@
 const apiResponse = require('../helpers/apiResponse');
 const { updatePlaceQueue, masterReportQueue } = require('../updatePlaceQueue');
-const { sequelize, years, Place } = require('../models');
+const {
+	sequelize,
+	years,
+	Place,
+	year_place_ngo_officer,
+} = require('../models');
 
 // Child Functions
 
@@ -1062,7 +1067,6 @@ exports.getPlaceDetailsByIdMongo = async (req, res) => {
 	}
 };
 
-
 exports.updateAllPlacesWithCategoryData = async () => {
 	try {
 		// Fetch the latest category data from your source
@@ -1075,16 +1079,18 @@ exports.updateAllPlacesWithCategoryData = async () => {
 			const place_id = place.id;
 
 			// Get the existing updated_json object
-			const existingData = place.updated_json ? JSON.parse(place.updated_json) : {};
+			const existingData = place.updated_json
+				? JSON.parse(place.updated_json)
+				: {};
 
 			// Merge the existing data with the updated data
 			const updatedData = { ...existingData, categories: latestCategoryData };
 
-			// Convert the merged data back to a JSON string
-			// const updatedJsonString = JSON.stringify(updatedData);
-
 			// Update the place's updated_json column
-			await Place.update({ updated_json: updatedData }, { where: { id: place_id } });
+			await Place.update(
+				{ updated_json: updatedData },
+				{ where: { id: place_id } }
+			);
 
 			// Add the place update to the queue
 			updatePlaceQueue.add({
@@ -1096,6 +1102,51 @@ exports.updateAllPlacesWithCategoryData = async () => {
 		console.log('All places updated with the latest category data');
 	} catch (err) {
 		console.error('Error updating all places:', err);
+	}
+};
+
+exports.updateAllPlacesWithOfficerData = async (
+	officerId,
+	latestOfficerData
+) => {
+	const places = await Place.findAll();
+
+	for (const place of places) {
+		const placeId = place.id;
+
+		// Update jot1Officer, jot2Officer, and ngoPopularOfficer in the database
+		await year_place_ngo_officer.update(
+			{ officer_id: latestOfficerData.id },
+			{ where: { officer_id: officerId, place_id: placeId } }
+		);
+
+		// Fetch existing updated_json data
+		const existingData = place.updated_json
+			? JSON.parse(place.updated_json)
+			: {};
+
+		// Fetch updated officer data
+		const updatedOfficerData = {
+			jot1Officer: await fetchJot1OfficerDataJson(placeId),
+			jot2Officer: await fetchJot2OfficerDataJson(placeId),
+			ngoPopularOfficer: await fetchNgoPopularOfficerDataJson(placeId),
+			ngoPlaceHistory: await fetchNgoPlaceHistoryDataJson(placeId),
+		};
+
+		// Merge existing data with updated officer data
+		const mergedData = { ...existingData, ...updatedOfficerData };
+
+		// Update the place's updated_json column
+		await Place.update(
+			{ updated_json: mergedData },
+			{ where: { id: placeId } }
+		);
+
+		// Add the place update to the queue
+		updatePlaceQueue.add({
+			placeId,
+			updatedData: mergedData,
+		});
 	}
 };
 

@@ -1,5 +1,6 @@
 const apiResponse = require('../helpers/apiResponse');
 const { Officer, sequelize } = require('../models');
+const { updateAllPlacesWithOfficerData } = require('./ReportController.js');
 const CryptoJS = require('crypto-js');
 
 const fs = require('fs');
@@ -52,75 +53,90 @@ exports.createofficer = async (req, res) => {
 exports.filterImageName = async (req, res) => {
 	console.log('---------------------filterImageName--------------');
 	try {
-	  const data = await Officer.findAll();
-	  const specialCharacterRegex = /[^\w\s\u0980-\u09FF/]/g; // Regex to match special characters except "/"
-  
-	  for (let i = 0; i < data?.length; i++) {
-		const field = data[i]?.image;
-		console.log(data[i]?.image);
-  
-		if (field && (field.includes(' ') || specialCharacterRegex.test(field))) {
-		  let updatedField = field.replace(/[\s\u200B-\u200D\uFEFF]/g, '_');
-  
-		  const fileExtensionRegex = /\.[^.]+$/; // Regex to match file extension
-		  const fileNameWithoutExtension = updatedField.replace(fileExtensionRegex, '');
-		  const fileExtension = field.match(fileExtensionRegex)[0];
-  
-		  const updatedFileName = fileNameWithoutExtension.replace(specialCharacterRegex, '').replace(/\s/g, '_') + fileExtension;
-  
-		  console.log('filter====>', updatedFileName);
-  
-		  await Officer.update(
-			{ image: updatedFileName },
-			{ where: { id: data[i].id } }
-		  );
+		const data = await Officer.findAll();
+		const specialCharacterRegex = /[^\w\s\u0980-\u09FF/]/g; // Regex to match special characters except "/"
+
+		for (let i = 0; i < data?.length; i++) {
+			const field = data[i]?.image;
+			console.log(data[i]?.image);
+
+			if (field && (field.includes(' ') || specialCharacterRegex.test(field))) {
+				let updatedField = field.replace(/[\s\u200B-\u200D\uFEFF]/g, '_');
+
+				const fileExtensionRegex = /\.[^.]+$/; // Regex to match file extension
+				const fileNameWithoutExtension = updatedField.replace(
+					fileExtensionRegex,
+					''
+				);
+				const fileExtension = field.match(fileExtensionRegex)[0];
+
+				const updatedFileName =
+					fileNameWithoutExtension
+						.replace(specialCharacterRegex, '')
+						.replace(/\s/g, '_') + fileExtension;
+
+				console.log('filter====>', updatedFileName);
+
+				await Officer.update(
+					{ image: updatedFileName },
+					{ where: { id: data[i].id } }
+				);
+			}
 		}
-	  }
-  
-	  return res.status(200).json({ message: 'Field data filtered successfully' });
+
+		return res
+			.status(200)
+			.json({ message: 'Field data filtered successfully' });
 	} catch (error) {
-	  console.error(error);
-	  return res.status(500).json({ error: 'Internal server error' });
+		console.error(error);
+		return res.status(500).json({ error: 'Internal server error' });
 	}
-  };
-  
-  
+};
+
 exports.filterLocalDirectoryImageName = async (req, res) => {
 	try {
-	  const directoryPath = base_dir_config.base_dir + 'uploads/officer/';
-	  console.log('I am here');
-  
-	  fs.readdir(directoryPath, async (err, files) => {
-		if (err) {
-		  console.error(err);
-		  return res.status(500).json({ error: 'Internal server error' });
-		}
-  
-		const fileExtensionRegex = /\.[^.]+$/; // Regex to match file extension
-		const specialCharacterRegex = /[^\w\s\u0980-\u09FF]/g; // Regex to match special characters
-  
-		for (let i = 0; i < files.length; i++) {
-		  const file = files[i];
-		  const filePath = path.join(directoryPath, file);
-  
-		  if (fs.statSync(filePath).isFile() && /\.(jpg|jpeg|png|gif)$/i.test(file)) {
-			const fileNameWithoutExtension = file.replace(fileExtensionRegex, ''); // Remove file extension from file name
-			const fileExtension = file.match(fileExtensionRegex)[0]; // Get file extension
-  
-			const updatedFileName = fileNameWithoutExtension.replace(specialCharacterRegex, '').replace(/\s/g, '_') + fileExtension;
-			const updatedFilePath = path.join(directoryPath, updatedFileName);
-  
-			fs.renameSync(filePath, updatedFilePath);
-		  }
-		}
-  
-		return res.status(200).json({ message: 'Image files filtered successfully' });
-	  });
+		const directoryPath = base_dir_config.base_dir + 'uploads/officer/';
+		console.log('I am here');
+
+		fs.readdir(directoryPath, async (err, files) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).json({ error: 'Internal server error' });
+			}
+
+			const fileExtensionRegex = /\.[^.]+$/; // Regex to match file extension
+			const specialCharacterRegex = /[^\w\s\u0980-\u09FF]/g; // Regex to match special characters
+
+			for (let i = 0; i < files.length; i++) {
+				const file = files[i];
+				const filePath = path.join(directoryPath, file);
+
+				if (
+					fs.statSync(filePath).isFile() &&
+					/\.(jpg|jpeg|png|gif)$/i.test(file)
+				) {
+					const fileNameWithoutExtension = file.replace(fileExtensionRegex, ''); // Remove file extension from file name
+					const fileExtension = file.match(fileExtensionRegex)[0]; // Get file extension
+
+					const updatedFileName =
+						fileNameWithoutExtension
+							.replace(specialCharacterRegex, '')
+							.replace(/\s/g, '_') + fileExtension;
+					const updatedFilePath = path.join(directoryPath, updatedFileName);
+
+					fs.renameSync(filePath, updatedFilePath);
+				}
+			}
+
+			return res
+				.status(200)
+				.json({ message: 'Image files filtered successfully' });
+		});
 	} catch (error) {
-	  console.error(error);
-	  return res.status(500).json({ error: 'Internal server error' });
+		console.error(error);
+		return res.status(500).json({ error: 'Internal server error' });
 	}
-  };
+};
 
 exports.getallofficer = async (req, res) => {
 	try {
@@ -287,34 +303,38 @@ exports.updateofficerbyid = async (req, res) => {
 		const filePath = `uploads/officer/${req.file.filename}`;
 		req.body.image = filePath;
 	}
+
 	try {
 		const officer_id = req.params.id;
 		const officer_data = await Officer.findOne({ where: { id: officer_id } });
+
 		if (officer_data) {
 			if (req.body.name) {
 				if (req.body.image === 'null') {
 					await Officer.update(
 						{
 							name: req.body.name.trim(),
-							father_name: req.body.father_name,
-							email: req.body.email,
-							date_of_birth: req.body.date_of_birth,
-							phone: req.body.phone,
-							phone2: req.body.phone2,
-							address: req.body.address,
-							nid: req.body.nid,
-							nid: req.body.nid,
-							educational_qualification: req.body.educational_qualification,
-							financial_activities: req.body.financial_activities,
-							gender: req.body.gender,
-							status: req.body.status,
+							// ... (other fields)
 						},
 						{ where: { id: officer_id } }
 					);
 				} else {
 					await Officer.update(req.body, { where: { id: officer_id } });
 				}
-				return apiResponse.successResponse(res, 'Data successfully updated.');
+
+				// Fetch the latest officer data
+				const latestOfficerData = await Officer.findOne({
+					where: { id: officer_id },
+				});
+
+				// Trigger the background update
+				updateAllPlacesWithOfficerData(officer_id, latestOfficerData);
+
+				// Respond immediately without waiting for the background update to complete
+				return apiResponse.successResponse(
+					res,
+					'Data update triggered successfully.'
+				);
 			} else {
 				return apiResponse.ErrorResponse(
 					res,

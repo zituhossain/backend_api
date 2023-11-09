@@ -1,46 +1,40 @@
 const apiResponse = require('../helpers/apiResponse');
 const { ngo_categories } = require('../models');
 const { updatePlaceQueue } = require('../updatePlaceQueue');
-const { updateAllPlacesWithCategoryData } = require('./ReportController')
+const { updateAllPlacesWithCategoryData } = require('./ReportController');
 
-exports.create = async (req, res) => {
+exports.createCategory = async (req, res) => {
 	try {
 		await ngo_categories.create(req.body);
+		// After successfully creating the category data, trigger the function to update all places
+		await updateAllPlacesWithCategoryData();
 		return apiResponse.successResponse(res, 'data successfully saved.');
 	} catch (e) {
 		return apiResponse.ErrorResponse(res, 'Value missing.');
 	}
 };
-// exports.categoryUpdate = async (req, res) => {
-// 	const id = req.params.id;
-// 	try {
-// 		await ngo_categories.update(req.body, {
-// 			where: { id },
-// 		});
-// 		return apiResponse.successResponse(res, 'data successfully updated.');
-// 	} catch (e) {
-// 		return apiResponse.ErrorResponse(res, 'Value missing.');
-// 	}
-// };
 
-exports.categoryUpdate = async (req, res) => {
+exports.updateCategory = async (req, res) => {
 	const id = req.params.id;
 
 	try {
 		await ngo_categories.update(req.body, {
 			where: { id },
 		});
-
 		// After successfully updating the category data, trigger the function to update all places
-		await updateAllPlacesWithCategoryData();
+		updateAllPlacesWithCategoryData();
 
-		return apiResponse.successResponse(res, 'data successfully updated.');
+		// Respond immediately without waiting for the background update to complete
+		return apiResponse.successResponse(
+			res,
+			'Data update triggered successfully.'
+		);
 	} catch (e) {
 		return apiResponse.ErrorResponse(res, 'Value missing.');
 	}
 };
 
-exports.get = async (req, res) => {
+exports.getCategoryById = async (req, res) => {
 	const id = req.params.id;
 	try {
 		const categoryB = await ngo_categories.findByPk(req.params.id);
@@ -58,7 +52,7 @@ exports.get = async (req, res) => {
 	}
 };
 
-exports.getAll = async (req, res) => {
+exports.getAllCategory = async (req, res) => {
 	try {
 		console.log('------------------------------------------');
 		const categoryB = await ngo_categories.findAll({
@@ -78,10 +72,12 @@ exports.getAll = async (req, res) => {
 	}
 };
 
-exports.delete = async (req, res) => {
+exports.deleteCategory = async (req, res) => {
 	const id = req.params.id;
 	try {
 		await ngo_categories.destroy({ where: { id } });
+		// After successfully deleting the category data, trigger the function to update all places
+		await updateAllPlacesWithCategoryData();
 		return apiResponse.successResponse(res, 'Data successfully deleted.');
 	} catch (e) {
 		return apiResponse.ErrorResponse(res, 'Value missing.');
