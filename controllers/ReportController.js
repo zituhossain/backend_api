@@ -68,7 +68,7 @@ const fetchJot1OfficerDataJson = async (place_id) => {
 		ypno.designation ypno_designation,
 		ypno.place_id ypno_place_id,
 		places.id place_id,
-		officers.id officer_id,
+		CAST(officers.id AS CHAR) as officer_id,
 		officers.name officer_name,
 		officers.image officer_photo,
 		ngos.name ngo_name,
@@ -104,7 +104,7 @@ const fetchJot2OfficerDataJson = async (place_id) => {
 		ypno.designation ypno_designation,
 		ypno.place_id ypno_place_id,
 		places.id place_id,
-		officers.id officer_id,
+		CAST(officers.id AS CHAR) as officer_id,
 		officers.name officer_name,
 		officers.image officer_photo,
 		ngos.name ngo_name,
@@ -184,7 +184,7 @@ const fetchNgoPopularOfficerDataJson = async (place_id) => {
 		ngos.color_code as ngo_color_code,
 		officers.id officer_id,
 		officers.name as officer_name,
-		officers.id as officer_id,
+		CAST(officers.id AS CHAR) as officer_id,
 		officers.image as officer_image
 		FROM year_place_ngo_officers ypno LEFT JOIN officers
 		ON ypno.officer_id = officers.id LEFT JOIN ngos
@@ -218,7 +218,7 @@ const fetchNgoPlaceHistoryDataJson = async (place_id) => {
 			ngos.short_name as ngo_short_name,
 			ngos.color_code as ngo_color_code,
 			ngos.logo as ngo_logo,
-			officers.id officer_id,
+			CAST(officers.id AS CHAR) as officer_id,
 			officers.name as officer_name,
 			CASE WHEN population_year_places.event_type = 1 THEN population_year_places.served_population END AS sub_event_population,
 			CASE WHEN population_year_places.event_type = 0 THEN population_year_places.served_population END AS main_event_population
@@ -1117,14 +1117,14 @@ exports.updateAllPlacesWithCategoryData = async () => {
 };
 
 exports.updateAllPlacesWithOfficerData = async (
-	officerName,
+	officerId,
 	latestOfficerData
 ) => {
 	// const places = await Place.findAll();
 	const [places, placesMeta] = await sequelize.query(
 		`SELECT *
 		FROM places
-		WHERE JSON_SEARCH(updated_json, 'one', '${officerName}', NULL, '$**.officer_name') IS NOT NULL`
+		WHERE JSON_SEARCH(updated_json, 'all', '${officerId}', NULL, '$**.officer_id') IS NOT NULL;`
 	);
 
 	for (const place of places) {

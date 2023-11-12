@@ -307,7 +307,7 @@ exports.updateofficerbyid = async (req, res) => {
 	try {
 		const officer_id = req.params.id;
 		const officer_data = await Officer.findOne({ where: { id: officer_id } });
-		const officer_name = officer_data.name
+		// const officer_name = officer_data.name
 
 		if (officer_data) {
 			if (req.body.name) {
@@ -329,7 +329,7 @@ exports.updateofficerbyid = async (req, res) => {
 				});
 
 				// Trigger the background update
-				updateAllPlacesWithOfficerData(officer_name, latestOfficerData);
+				updateAllPlacesWithOfficerData(officer_id, latestOfficerData);
 
 				// Respond immediately without waiting for the background update to complete
 				return apiResponse.successResponse(
