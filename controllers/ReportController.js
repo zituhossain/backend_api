@@ -1074,7 +1074,7 @@ exports.getPlaceDetailsByIdMongo = async (req, res) => {
 exports.updateAllPlacesWithCategoryData = async () => {
 	try {
 		// Fetch the latest category data from your source
-		const latestCategoryData = await fetchAllCategoryDataJson();
+		// const latestCategoryData = await fetchAllCategoryDataJson();
 
 		// Fetch all places
 		const places = await Place.findAll();
@@ -1087,19 +1087,26 @@ exports.updateAllPlacesWithCategoryData = async () => {
 				? JSON.parse(place.updated_json)
 				: {};
 
+			// Fetch updated officer data
+			const updatedCategoryData = {
+				categories: await fetchAllCategoryDataJson(),
+				category: await fetchCategoryDataJson(place_id),
+				type: await fetchTypeDataJson(place_id),
+			};
+
 			// Merge the existing data with the updated data
-			const updatedData = { ...existingData, categories: latestCategoryData };
+			const mergedData = { ...existingData, ...updatedCategoryData };
 
 			// Update the place's updated_json column
 			await Place.update(
-				{ updated_json: updatedData },
+				{ updated_json: mergedData },
 				{ where: { id: place_id } }
 			);
 
 			// Add the place update to the queue
 			updatePlaceQueue.add({
 				placeId: place_id,
-				updatedData: updatedData,
+				updatedData: mergedData,
 			});
 		}
 
@@ -1118,8 +1125,7 @@ exports.updateAllPlacesWithOfficerData = async (
 		`SELECT *
 		FROM places
 		WHERE JSON_SEARCH(updated_json, 'one', '${officerName}', NULL, '$**.officer_name') IS NOT NULL`
-	)
-
+	);
 
 	for (const place of places) {
 		const placeId = place.id;
