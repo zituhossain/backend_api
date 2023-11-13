@@ -72,7 +72,7 @@ const fetchJot1OfficerDataJson = async (place_id) => {
 		officers.name officer_name,
 		officers.image officer_photo,
 		ngos.name ngo_name,
-		ngos.id ngo_id,
+		CAST(ngos.id AS CHAR) as ngo_id,
 		ngos.ngo_jots_id ngo_jot_id
 		FROM year_place_ngo_officers ypno
 		LEFT JOIN officers
@@ -108,7 +108,7 @@ const fetchJot2OfficerDataJson = async (place_id) => {
 		officers.name officer_name,
 		officers.image officer_photo,
 		ngos.name ngo_name,
-		ngos.id ngo_id,
+		CAST(ngos.id AS CHAR) as ngo_id,
 		ngos.ngo_jots_id ngo_jot_id
 		FROM year_place_ngo_officers ypno LEFT JOIN officers
 		ON ypno.officer_id = officers.id LEFT JOIN ngos
@@ -125,7 +125,7 @@ const fetchNgoServedPercentByPlaceDataJson = async (place_id) => {
 	const [ngoServedPercentByPlace, ngoServedPercentByPlaceMeta] =
 		await sequelize.query(
 			`SELECT
-		ngos.id as ngo_id,
+		CAST(ngos.id AS CHAR) as ngo_id,
 		ngos.name as ngo_name,
 		nspbp.percent,
 		ngos.view_order
@@ -140,6 +140,7 @@ const fetchNgoServedPercentByPlaceDataJson = async (place_id) => {
 const fetchJotPopularityDataJson = async (place_id) => {
 	const [jotPopularity, jotPopularityMeta] = await sequelize.query(
 		`SELECT 
+		CAST(ngos.id AS CHAR) as ngo_id,
 		nspbp.place_id,
 		SUM(CASE WHEN ngos.ngo_jots_id = 1 THEN percent END) AS jot1Popularity, 
 		SUM(CASE WHEN ngos.ngo_jots_id = 2 THEN percent END) AS jot2Popularity 
@@ -154,7 +155,7 @@ const fetchPlaceCommentWithTitleDataJson = async (place_id) => {
 	const [placeCommentWithTitle, placeCommentWithTitleMeta] =
 		await sequelize.query(
 			`SELECT
-		ndi.id ngo_details_info_id,
+		CAST(ndi.id AS CHAR) as ngo_details_info_id,
 		ndi.title,
 		ndi.view_order,
 		ndipw.details
@@ -179,6 +180,7 @@ const fetchNgoPopularOfficerDataJson = async (place_id) => {
 		ypno.served_population as ypno_served_population,
 		places.name as place_name,
 		places.id as place_id,
+		CAST(ngos.id AS CHAR) as ngo_id,
 		ngos.name as ngo_name,
 		ngos.short_name as ngo_short_name,
 		ngos.color_code as ngo_color_code,
@@ -214,6 +216,7 @@ const fetchNgoPlaceHistoryDataJson = async (place_id) => {
 			ypno.served_population as ypno_served_population,
 			places.name as place_name,
 			places.id as place_id,
+			CAST(ngos.id AS CHAR) as ngo_id,
 			ngos.name as ngo_name,
 			ngos.short_name as ngo_short_name,
 			ngos.color_code as ngo_color_code,
@@ -1104,10 +1107,10 @@ exports.updateAllPlacesWithCategoryData = async () => {
 			);
 
 			// Add the place update to the queue
-			updatePlaceQueue.add({
-				placeId: place_id,
-				updatedData: mergedData,
-			});
+			// updatePlaceQueue.add({
+			// 	placeId: place_id,
+			// 	updatedData: mergedData,
+			// });
 		}
 
 		console.log('All places updated with the latest category data');
@@ -1116,10 +1119,7 @@ exports.updateAllPlacesWithCategoryData = async () => {
 	}
 };
 
-exports.updateAllPlacesWithOfficerData = async (
-	officerId,
-	latestOfficerData
-) => {
+exports.updateAllPlacesWithOfficerData = async (officerId) => {
 	// const places = await Place.findAll();
 	const [places, placesMeta] = await sequelize.query(
 		`SELECT *
@@ -1131,10 +1131,10 @@ exports.updateAllPlacesWithOfficerData = async (
 		const placeId = place.id;
 
 		// Update jot1Officer, jot2Officer, and ngoPopularOfficer in the database
-		await year_place_ngo_officer.update(
-			{ officer_id: latestOfficerData.id },
-			{ where: { officer_id: officerId, place_id: placeId } }
-		);
+		// await year_place_ngo_officer.update(
+		// 	{ officer_id: latestOfficerData.id },
+		// 	{ where: { officer_id: officerId, place_id: placeId } }
+		// );
 
 		// Fetch existing updated_json data
 		const existingData = place.updated_json
@@ -1159,10 +1159,79 @@ exports.updateAllPlacesWithOfficerData = async (
 		);
 
 		// Add the place update to the queue
-		updatePlaceQueue.add({
-			placeId,
-			updatedData: mergedData,
-		});
+		// updatePlaceQueue.add({
+		// 	placeId,
+		// 	updatedData: mergedData,
+		// });
+	}
+};
+
+exports.updateAllPlacesWithCommentTitleData = async (commentTitleId) => {
+	// const places = await Place.findAll();
+	const [places, placesMeta] = await sequelize.query(
+		`SELECT *
+		FROM places
+		WHERE JSON_SEARCH(updated_json, 'all', '${commentTitleId}', NULL, '$**.ngo_details_info_id') IS NOT NULL;`
+	);
+
+	for (const place of places) {
+		const placeId = place.id;
+
+		// Fetch existing updated_json data
+		const existingData = place.updated_json
+			? JSON.parse(place.updated_json)
+			: {};
+
+		// Fetch updated officer data
+		const updatedCommentTitleData = {
+			placeCommentWithTitle: await fetchPlaceCommentWithTitleDataJson(placeId),
+		};
+
+		// Merge existing data with updated officer data
+		const mergedData = { ...existingData, ...updatedCommentTitleData };
+
+		// Update the place's updated_json column
+		await Place.update(
+			{ updated_json: mergedData },
+			{ where: { id: placeId } }
+		);
+	}
+};
+
+exports.updateAllPlacesWithNgoData = async (ngoId) => {
+	const [places, placesMeta] = await sequelize.query(
+		`SELECT *
+		FROM places
+		WHERE JSON_SEARCH(updated_json, 'all', '${ngoId}', NULL, '$**.ngo_id') IS NOT NULL;`
+	);
+
+	for (const place of places) {
+		const placeId = place.id;
+
+		// Fetch existing updated_json data
+		const existingData = place.updated_json
+			? JSON.parse(place.updated_json)
+			: {};
+
+		// Fetch updated officer data
+		const updatedNgoData = {
+			jot1Officer: await fetchJot1OfficerDataJson(placeId),
+			jot2Officer: await fetchJot2OfficerDataJson(placeId),
+			ngoPopularOfficer: await fetchNgoPopularOfficerDataJson(placeId),
+			ngoPlaceHistory: await fetchNgoPlaceHistoryDataJson(placeId),
+			ngoServedPercentByPlace: await fetchNgoServedPercentByPlaceDataJson(
+				placeId
+			),
+		};
+
+		// Merge existing data with updated officer data
+		const mergedData = { ...existingData, ...updatedNgoData };
+
+		// Update the place's updated_json column
+		await Place.update(
+			{ updated_json: mergedData },
+			{ where: { id: placeId } }
+		);
 	}
 };
 

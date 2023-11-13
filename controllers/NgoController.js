@@ -14,12 +14,13 @@ const secret = process.env.JWT_SECRET;
 const jwt = require('jsonwebtoken');
 const apiResponse = require('../helpers/apiResponse');
 var Sequelize = require('sequelize');
+const { updateAllPlacesWithNgoData } = require('./ReportController.js');
 
 exports.create_ngo = async (req, res) => {
 	try {
 		const filePath = `uploads/logo/${req.file.filename}`;
 		req.body.logo = filePath;
-	} catch (err) { }
+	} catch (err) {}
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
@@ -153,8 +154,7 @@ exports.fetchNgoType = async (req, res) => {
 
 exports.fetchNgoCategorisCount = async (req, res) => {
 	try {
-		const [results, metadata] =
-			await sequelize.query(`SELECT 
+		const [results, metadata] = await sequelize.query(`SELECT 
   short_name, 
   ngo_categories.id as categoryId,
   count(ngo_categories.id) as place_count 
@@ -182,14 +182,13 @@ GROUP by
 
 exports.fetchNgoCategorisCountByDivision = async (req, res) => {
 	try {
-		const division = req.params.id
+		const division = req.params.id;
 		let condition = '';
 		if (division) {
-			condition += ` and ngo_category_bs.place_id in ( SELECT id from places WHERE places.division_id = ${division})`
+			condition += ` and ngo_category_bs.place_id in ( SELECT id from places WHERE places.division_id = ${division})`;
 		}
 
-		const [results, metadata] =
-			await sequelize.query(`SELECT 
+		const [results, metadata] = await sequelize.query(`SELECT 
   short_name, 
   ngo_categories.id as categoryId,
   count(ngo_categories.id) as place_count 
@@ -293,7 +292,6 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 					where: { place_id: place_id },
 					required: false,
 				},
-
 			],
 			order: [
 				Sequelize.fn('isnull', Sequelize.col('view_order')),
@@ -311,8 +309,10 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 		const result = [];
 		ngo_data.forEach((ngo) => {
 			const percentData = ngo.ngo_served_percent_by_palces;
-			const percent = percentData && percentData.length > 0 ? percentData[0].percent : null;
-			const ngoServedPercentByPlaceId = percentData && percentData.length > 0 ? percentData[0].id : null;
+			const percent =
+				percentData && percentData.length > 0 ? percentData[0].percent : null;
+			const ngoServedPercentByPlaceId =
+				percentData && percentData.length > 0 ? percentData[0].id : null;
 			result.push({
 				id: ngo.id,
 				name: ngo.name,
@@ -321,7 +321,6 @@ exports.fetchall_ngo_by_place = async (req, res) => {
 				placeid: Number(place_id),
 				percent,
 				ngoServedPercentByPlaceId,
-
 			});
 		});
 
@@ -401,7 +400,7 @@ exports.update_ngo = async (req, res) => {
 	try {
 		const filePath = `uploads/logo/${req.file.filename}`;
 		req.body.logo = filePath;
-	} catch (err) { }
+	} catch (err) {}
 	try {
 		const token = req.headers.authorization.split(' ')[1];
 		const decodedToken = jwt.verify(token, secret);
@@ -419,6 +418,9 @@ exports.update_ngo = async (req, res) => {
 		if (ngo_data.length > 0) {
 			if (req.body) {
 				await Ngo.update(req.body, { where: { id: ngo_id } });
+
+				updateAllPlacesWithNgoData(ngo_id);
+
 				return apiResponse.successResponse(res, 'data successfully updated.');
 			} else {
 				return apiResponse.ErrorResponse(res, 'Value missing.');
@@ -486,7 +488,7 @@ WHERE ngo_id = ${req.params.id}`
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 exports.PlaceCountByNgo40 = async (req, res) => {
 	try {
@@ -508,7 +510,7 @@ exports.PlaceCountByNgo40 = async (req, res) => {
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 exports.PopularOfficerCountWithouNgoId6 = async (req, res) => {
 	try {
@@ -524,8 +526,8 @@ FROM (
 ) AS subquery;
 `
 		);
-console.log('------------adfasdfasd------------');
-console.log(results);
+		console.log('------------adfasdfasd------------');
+		console.log(results);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -534,7 +536,7 @@ console.log(results);
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 // SELECT
 //     place_id,
@@ -551,9 +553,6 @@ console.log(results);
 // GROUP BY
 //     place_id;
 
-
-
-
 // SELECT
 //   n.place_id,
 //   n.year,
@@ -561,14 +560,13 @@ console.log(results);
 //   n.officer_name,
 //   n.ngo_name
 // FROM ngo_place_info2 n
-// WHERE n.ypno_rank = 1 
+// WHERE n.ypno_rank = 1
 // AND n.year = (
 //   SELECT MAX(year)
 //   FROM ngo_place_info2
 //   WHERE place_id = n.place_id AND ypno_rank=1
 // )
 // ORDER BY n.place_id ASC;
-
 
 // SELECT
 //   n.place_id,
@@ -583,7 +581,6 @@ console.log(results);
 //   WHERE place_id = n.place_id AND rank=1
 // )
 // ORDER BY n.place_id ASC;
-
 
 exports.totalPlaceCountPopularOfficerWithoutNgoId6 = async (req, res) => {
 	try {
@@ -603,8 +600,8 @@ AND n.year = (
 )
 ORDER BY n.place_id ASC;`
 		);
-console.log('------------adfasdfasd------------');
-console.log(results);
+		console.log('------------adfasdfasd------------');
+		console.log(results);
 		return apiResponse.successResponseWithData(
 			res,
 			'Data successfully fetched.',
@@ -613,7 +610,7 @@ console.log(results);
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 exports.MaxCategoryDivision = async (req, res) => {
 	try {
@@ -629,4 +626,4 @@ exports.MaxCategoryDivision = async (req, res) => {
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
