@@ -1228,7 +1228,7 @@ exports.getNominatedYearPlaceNgoOfficers = async (req, res) => {
 		console.log(query);
 
 		const [results, metadata] = await sequelize.query(
-			`SELECT places.name place_name, officers.id officer_id, officers.name officer_name, officers.image officer_photo, year_place_ngo_officers.designation
+			`SELECT places.id place_id, places.name place_name, officers.id officer_id, officers.name officer_name, officers.image officer_photo, year_place_ngo_officers.designation
 			FROM year_place_ngo_officers, officers, ngos, places
 			WHERE year_place_ngo_officers.officer_id = officers.id 
 			AND year_place_ngo_officers.ngo_id = ngos.id 
