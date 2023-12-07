@@ -1209,6 +1209,44 @@ FROM ngo_place_info2
 	}
 };
 
+exports.getNominatedYearPlaceNgoOfficers = async (req, res) => {
+	try {
+		let query = '';
+
+		if (req.body.district_id)
+			query = ` AND places.district_id=${req.body.district_id}`;
+		else if (req.body.division_id)
+			query = ` AND places.division_id=${req.body.division_id}`;
+		
+		console.log(query);
+
+		const [results, metadata] = await sequelize.query(
+			`SELECT places.name place_name, officers.name office_name, ngos.name ngo_name
+			FROM year_place_ngo_officers, officers, ngos, places
+			WHERE year_place_ngo_officers.officer_id = officers.id 
+			AND year_place_ngo_officers.ngo_id = ngos.id 
+			AND year_place_ngo_officers.place_id = places.id
+			AND year_place_ngo_officers.selected = true
+			AND year_place_ngo_officers.year_id = (SELECT MAX(id) FROM years)
+			${query}
+			ORDER BY year_place_ngo_officers.place_id`
+		);
+
+		if (results) {
+			//console.log('resultsresultsresultsresultsresults', results);
+			return apiResponse.successResponseWithData(
+				res,
+				'Data successfully fetched.',
+				results
+			);
+		} else {
+			return apiResponse.ErrorResponse(res, 'No matching query found');
+		}
+	} catch (err) {
+		return apiResponse.ErrorResponse(res, err.message);
+	}
+};
+
 exports.getYearPlaceNgoOfficersWithConditionsForMap = async (req, res) => {
 	try {
 		let query = '';

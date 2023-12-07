@@ -50,6 +50,12 @@ router.post(
 );
 
 router.post(
+	'/get_nominated_year_place_ngo_officers',
+	auth,
+	YearPlaceNgoOfficerController.getNominatedYearPlaceNgoOfficers
+);
+
+router.post(
 	'/get_year_place_ngo_officers_with_conditions_for_map',
 	auth,
 	YearPlaceNgoOfficerController.getYearPlaceNgoOfficersWithConditionsForMap
