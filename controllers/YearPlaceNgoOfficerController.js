@@ -12,7 +12,7 @@ const {
 	NgoServed,
 	User,
 	Setting,
-	District
+	District,
 } = require('../models');
 const CryptoJS = require('crypto-js');
 const checkUserRoleByPlace = require('./globalController');
@@ -59,9 +59,14 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
 		// } else if (check_if_exist.length === 1) {
 		// 	await NgoServed.destroy({ where: { ngo_id: currentOfficer.ngo_id } });
 		// }
-		
+
 		await year_place_ngo_officer.destroy({ where: { id: row_id } });
-		const data = ["ngoPopularOfficer", "jot1Officer", "jot2Officer", "ngoPlaceHistory"];
+		const data = [
+			'ngoPopularOfficer',
+			'jot1Officer',
+			'jot2Officer',
+			'ngoPlaceHistory',
+		];
 		const childJson = await createChildJson(currentOfficer.place_id, data);
 
 		if (childJson === true) {
@@ -69,8 +74,7 @@ exports.deleteYearPlaceNgoofficer = async (req, res) => {
 		} else {
 			return apiResponse.successResponse(
 				res,
-				'Data successfully deleted but createChildJson unsuccessful',
-
+				'Data successfully deleted but createChildJson unsuccessful'
 			);
 		}
 		// await officers_heading_description.destroy({
@@ -182,11 +186,9 @@ exports.fetchYearPlaceNgoofficer = async (req, res) => {
 		});
 	} else {
 		allOverallTitle = await year_place_ngo_officer.findAll({
-			include: [Place, Officer, Ngo, years]
+			include: [Place, Officer, Ngo, years],
 		});
 	}
-
-
 
 	if (allOverallTitle.length > 0) {
 		return apiResponse.successResponseWithData(
@@ -493,7 +495,7 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 
 		const [jotData, JotMeta] = await sequelize.query(
 			`SELECT ngo_jots_id FROM ngos WHERE id= ${req.body.ngo_id}`
-		)
+		);
 
 		const eventTypeData = await year_place_ngo_officer.findOne({
 			where: {
@@ -585,14 +587,17 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 								});
 						}
 
-
-
 						// if (req.body.rank === 1) {
 						// 	console.log('Brank', req.body.rank)
 						// 	childJson = await createChildJson(req.body.place_id, "ngoPopularOfficer")
 						// }
 
-						const data = ["ngoPopularOfficer", "jot1Officer", "jot2Officer", "ngoPlaceHistory"];
+						const data = [
+							'ngoPopularOfficer',
+							'jot1Officer',
+							'jot2Officer',
+							'ngoPlaceHistory',
+						];
 						const childJson = await createChildJson(req.body.place_id, data);
 
 						// if (jotData[0]['ngo_jots_id'] === 1) {
@@ -604,16 +609,15 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 						// 	childJson = await createChildJson(req.body.place_id, "jot2Officer")
 						// }
 
-
-
-
 						if (childJson === true) {
-							return apiResponse.successResponse(res, 'Data successfully Saved.');
+							return apiResponse.successResponse(
+								res,
+								'Data successfully Saved.'
+							);
 						} else {
 							return apiResponse.successResponse(
 								res,
-								'Data successfully saved but createChildJson unsuccessful',
-
+								'Data successfully saved but createChildJson unsuccessful'
 							);
 						}
 
@@ -646,11 +650,10 @@ exports.createYearPlaceNgoofficer = async (req, res) => {
 };
 
 exports.updateoveralltitlebyid = async (req, res) => {
-
 	try {
 		const [jotData, JotMeta] = await sequelize.query(
 			`SELECT ngo_jots_id FROM ngos WHERE id= ${req.body.ngo_id}`
-		)
+		);
 		const condition_id = req.params.id;
 		// For userID:
 		const token = req.headers.authorization.split(' ')[1];
@@ -827,19 +830,23 @@ exports.updateoveralltitlebyid = async (req, res) => {
 						// 	});
 						// }
 
-						const data = ["ngoPopularOfficer", "jot1Officer", "jot2Officer", "ngoPlaceHistory"];
+						const data = [
+							'ngoPopularOfficer',
+							'jot1Officer',
+							'jot2Officer',
+							'ngoPlaceHistory',
+						];
 						const childJson = await createChildJson(req.body.place_id, data);
 
-
-
-
 						if (childJson === true) {
-							return apiResponse.successResponse(res, 'Data successfully Saved.');
+							return apiResponse.successResponse(
+								res,
+								'Data successfully Saved.'
+							);
 						} else {
 							return apiResponse.successResponse(
 								res,
-								'Data successfully saved but createChildJson unsuccessful',
-
+								'Data successfully saved but createChildJson unsuccessful'
 							);
 						}
 
@@ -1066,10 +1073,10 @@ exports.getkormitopbyxid = async (req, res) => {
 
 		const [results, metadata] = await sequelize.query(
 			`SELECT * FROM ngo_place_info2 ` +
-			query +
-			` GROUP BY officer_name ORDER BY -` +
-			placeOrderCondition +
-			` DESC,-ngo_view_order DESC,ypno_status DESC, -ypno_view_order DESC, ypno_view_order,officer_id`
+				query +
+				` GROUP BY officer_name ORDER BY -` +
+				placeOrderCondition +
+				` DESC,-ngo_view_order DESC,ypno_status DESC, -ypno_view_order DESC, ypno_view_order,officer_id`
 		);
 
 		if (results) {
@@ -1161,8 +1168,8 @@ exports.getYearPlaceNgoOfficersWithConditions = async (req, res) => {
 			`SELECT *
 FROM ngo_place_info2
 ` +
-			query +
-			` AND ypno_rank<1 ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
+				query +
+				` AND ypno_rank<1 ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
 		);
 
 		if (results) {
@@ -1217,11 +1224,11 @@ exports.getNominatedYearPlaceNgoOfficers = async (req, res) => {
 			query = ` AND places.district_id=${req.body.district_id}`;
 		else if (req.body.division_id)
 			query = ` AND places.division_id=${req.body.division_id}`;
-		
+
 		console.log(query);
 
 		const [results, metadata] = await sequelize.query(
-			`SELECT places.name place_name, officers.name office_name, ngos.name ngo_name
+			`SELECT places.name place_name, officers.id officer_id, officers.name officer_name, officers.image officer_photo, ngos.name ngo_name
 			FROM year_place_ngo_officers, officers, ngos, places
 			WHERE year_place_ngo_officers.officer_id = officers.id 
 			AND year_place_ngo_officers.ngo_id = ngos.id 
@@ -1268,8 +1275,8 @@ exports.getYearPlaceNgoOfficersWithConditionsForMap = async (req, res) => {
 			`SELECT place_id, officer_name, officer_photo, place_name, ypno_status
 				FROM ngo_place_info2
 	` +
-			query +
-			` AND ypno_rank<1 ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
+				query +
+				` AND ypno_rank<1 ORDER BY place_id, -ngo_jot_id DESC, FIELD(ypno_status, 1, 3, 2, 0), -ngo_view_order DESC, -ypno_view_order DESC, officer_id;`
 		);
 
 		if (results) {
@@ -1279,16 +1286,14 @@ exports.getYearPlaceNgoOfficersWithConditionsForMap = async (req, res) => {
 					'Data successfully fetched.',
 					results
 				);
-
 			}, 1);
-
 		} else {
 			return apiResponse.ErrorResponse(res, 'No matching query found');
 		}
 	} catch (err) {
 		return apiResponse.ErrorResponse(res, err.message);
 	}
-}
+};
 
 exports.getNgoPoribortitoOfficer = async (req, res) => {
 	try {
