@@ -1235,6 +1235,7 @@ exports.getNominatedYearPlaceNgoOfficers = async (req, res) => {
 			AND year_place_ngo_officers.place_id = places.id
 			AND year_place_ngo_officers.selected = true
 			AND year_place_ngo_officers.year_id = (SELECT MAX(id) FROM years)
+			AND ngos.id = 6
 			${query}
 			ORDER BY year_place_ngo_officers.place_id`
 		);
