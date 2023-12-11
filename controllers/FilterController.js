@@ -973,81 +973,14 @@ exports.finalReportGeneratePossibilityJot = async (req, res) => {
 			where: { id: req.body.year_id },
 		});
 		let yvalue = resYear.name;
-		console.log(yvalue);
 
 		query += yvalue;
 
-		const divisionIds = roleByplace.division;
-		let arr = [];
-		if (
-			roleByplace.division.length > 0 ||
-			roleByplace.district.length > 0 ||
-			roleByplace.place.length > 0
-		) {
-			await Promise.all(
-				divisionIds.map(async (id) => {
-					// Find place id by division id
-					const places = await Place.findAll({
-						attributes: ['id'],
-						where: {
-							division_id: id,
-						},
-					});
-
-					const placeIds = places.map((place) => place.id);
-					// Check place id exist in roleByPlace or not
-					const matchingPlaceIds = roleByplace.place.filter((id) =>
-						placeIds.includes(id)
-					);
-
-					// Find district id by division id
-					const districts = await District.findAll({
-						attributes: ['id'],
-						where: {
-							division_id: id,
-						},
-					});
-
-					const districtIds = districts.map((district) => district.id);
-					// Check district id exist in roleByPlace or not
-					const matchingDistrictIds = roleByplace.district.filter((id) =>
-						districtIds.includes(id)
-					);
-
-					if (matchingPlaceIds.length > 0) {
-						matchingPlaceIds.map((place) => {
-							arr.push(place);
-						});
-					} else if (matchingDistrictIds.length > 0) {
-						const places = await Place.findAll({
-							attributes: ['id'],
-							where: {
-								district_id: matchingDistrictIds,
-							},
-						});
-
-						places.map((place) => {
-							arr.push(place.id);
-						});
-					} else {
-						const places = await Place.findAll({
-							attributes: ['id'],
-							where: {
-								division_id: id,
-							},
-						});
-
-						places.map((place) => {
-							arr.push(place.id);
-						});
-					}
-				})
-			);
-			query += ` And place_id in(${arr.join(',')})`;
-		}
-
-		console.log('-----------------------adfaf----------------------');
-		console.log(query);
+		if (req.body.place_id) query += ` AND place_id = ${req.body.place_id}`;
+		else if (req.body.district_id)
+			query += ` AND district_id = ${req.body.district_id}`;
+		else if (req.body.division_id)
+			query += ` AND division_id = ${req.body.division_id}`;
 
 		const [alldata, metadata] = await sequelize.query(
 			`
